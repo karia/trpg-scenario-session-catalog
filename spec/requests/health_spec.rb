@@ -8,8 +8,16 @@ RSpec.describe "Health check" do
       expect(response).to have_http_status(:ok)
     end
 
+    it "returns 200 when the connection has not been established yet" do
+      allow(ActiveRecord::Base.connection).to receive(:active?).and_return(false)
+
+      get "/up"
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "returns 503 when the database is unreachable" do
-      allow(ActiveRecord::Base.connection).to receive(:active?).and_raise(ActiveRecord::ConnectionNotEstablished)
+      allow(ActiveRecord::Base.connection).to receive(:verify!).and_raise(ActiveRecord::ConnectionNotEstablished)
 
       get "/up"
 

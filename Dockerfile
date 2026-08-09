@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
+# 設定はすべて環境変数から渡す。Rails credentials は使わないため RAILS_MASTER_KEY は要らない。
 # docker build -t trpg_catalog .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name trpg_catalog trpg_catalog
+# docker run -d -p 80:80 --env-file .env -e SECRET_KEY_BASE=... --name trpg_catalog trpg_catalog
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
