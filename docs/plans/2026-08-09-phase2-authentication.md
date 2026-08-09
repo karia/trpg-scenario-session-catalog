@@ -28,8 +28,8 @@ Person に紐づいていない `User` は、ログイン済みだが公開エ�
 - `app/controllers/sessions_controller.rb`
 - `app/controllers/concerns/authentication.rb`: `current_user` と `current_person`、ログイン必須の before_action
 - `app/policies/application_policy.rb`
-- `app/avo/resources/` に Person、User、Group のリソース
-- Avo の認可設定
+- `app/controllers/manage/people_controller.rb`、`groups_controller.rb`: 管理者だけが使う画面
+- `app/policies/` に Scenario、PlaySession、Person、Group の policy
 - `app/views/shared/_analytics.html.erb` と `_ads.html.erb` の判定を実装に差し替える
 - spec: モデルスペック、`spec/requests/sessions_spec.rb`、認可のスペック
 
@@ -42,7 +42,7 @@ Person に紐づいていない `User` は、ログイン済みだが公開エ�
 5. ログイン、ログアウト、未ログイン時のリダイレクトのリクエストスペックを書いてから実装する
 6. `current_person` を用意する。Person 未紐づけの `User` では nil を返す
 7. `ApplicationPolicy` を置き、ログイン必須エリアの既定を拒否にする
-8. Avo の Basic 認証を外し、Pundit による判定に差し替える。管理者は全リソース、GM はシナリオとセッションのリソースに限る
+8. 編集画面の Basic 認証を外し、Pundit による判定に差し替える。管理者は全画面、GM はシナリオとセッションの画面に限る
 9. 管理画面で `User` を `Person` に紐づける操作を作る
 10. 管理画面でグループを作り、Person を所属させる操作を作る
 11. 解析タグと広告タグの描画判定を、ログイン状態を見る実装に差し替える
@@ -54,8 +54,8 @@ Person に紐づいていない `User` は、ログイン済みだが公開エ�
 - 初回ログインのユーザーが Person 未紐づけで作られる
 - Person 未紐づけのユーザーが、ログイン必須のパスにアクセスすると弾かれる
 - 管理者が Person を作り、`User` に紐づけると、そのユーザーがログイン必須エリアに入れる
-- 管理者でも GM でもないユーザーが `/avo` にアクセスすると 404 を返す
-- GM は Avo に入れるが、Person とグループのリソースは操作できない
+- 管理者でも GM でもないユーザーが編集画面にアクセスすると 404 を返す
+- GM はシナリオとセッションを編集できるが、Person とグループの画面には入れない
 - Phase 1 で置いた Basic 認証が外れている
 - ログイン中のページに解析タグと広告タグが出ない。未ログインでは出る
 
@@ -73,13 +73,9 @@ GET のままだと、外部サイトからログインを誘発できる。
 権限は Person に付ける。
 `User` に権限を持たせると、アカウントを差し替えたときに権限が失われる。
 
-**Avo と Pundit のクラス名解決**。
-Avo は Pundit のポリシークラスをモデル名から引く。
-Avo のリソース名とモデル名を揃えておかないと、意図しないポリシーが当たる。
-
 **Phase 1 との合流点**。
 解析タグと広告タグの描画判定は、Phase 1 が用意した関数を差し替える形にする。
-Avo の保護も、Phase 1 が置いた Basic 認証を Pundit の判定に置き換える形になる。
+編集画面の保護も、Phase 1 が置いた Basic 認証を Pundit の判定に置き換える形になる。
 どちらも Phase 1 の完了後にまとめて行う。
 
 **管理者の初期投入**。

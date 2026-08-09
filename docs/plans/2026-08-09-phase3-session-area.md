@@ -40,7 +40,7 @@ GM とサブキーパーには存在しないことがあるため NULL を許�
 - `app/controllers/play_sessions_controller.rb`
 - `app/views/play_sessions/index.html.erb`、`show.html.erb`
 - `app/views/scenarios/_play_session_history.html.erb`: Phase 1 が空で置いた部分テンプレートを埋める。`show.html.erb` 自体には触らない
-- `app/avo/resources/play_session.rb`、`participation.rb`
+- `app/controllers/manage/play_sessions_controller.rb` とビュー: 参加者の行を足していけるフォーム
 - spec: モデルスペック、`spec/policies/play_session_policy_spec.rb`、`spec/requests/play_sessions_spec.rb`
 
 ## 作業順序
@@ -57,7 +57,7 @@ GM とサブキーパーには存在しないことがあるため NULL を許�
 4. セッション一覧のリクエストスペックを書いてから実装する
 5. セッション詳細を同様に実装する。参加者ごとの役割、キャラクター名、キャラクターシートのリンクを出す
 6. シナリオ詳細にセッション履歴を埋め込む。同じ Scope を通す
-7. Avo に `PlaySession` と `Participation` のリソースを追加し、GM が登録できるようにする
+7. GM が使うセッション編集画面を作る。参加者ごとに役割、キャラクター名、キャラシ URL を入力できる形にする
 8. 予定と実施済みの区別を一覧の表示に反映する
 
 ## 検証手順

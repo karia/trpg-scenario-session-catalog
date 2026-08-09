@@ -20,7 +20,6 @@
 | `app/controllers/health_controller.rb` | ヘルスチェック |
 | `app/policies/application_policy.rb` | Pundit の既定。すべて拒否から始める |
 | `app/controllers/concerns/current_user_stub.rb` | `current_user` を nil で返す差し替え点 |
-| `config/initializers/avo.rb` | Avo を導入する。マウントは Phase 1 で行う |
 | `spec/rails_helper.rb` ほか | RSpec の設定 |
 | `spec/requests/health_spec.rb` | 最初のテスト |
 | `.rubocop.yml` | rubocop-rails-omakase を継承 |
@@ -42,7 +41,7 @@
 3. ヘルスチェックのリクエストスペックを書き、失敗を確認してから実装する
 4. `compose.yaml` に PostgreSQL と MinIO を置く。`bin/rails db:prepare` と `bin/rspec` がローカルで通ることを確認する
 5. `config/storage.yml` に MinIO を定義し、Active Storage の添付と取得をテストで確認する
-6. Pundit と Avo を Gemfile に入れる。`ApplicationPolicy` はすべて拒否、`current_user` は nil を返す形で置き、Phase 2 が中身を差し替える
+6. Pundit を Gemfile に入れる。`ApplicationPolicy` はすべて拒否、`current_user` は nil を返す形で置き、Phase 2 が中身を差し替える
 7. RuboCop、erb_lint、Brakeman を導入し、`prek install` で pre-commit フックを入れる
 8. GitHub Actions の CI を追加する。PostgreSQL は service コンテナで用意する
 9. Dockerfile でイメージをビルドし、ローカルのコンテナで `/up` が返ることを確認する
@@ -85,8 +84,8 @@ CloudNativePG のクラスタに複数データベースを持たせるか、同
 CI に MinIO を立てるとジョブが重くなる。
 テスト環境はローカルディスク、開発と本番は MinIO とし、サービス名だけを環境ごとに切り替える形が軽い。
 
-**Pundit と Avo をこのフェーズで入れる理由**。
-Phase 1 と Phase 2 の両方が Pundit と Avo に触る。
+**Pundit をこのフェーズで入れる理由**。
+Phase 1 と Phase 2 の両方が Pundit に触る。
 どちらか一方に導入を寄せると、並行して進めた側が相手の完了を待つことになる。
 土台としてここで入れ、中身は Phase 2 が差し替える。
 
