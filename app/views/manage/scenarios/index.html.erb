@@ -1,0 +1,31 @@
+<% content_for :title, "シナリオの管理" %>
+
+<div class="flex items-baseline justify-between">
+  <h1 class="font-display text-2xl">シナリオの管理</h1>
+  <%= link_to "新規登録", new_manage_scenario_path, class: "text-sm text-seal" %>
+</div>
+
+<p class="mt-2 text-sm text-muted"><%= @scenarios.size %>本</p>
+
+<table class="mt-6 w-full border border-rule bg-surface text-sm">
+  <thead class="border-b border-rule text-left text-xs text-muted">
+    <tr>
+      <th class="p-3">タイトル</th>
+      <th class="p-3">システム</th>
+      <th class="p-3">作者</th>
+      <th class="p-3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @scenarios.each do |scenario| %>
+      <tr class="border-b border-rule last:border-b-0">
+        <td class="p-3 font-display"><%= scenario.title %></td>
+        <td class="p-3 text-xs text-muted"><%= scenario.game_systems.map(&:name).join("／") %></td>
+        <td class="p-3 text-xs text-muted"><%= scenario.authors.map(&:name).join("、") %></td>
+        <td class="p-3 text-right">
+          <%= link_to "編集", edit_manage_scenario_path(scenario), class: "text-seal" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

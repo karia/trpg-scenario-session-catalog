@@ -1,0 +1,8 @@
+<div class="grid gap-2 sm:grid-cols-[10rem_1fr_auto]">
+  <%= link.text_field :label, placeholder: "ラベル", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+  <%= link.url_field :url, placeholder: "https://", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+  <label class="inline-flex items-center gap-1 text-xs text-muted">
+    <%= link.check_box :_destroy %> 削除
+  </label>
+  <%= link.hidden_field :id if link.object.persisted? %>
+</div>

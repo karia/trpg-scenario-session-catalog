@@ -9,5 +9,14 @@ Rails.application.routes.draw do
 
   resources :scenarios, only: [ :index, :show ]
 
+  namespace :manage do
+    resources :scenarios
+    resources :game_systems, except: [ :show ]
+    resources :authors, except: [ :show ]
+  end
+
+  # sitemap_generator の出力を tmp から配信する。
+  get "sitemap.xml", to: "sitemaps#show", defaults: { format: "xml" }
+
   root "scenarios#index"
 end

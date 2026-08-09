@@ -1,0 +1,3 @@
+<%= render "manage/masters/index", title: "システムの管理", records: @records, record: @record,
+      index_path: manage_game_systems_path, edit_path: ->(r) { edit_manage_game_system_path(r) },
+      record_path: ->(r) { manage_game_system_path(r) } %>

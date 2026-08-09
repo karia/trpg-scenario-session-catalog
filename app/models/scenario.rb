@@ -20,6 +20,9 @@ class Scenario < ApplicationRecord
   has_many :purchase_links, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :scenario
   has_many :stream_links, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :scenario
 
+  accepts_nested_attributes_for :purchase_links, allow_destroy: true, reject_if: :all_blank
+  accepts_nested_attributes_for :stream_links, allow_destroy: true, reject_if: :all_blank
+
   validates :title, presence: true
   validates :recommendation, inclusion: { in: 1..5 }, allow_nil: true
   validate :player_count_range_is_ordered

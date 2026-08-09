@@ -1,0 +1,128 @@
+<%= form_with model: [ :manage, scenario ], class: "mt-6 space-y-8" do |form| %>
+  <% if scenario.errors.any? %>
+    <div class="border border-seal bg-surface p-4 text-sm text-seal">
+      <ul class="list-inside list-disc">
+        <% scenario.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <fieldset class="border border-rule bg-surface p-5">
+    <legend class="px-2 font-display text-sm">基本</legend>
+
+    <div class="space-y-4">
+      <div>
+        <%= form.label :title, "シナリオ名", class: "block text-xs text-muted" %>
+        <%= form.text_field :title, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+
+      <div>
+        <%= form.label :game_system_ids, "システム", class: "block text-xs text-muted" %>
+        <%= form.collection_check_boxes :game_system_ids, GameSystem.all, :id, :name do |b| %>
+          <label class="mr-4 inline-flex items-center gap-1 text-sm">
+            <%= b.check_box %> <%= b.text %>
+          </label>
+        <% end %>
+      </div>
+
+      <div>
+        <%= form.label :author_ids, "作者", class: "block text-xs text-muted" %>
+        <%= form.collection_check_boxes :author_ids, Author.all, :id, :name do |b| %>
+          <label class="mr-4 inline-flex items-center gap-1 text-sm">
+            <%= b.check_box %> <%= b.text %>
+          </label>
+        <% end %>
+      </div>
+
+      <div>
+        <%= form.label :jacket, "ジャケット画像", class: "block text-xs text-muted" %>
+        <%= form.file_field :jacket, accept: "image/*", class: "mt-1 text-sm" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="border border-rule bg-surface p-5">
+    <legend class="px-2 font-display text-sm">遊ぶときの条件</legend>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <%= form.label :player_count_min, "PL人数（最小）", class: "block text-xs text-muted" %>
+        <%= form.number_field :player_count_min, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div>
+        <%= form.label :player_count_max, "PL人数（最大）", class: "block text-xs text-muted" %>
+        <%= form.number_field :player_count_max, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div class="sm:col-span-2">
+        <%= form.label :player_count_note, "PL人数の補足", class: "block text-xs text-muted" %>
+        <%= form.text_field :player_count_note, placeholder: "制限なし / 1人推奨 など",
+              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div>
+        <%= form.label :duration_min_minutes, "目安時間（分・最小）", class: "block text-xs text-muted" %>
+        <%= form.number_field :duration_min_minutes, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div>
+        <%= form.label :duration_max_minutes, "目安時間（分・最大）", class: "block text-xs text-muted" %>
+        <%= form.number_field :duration_max_minutes, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div>
+        <%= form.label :character_restriction, "参加可能キャラの制限", class: "block text-xs text-muted" %>
+        <%= form.text_field :character_restriction, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div>
+        <%= form.label :character_sheet_deadline, "キャラシ提出期限", class: "block text-xs text-muted" %>
+        <%= form.select :character_sheet_deadline,
+              Scenario.character_sheet_deadlines.keys.map { |k| [ t("scenarios.character_sheet_deadlines.#{k}"), k ] },
+              { include_blank: "未設定" }, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="border border-rule bg-surface p-5">
+    <legend class="px-2 font-display text-sm">評価と本文</legend>
+
+    <div class="space-y-4">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <%= form.label :recommendation, "おすすめ度（1〜5）", class: "block text-xs text-muted" %>
+          <%= form.select :recommendation, (1..5).to_a, { include_blank: "未評価" },
+                class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+        </div>
+        <div class="flex items-end">
+          <label class="inline-flex items-center gap-2 text-sm">
+            <%= form.check_box :gm_experienced %> 回したことがある
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <%= form.label :synopsis, "あらすじ", class: "block text-xs text-muted" %>
+        <%= form.text_area :synopsis, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+
+      <div>
+        <%= form.label :recommendation_note, "おすすめポイント", class: "block text-xs text-muted" %>
+        <%= form.text_area :recommendation_note, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+
+      <div>
+        <%= form.label :preparation_note, "シナリオ準備情報", class: "block text-xs text-muted" %>
+        <p class="text-xs text-muted">ネタバレを含む。公開エリアには出さない。</p>
+        <%= form.text_area :preparation_note, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <%= render "link_fields", form: form, association: :purchase_links, legend: "入手先",
+        hint: "URL は空でもよい。書籍付属など購入方法を書く場合に使う。" %>
+  <%= render "link_fields", form: form, association: :stream_links, legend: "おすすめの配信",
+        hint: "URL は必須。" %>
+
+  <div class="flex gap-4">
+    <%= form.submit "保存", class: "bg-ink px-6 py-2 text-sm text-paper" %>
+    <%= link_to "やめる", manage_scenarios_path, class: "self-center text-sm text-muted" %>
+  </div>
+<% end %>
