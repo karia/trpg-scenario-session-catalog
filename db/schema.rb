@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_09_121209) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_09_162643) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,85 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_121209) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "authors", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_authors_on_name", unique: true
+  end
+
+  create_table "game_systems", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_game_systems_on_name", unique: true
+  end
+
+  create_table "purchase_links", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "label", null: false
+    t.integer "position", default: 0, null: false
+    t.bigint "scenario_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.index ["scenario_id"], name: "index_purchase_links_on_scenario_id"
+  end
+
+  create_table "scenario_authors", force: :cascade do |t|
+    t.bigint "author_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "scenario_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_scenario_authors_on_author_id"
+    t.index ["scenario_id", "author_id"], name: "index_scenario_authors_on_scenario_id_and_author_id", unique: true
+    t.index ["scenario_id"], name: "index_scenario_authors_on_scenario_id"
+  end
+
+  create_table "scenario_game_systems", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "game_system_id", null: false
+    t.bigint "scenario_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_system_id"], name: "index_scenario_game_systems_on_game_system_id"
+    t.index ["scenario_id", "game_system_id"], name: "index_scenario_game_systems_on_scenario_id_and_game_system_id", unique: true
+    t.index ["scenario_id"], name: "index_scenario_game_systems_on_scenario_id"
+  end
+
+  create_table "scenarios", force: :cascade do |t|
+    t.string "character_restriction"
+    t.integer "character_sheet_deadline"
+    t.datetime "created_at", null: false
+    t.integer "duration_max_minutes"
+    t.integer "duration_min_minutes"
+    t.boolean "gm_experienced", default: true, null: false
+    t.integer "player_count_max"
+    t.integer "player_count_min"
+    t.string "player_count_note"
+    t.text "preparation_note"
+    t.integer "recommendation"
+    t.text "recommendation_note"
+    t.text "synopsis"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["title"], name: "index_scenarios_on_title"
+  end
+
+  create_table "stream_links", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "label"
+    t.integer "position", default: 0, null: false
+    t.bigint "scenario_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "url", null: false
+    t.index ["scenario_id"], name: "index_stream_links_on_scenario_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "purchase_links", "scenarios"
+  add_foreign_key "scenario_authors", "authors"
+  add_foreign_key "scenario_authors", "scenarios"
+  add_foreign_key "scenario_game_systems", "game_systems"
+  add_foreign_key "scenario_game_systems", "scenarios"
+  add_foreign_key "stream_links", "scenarios"
 end
