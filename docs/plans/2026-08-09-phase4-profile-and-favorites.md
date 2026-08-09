@@ -34,7 +34,6 @@ Person の表示名、アイコン、X のアカウント名は Phase 2 で作�
 - `app/controllers/spoiler_reveals_controller.rb`
 - `app/views/people/` 配下のテンプレート
 - `app/views/scenarios/_preparation_note.html.erb`: Phase 1 が空で置いた部分テンプレートを埋める。`show.html.erb` 自体には触らない
-- `app/avo/resources/person_alias.rb`
 - spec: モデルスペック、`spec/policies/person_policy_spec.rb`、リクエストスペック、システムスペック 1 本
 
 ## 作業順序
@@ -78,7 +77,7 @@ Person 未紐づけのユーザーはボタンを押せない。
 
 **グループ所属の編集場所**。
 本人は変更できないため、プロフィールの編集フォームには置かない。
-Avo 側の Person リソースで扱う。
+管理者だけが使う Person の編集画面で扱う。
 
 **別名の用途**。
 別名は Discord のサーバごとに名前が違う場合の対応付けであり、表示名の代わりではない。

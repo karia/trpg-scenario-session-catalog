@@ -47,7 +47,7 @@
 - `app/views/scenarios/index.html.erb`、`show.html.erb` と部分テンプレート
 - `app/views/scenarios/_play_session_history.html.erb` と `_preparation_note.html.erb`: 中身は空で置く。Phase 3 と Phase 4 がそれぞれ片方だけを埋める
 - `app/policies/scenario_policy.rb`: Phase 0 が置いた `ApplicationPolicy` を継承し、閲覧だけを許す
-- `app/avo/resources/` 配下に Scenario、GameSystem、Author のリソース
+- `app/controllers/manage/scenarios_controller.rb` ほか、編集画面のコントローラとビュー
 - `app/views/layouts/application.html.erb`: メタタグ、解析タグ、広告タグの差し込み位置
 - `app/views/shared/_analytics.html.erb`、`_ads.html.erb`
 - `app/helpers/structured_data_helper.rb`: JSON-LD
@@ -62,9 +62,9 @@
 4. 一覧と詳細のリクエストスペックを書いてから、コントローラとルーティングを実装する
 5. 画面を組む。ここで frontend-design スキルを使う。詳細ページにはセッション履歴と準備情報の空の部分テンプレートを差し込んでおく
 6. ジャケット画像を Active Storage で添付し、一覧用の variant を用意する
-7. Avo をマウントし、HTTP Basic 認証で暫定的に保護する。資格情報は環境変数で渡す
-8. Avo のリソースを定義し、シナリオを登録できるようにする
-9. 既存のスプレッドシートの内容を Avo から入力する
+7. 編集画面を作る。認証が入るのは Phase 2 のため、この時点では HTTP Basic 認証で暫定的に塞ぐ。資格情報は環境変数で渡す
+8. 作者、システム、販売リンク、配信リンク、ジャケット画像をまとめて編集できるフォームにする
+9. 既存のスプレッドシートの内容を編集画面から入力する
 10. meta-tags でタイトルと description、OGP を出す
 11. シナリオ詳細に JSON-LD を出す
 12. sitemap_generator でサイトマップを生成し、`robots.txt` から参照する
@@ -79,14 +79,14 @@
 - `/sitemap.xml` が生成され、公開シナリオの URL を列挙している
 - Lighthouse の SEO スコアが 90 以上になる。実データを入れた後に測る
 - 準備情報が、この時点ではどのユーザーにも表示されない
-- Basic 認証なしで `/avo` にアクセスすると 401 を返す
+- Basic 認証なしで編集画面にアクセスすると 401 を返す
 
 ## 詰まりそうな箇所
 
-**Avo の暫定的な保護**。
+**編集画面の暫定的な保護**。
 Phase 1 の時点では管理者の概念がまだない。
-一方で、SEO の検証には実データが要り、実データを入れるには Avo が要る。
-Phase 1 では HTTP Basic 認証で暫定的に塞ぎ、Phase 2 で Pundit による管理者判定に差し替える。
+一方で、SEO の検証には実データが要り、実データを入れるには編集画面が要る。
+Phase 1 では HTTP Basic 認証で暫定的に塞ぎ、Phase 2 で Pundit による役割判定に差し替える。
 認可のないまま公開経路に出すと、誰でもシナリオを編集できる。
 
 **解析タグと広告タグのログイン判定**。
@@ -99,5 +99,5 @@ Phase 2 側はこの関数の中身を差し替えるだけで済む。
 
 **既存データの取り込み**。
 対象は 60 件強。
-取り込み用の rake タスクを書くより、Avo から手で入れるほうが早い。
+取り込み用の rake タスクを書くより、編集画面から手で入れるほうが早い。
 スプレッドシートは列の値の揺れが大きく、パーサを書くと揺れの吸収に時間を取られる。

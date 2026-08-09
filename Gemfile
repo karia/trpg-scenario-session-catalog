@@ -45,9 +45,6 @@ gem "aws-sdk-s3", require: false
 # Authorization [https://github.com/varvet/pundit]
 gem "pundit"
 
-# Admin panel [https://github.com/avo-hq/avo]
-gem "avo"
-
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
