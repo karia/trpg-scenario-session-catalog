@@ -24,6 +24,9 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :minio
 
+  # MinIO はクラスタ内に閉じているため、署名付き URL ではなくアプリ経由で配信する。
+  config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   config.assume_ssl = true
 
@@ -80,11 +83,8 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.hosts = [ ENV.fetch("APP_HOST", "trpg-catalog.side2.net") ]
+
+  # k8s の probe は Host ヘッダを持たないため、ヘルスチェックだけ除外する。
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

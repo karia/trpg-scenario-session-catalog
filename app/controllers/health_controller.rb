@@ -4,7 +4,9 @@ class HealthController < ActionController::Base
   def show
     ActiveRecord::Base.connection.verify!
     head :ok
-  rescue StandardError
+  rescue StandardError => e
+    # ログを出さないと CrashLoopBackOff の原因が Pod の外から分からない。
+    Rails.logger.error("Health check failed: #{e.class}: #{e.message}")
     head :service_unavailable
   end
 end
