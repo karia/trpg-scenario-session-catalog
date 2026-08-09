@@ -1,4 +1,9 @@
 ---
+# CI は bundler-cache で gem を vendor/bundle に置くため、gem 内のテンプレートを除く。
+exclude:
+  - '**/vendor/**/*'
+  - '**/node_modules/**/*'
+
 linters:
   ErbSafety:
     enabled: true
