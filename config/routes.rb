@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  # Avo は Phase 1 で保護を付けてから mount_avo する。
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   get "up" => "health#show", as: :rails_health_check
