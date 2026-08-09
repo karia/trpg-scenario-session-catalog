@@ -1,1 +1,42 @@
 @import "tailwindcss";
+
+@theme {
+  --color-ink: #14161c;
+  --color-paper: #eceef2;
+  --color-surface: #ffffff;
+  --color-seal: #93202f;
+  --color-muted: #5c6472;
+  --color-rule: #ccd1d9;
+
+  --font-display: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Source Han Serif JP", serif;
+  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "palt";
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-seal);
+    outline-offset: 2px;
+  }
+}
+
+/* 伏せられた領域。準備情報とセッション履歴に使う。 */
+@utility redacted {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+}

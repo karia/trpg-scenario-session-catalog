@@ -1,0 +1,9 @@
+<%# Phase 4 がここにネタバレ防止ボタンと準備情報を埋める。show.html.erb には触らない。 %>
+<% if scenario.preparation_note.present? %>
+  <section class="mt-10">
+    <h2 class="font-display text-xl">シナリオ準備情報</h2>
+    <p class="mt-3 redacted px-4 py-3 text-sm">
+      ネタバレを含みます。ログインすると開けるようになります。
+    </p>
+  </section>
+<% end %>

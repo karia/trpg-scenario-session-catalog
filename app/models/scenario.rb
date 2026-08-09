@@ -8,7 +8,10 @@ class Scenario < ApplicationRecord
     see_note: 4
   }, validate: { allow_nil: true }
 
-  has_one_attached :jacket
+  has_one_attached :jacket do |attachable|
+    attachable.variant :thumb, resize_to_fill: [ 480, 640 ], format: :webp, saver: { quality: 80 }
+    attachable.variant :cover, resize_to_limit: [ 800, 1200 ], format: :webp, saver: { quality: 85 }
+  end
 
   has_many :scenario_game_systems, dependent: :destroy
   has_many :game_systems, through: :scenario_game_systems
