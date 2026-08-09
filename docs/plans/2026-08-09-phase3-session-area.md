@@ -8,14 +8,17 @@
 
 ## データモデル
 
-- `PlaySession`: `scenario_id`、`played_at`（NULL 可）、`status`（予定 / 実施済み）、`recording_url`（NULL 可）
+- `PlaySession`: `scenario_id`、`played_on`（日付、NULL 可）、`started_at`（時刻、NULL 可）、`status`（予定 / 実施済み / 中止）、`recording_url`（NULL 可）
 - `Participation`: `play_session_id`、`person_id`、`role`（GM / PL / サブキーパー）、`character_name`（NULL 可）、`character_sheet_url`（NULL 可）
 
 キャラクターシートのリンクは参加者ごとに持つ。
 GM とサブキーパーには存在しないことがあるため NULL を許す。
 
-日時は未定を許す。
-予定のセッションでは日付だけ決まっていて時刻が未定の場合があるため、日付と時刻を分けて持つか、日時を NULL 可にしたうえで補足を持たせるかを実装前に決める。
+日付と時刻を別の列に分ける。
+予定のセッションでは日付だけ決まっていて時刻が未定の場合があり、1 つの日時列では表せない。
+
+`status` は日付から導出しない。
+過去の日付を持つ予定が中止のまま残ることがあり、日付だけでは実施済みと区別できない。
 
 ## 可視性
 
@@ -36,7 +39,7 @@ GM とサブキーパーには存在しないことがあるため NULL を許�
 - `app/policies/play_session_policy.rb`
 - `app/controllers/play_sessions_controller.rb`
 - `app/views/play_sessions/index.html.erb`、`show.html.erb`
-- `app/views/scenarios/_play_session_history.html.erb`
+- `app/views/scenarios/_play_session_history.html.erb`: Phase 1 が空で置いた部分テンプレートを埋める。`show.html.erb` 自体には触らない
 - `app/avo/resources/play_session.rb`、`participation.rb`
 - spec: モデルスペック、`spec/policies/play_session_policy_spec.rb`、`spec/requests/play_sessions_spec.rb`
 
@@ -77,7 +80,7 @@ GM とサブキーパーには存在しないことがあるため NULL を許�
 `show` も Scope で引いた集合から探す形にし、条件式を 2 箇所に書かない。
 
 **日時が未定のセッションの並び順**。
-`played_at` が NULL の行を一覧のどこに置くかを決める。
+`played_on` が NULL の行を一覧のどこに置くかを決める。
 NULL を末尾に固定しないと、データベースの既定の挙動に引きずられる。
 
 **キャラクターシートのリンク先**。

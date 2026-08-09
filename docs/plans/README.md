@@ -10,14 +10,19 @@
 | [Phase 1](2026-08-09-phase1-scenario-public-area.md) | シナリオ公開エリアと管理画面での登録 | Phase 0 |
 | [Phase 2](2026-08-09-phase2-authentication.md) | 認証、権限、グループ | Phase 0 |
 | [Phase 3](2026-08-09-phase3-session-area.md) | セッションエリアと可視性 | Phase 1、Phase 2 |
-| [Phase 4](2026-08-09-phase4-profile-and-favorites.md) | プロフィール、別名、お気に入り、ネタバレ防止ボタン | Phase 2 |
+| [Phase 4](2026-08-09-phase4-profile-and-favorites.md) | プロフィール、別名、お気に入り、ネタバレ防止ボタン | Phase 2。お気に入りとネタバレ防止ボタンは Phase 1 も |
 
 Phase 0 の完了後に Phase 1 と Phase 2 を並行して進められる。
 その後 Phase 3 と Phase 4 を並行して進められる。
 
-Phase 1 と Phase 2 には合流点が 2 つある。
-広告と解析タグのログイン判定、そして Avo の有効化である。
-どちらも Phase 1 が空実装を置き、Phase 2 が中身を差し替える。
+Phase 1 と Phase 2 の合流点は 2 つある。
+広告と解析タグのログイン判定、そして Avo の保護である。
+どちらも Phase 1 が暫定の実装を置き、Phase 2 が中身を差し替える。
+両方が触る Pundit と Avo は、待ち合わせが起きないよう Phase 0 で導入しておく。
+
+Phase 3 と Phase 4 はどちらもシナリオ詳細に表示を足す。
+衝突を避けるため、Phase 1 が空の部分テンプレートを 2 つ置き、以降の 2 つのフェーズはそれぞれ片方だけを埋める。
+`scenarios/show.html.erb` は Phase 1 以降どちらのフェーズも変更しない。
 
 ## 今回の対象外
 

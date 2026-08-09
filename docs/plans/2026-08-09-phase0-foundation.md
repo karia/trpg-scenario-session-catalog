@@ -18,6 +18,9 @@
 | `compose.yaml` | 開発用の PostgreSQL と MinIO |
 | `.env.example` | このアプリが必要とする環境変数の一覧 |
 | `app/controllers/health_controller.rb` | ヘルスチェック |
+| `app/policies/application_policy.rb` | Pundit の既定。すべて拒否から始める |
+| `app/controllers/concerns/current_user_stub.rb` | `current_user` を nil で返す差し替え点 |
+| `config/initializers/avo.rb` | Avo を導入する。マウントは Phase 1 で行う |
 | `spec/rails_helper.rb` ほか | RSpec の設定 |
 | `spec/requests/health_spec.rb` | 最初のテスト |
 | `.rubocop.yml` | rubocop-rails-omakase を継承 |
@@ -39,18 +42,20 @@
 3. ヘルスチェックのリクエストスペックを書き、失敗を確認してから実装する
 4. `compose.yaml` に PostgreSQL と MinIO を置く。`bin/rails db:prepare` と `bin/rspec` がローカルで通ることを確認する
 5. `config/storage.yml` に MinIO を定義し、Active Storage の添付と取得をテストで確認する
-6. RuboCop、erb_lint、Brakeman を導入し、`prek install` で pre-commit フックを入れる
-7. GitHub Actions の CI を追加する。PostgreSQL は service コンテナで用意する
-8. Dockerfile でイメージをビルドし、ローカルのコンテナで `/up` が返ることを確認する
-9. GHCR への push ワークフローを追加する
-10. `pinact run` でワークフロー内の action を SHA に固定する
-11. `yuno04-k3s` に CloudNativePG、MinIO、Deployment、Service、Ingress を用意する
-12. デプロイし、公開ホスト名で `/up` が返ることを確認する
+6. Pundit と Avo を Gemfile に入れる。`ApplicationPolicy` はすべて拒否、`current_user` は nil を返す形で置き、Phase 2 が中身を差し替える
+7. RuboCop、erb_lint、Brakeman を導入し、`prek install` で pre-commit フックを入れる
+8. GitHub Actions の CI を追加する。PostgreSQL は service コンテナで用意する
+9. Dockerfile でイメージをビルドし、ローカルのコンテナで `/up` が返ることを確認する
+10. GHCR への push ワークフローを追加する
+11. `pinact run` でワークフロー内の action を SHA に固定する
+12. `yuno04-k3s` に CloudNativePG、MinIO、Deployment、Service、Ingress を用意する
+13. デプロイし、公開ホスト名で `/up` が返ることを確認する
 
 ## 検証手順
 
 - `bin/rspec` がすべて成功する
 - `bin/rubocop` と `bin/brakeman` が警告なしで終わる
+- `ApplicationPolicy` が既定で拒否を返すことをスペックで確認できる
 - `docker build` したイメージを起動し、`curl localhost:3000/up` が 200 を返す
 - CI が GitHub 上で成功する
 - GHCR にイメージが push されている
@@ -79,6 +84,11 @@ CloudNativePG のクラスタに複数データベースを持たせるか、同
 **CI での Active Storage**。
 CI に MinIO を立てるとジョブが重くなる。
 テスト環境はローカルディスク、開発と本番は MinIO とし、サービス名だけを環境ごとに切り替える形が軽い。
+
+**Pundit と Avo をこのフェーズで入れる理由**。
+Phase 1 と Phase 2 の両方が Pundit と Avo に触る。
+どちらか一方に導入を寄せると、並行して進めた側が相手の完了を待つことになる。
+土台としてここで入れ、中身は Phase 2 が差し替える。
 
 **MinIO の公開範囲**。
 ジャケット画像は公開エリアからも参照される。

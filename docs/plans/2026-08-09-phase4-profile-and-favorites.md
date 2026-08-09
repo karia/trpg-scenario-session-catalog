@@ -14,9 +14,6 @@
 
 Person の表示名、アイコン、X のアカウント名は Phase 2 で作った `people` に既にある。
 
-`SpoilerReveal` を Person に紐づけるのは、準備情報がログイン必須かつ Person 紐づけ済みでないと見られないためである。
-`User` に紐づけると、権限とお気に入りが Person 側にあるのと揃わなくなる。
-
 ## 編集できる範囲
 
 | 対象 | 本人 | 管理者 | それ以外 |
@@ -36,7 +33,7 @@ Person の表示名、アイコン、X のアカウント名は Phase 2 で作�
 - `app/controllers/favorites_controller.rb`
 - `app/controllers/spoiler_reveals_controller.rb`
 - `app/views/people/` 配下のテンプレート
-- `app/views/scenarios/_preparation_note.html.erb`: ネタバレ防止ボタンと準備情報
+- `app/views/scenarios/_preparation_note.html.erb`: Phase 1 が空で置いた部分テンプレートを埋める。`show.html.erb` 自体には触らない
 - `app/avo/resources/person_alias.rb`
 - spec: モデルスペック、`spec/policies/person_policy_spec.rb`、リクエストスペック、システムスペック 1 本
 
