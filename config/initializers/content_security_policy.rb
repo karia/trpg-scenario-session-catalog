@@ -31,5 +31,6 @@ Rails.application.configure do
 
   # session.id はセッションが張られるまで nil になる。リクエストごとに生成する。
   config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
-  config.content_security_policy_nonce_directives = %w[ script-src ]
+  # Turbo のプログレスバーは csp-nonce を読んで inline style を挿すため style-src も含める。
+  config.content_security_policy_nonce_directives = %w[ script-src style-src ]
 end
