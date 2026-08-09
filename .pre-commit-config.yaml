@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+        exclude: ^config/(database|storage|cache|queue|cable|recurring)\.yml$
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: rubocop
+        name: rubocop
+        entry: mise exec -- bin/rubocop --force-exclusion
+        language: system
+        types: [ ruby ]
+
+      - id: erb_lint
+        name: erb_lint
+        entry: mise exec -- bundle exec erb_lint
+        language: system
+        files: \.html\.erb$
+
+      - id: brakeman
+        name: brakeman
+        entry: mise exec -- bin/brakeman -q --no-pager --no-summary
+        language: system
+        pass_filenames: false
+        types: [ ruby ]
