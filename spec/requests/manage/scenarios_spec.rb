@@ -14,6 +14,12 @@ RSpec.describe "Manage::Scenarios" do
       expect(response).to have_http_status(:unauthorized)
     end
 
+    it "answers 401 for an Authorization header with no colon" do
+      get manage_scenarios_path, headers: { "HTTP_AUTHORIZATION" => "Basic #{Base64.strict_encode64("editor")}" }
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
     it "answers 401 on create" do
       post manage_scenarios_path, params: { scenario: { title: "侵入" } }
 

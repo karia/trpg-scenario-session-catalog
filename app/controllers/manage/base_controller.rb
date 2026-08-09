@@ -11,8 +11,9 @@ module Manage
         return head :unauthorized if username.blank? || password.blank?
 
         authenticate_or_request_with_http_basic("Manage") do |given_user, given_password|
-          ActiveSupport::SecurityUtils.secure_compare(given_user, username) &
-            ActiveSupport::SecurityUtils.secure_compare(given_password, password)
+          # 不正な Authorization ヘッダでは password が nil になる。to_s で受ける。
+          ActiveSupport::SecurityUtils.secure_compare(given_user.to_s, username) &
+            ActiveSupport::SecurityUtils.secure_compare(given_password.to_s, password)
         end
       end
   end

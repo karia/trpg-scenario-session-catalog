@@ -29,6 +29,7 @@ Rails.application.configure do
     policy.form_action :self
   end
 
-  config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
+  # session.id はセッションが張られるまで nil になる。リクエストごとに生成する。
+  config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
   config.content_security_policy_nonce_directives = %w[ script-src ]
 end

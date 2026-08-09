@@ -46,6 +46,28 @@ RSpec.describe "Scenarios" do
       expect(response.body).not_to include("ネタバレを含む準備情報")
     end
 
+    it "puts the scenario name in the page title" do
+      get scenario_path(scenario)
+
+      expect(response.body).to include("<title>ロールシャッハシンドローム | 卓の記録</title>")
+    end
+
+    it "gives the JSON-LD block a nonce that matches the policy header" do
+      get scenario_path(scenario)
+
+      nonce = response.headers["Content-Security-Policy"][/'nonce-([^']+)'/, 1]
+      expect(nonce).to be_present
+      expect(response.body).to include(%(nonce="#{nonce}"))
+    end
+
+    it "escapes a title that would otherwise break out of the JSON-LD block" do
+      scenario.update!(title: %(危険</script><script>alert(1)</script>))
+
+      get scenario_path(scenario)
+
+      expect(response.body).not_to include("</script><script>alert(1)")
+    end
+
     it "renders a purchase link that has a label but no URL" do
       scenario.purchase_links.create!(label: "書籍購入者限定特典", url: nil)
 

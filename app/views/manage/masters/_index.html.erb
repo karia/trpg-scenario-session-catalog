@@ -1,9 +1,16 @@
 <% content_for :title, title %>
 <h1 class="font-display text-2xl"><%= title %></h1>
 
-<%= form_with model: record, url: index_path, class: "mt-6 flex gap-2" do |form| %>
-  <%= form.text_field :name, placeholder: "名前", class: "w-64 border border-rule bg-paper px-3 py-2 text-sm" %>
+<%= form_with model: record, url: record.persisted? ? record_path.call(record) : index_path,
+      class: "mt-6 flex items-end gap-2" do |form| %>
+  <div>
+    <%= form.label :name, "名前", class: "block text-xs text-muted" %>
+    <%= form.text_field :name, class: "mt-1 w-64 border border-rule bg-paper px-3 py-2 text-sm" %>
+  </div>
   <%= form.submit record.persisted? ? "更新" : "追加", class: "bg-ink px-5 py-2 text-sm text-paper" %>
+  <% if record.persisted? %>
+    <%= link_to "やめる", index_path, class: "self-center text-sm text-muted" %>
+  <% end %>
 <% end %>
 
 <% if record.errors.any? %>

@@ -21,6 +21,8 @@ module StructuredDataHelper
     data["author"] = scenario.authors.map { |a| { "@type" => "Person", "name" => a.name } } if scenario.authors.any?
     data["timeRequired"] = "PT#{scenario.duration_min_minutes}M" if scenario.duration_min_minutes.present?
 
-    tag.script(raw(JSON.pretty_generate(data)), type: "application/ld+json")
+    # JSON をそのまま埋めると、タイトル中の "</script" で要素を抜けられる。
+    json = JSON.generate(data).gsub("<", '\\u003c')
+    tag.script(json.html_safe, type: "application/ld+json", nonce: content_security_policy_nonce)
   end
 end
