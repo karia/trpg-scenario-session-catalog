@@ -1,0 +1,33 @@
+<ul class="mt-8 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
+  <% scenarios.each do |scenario| %>
+    <li class="bg-surface">
+      <%= link_to scenario_path(scenario), class: "group flex h-full flex-col gap-3 p-4 no-underline text-ink" do %>
+        <div class="aspect-3/4 overflow-hidden bg-paper">
+          <% if scenario.jacket.attached? %>
+            <%= image_tag scenario.jacket.variant(:thumb), alt: "", loading: "lazy",
+                  class: "h-full w-full object-cover" %>
+          <% else %>
+            <span class="flex h-full items-center justify-center font-display text-sm text-muted">
+              画像なし
+            </span>
+          <% end %>
+        </div>
+
+        <h2 class="font-display text-lg leading-snug group-hover:text-seal">
+          <%= scenario.title %>
+        </h2>
+
+        <p class="text-xs text-muted">
+          <%= scenario.game_systems.map(&:name).join("／") %>
+        </p>
+
+        <dl class="mt-auto grid grid-cols-[4rem_1fr] gap-x-3 gap-y-1 font-mono text-xs">
+          <dt class="text-muted">人数</dt>
+          <dd><%= blank_to_empty(player_count_label(scenario)) %></dd>
+          <dt class="text-muted">時間</dt>
+          <dd><%= blank_to_empty(duration_label(scenario)) %></dd>
+        </dl>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

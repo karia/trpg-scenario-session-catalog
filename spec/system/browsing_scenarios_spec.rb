@@ -17,13 +17,13 @@ RSpec.describe "Browsing scenarios" do
 
     visit root_path
     expect(page).to have_content("シナリオ一覧")
+    expect(page).to have_no_content("★")
 
     click_link "カタシロ"
 
     expect(page).to have_content("ディズム")
     expect(page).to have_content("CoC 7版")
     expect(page).to have_content("2時間")
-    expect(page).to have_content("★★★★★")
     expect(page).to have_no_content("ネタバレを含む準備情報")
   end
 end
