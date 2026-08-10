@@ -35,7 +35,7 @@
           <% else %>
             <%# Turbo はフォーム送信を横取りするが、Google への cross-origin リダイレクトを追えない。 %>
             <%= button_to "Google でログイン", "/auth/google_oauth2", method: :post,
-                  data: { turbo: false },
+                  form: { data: { turbo: false } },
                   class: "cursor-pointer border border-ink px-3 py-1.5 text-ink hover:bg-ink hover:text-paper" %>
           <% end %>
         </nav>

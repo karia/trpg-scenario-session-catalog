@@ -9,7 +9,8 @@ RSpec.describe "The sign-in button" do
     form = response.body[%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m]
 
     expect(form).to be_present
-    expect(form).to include('data-turbo="false"')
+    # form 側に置く。submitter 側でも Turbo 8 は見るが、バージョン差の影響を受けない。
+    expect(form[%r{<form[^>]*>}]).to include('data-turbo="false"')
   end
 
   # トークンそのものは test 環境が forgery protection を切っているため出ない。
@@ -20,6 +21,15 @@ RSpec.describe "The sign-in button" do
     form = response.body[%r{<form[^>]*action="/auth/google_oauth2"[^>]*>}]
 
     expect(form).to include('method="post"')
+  end
+
+  # Chrome は form-action をリダイレクト先にも当てる。self だけだと押しても Google へ進めない。
+  it "allows the sign-in redirect to Google in form-action" do
+    get root_path
+
+    directive = response.headers["Content-Security-Policy"][/form-action [^;]+/]
+
+    expect(directive).to include("https://accounts.google.com")
   end
 
   it "is not shown once signed in" do
