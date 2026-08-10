@@ -68,6 +68,15 @@ RSpec.describe "PlaySessions" do
 
       expect(response.body).not_to include("同じグループの人が参加した回だけが並びます")
     end
+
+    # Scope は EXISTS を 2 本抱えるため、件数のために引き直すと素の一覧が倍のコストになる。
+    it "evaluates the scope once, not again for the count" do
+      sign_in_as create(:person, groups: [ group ])
+
+      sqls = queries_against("play_sessions") { get play_sessions_path }
+
+      expect(sqls.size).to eq(1)
+    end
   end
 
   describe "GET /play_sessions/:id" do
