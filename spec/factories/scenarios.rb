@@ -9,6 +9,7 @@ FactoryBot.define do
 
   factory :scenario do
     sequence(:title) { |n| "シナリオ#{n}" }
+    player_count_min { 1 }
   end
 
   factory :purchase_link do

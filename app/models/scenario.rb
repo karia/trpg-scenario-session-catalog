@@ -35,6 +35,9 @@ class Scenario < ApplicationRecord
   validates :title, presence: true
   validates :jacket, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
   validates :recommendation, inclusion: { in: 1..5 }, allow_nil: true
+  # 人数での絞り込みが下限を軸にするため、下限だけは必ず要る（issue #28）。
+  validates :player_count_min, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :player_count_max, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
   validate :player_count_range_is_ordered
   validate :duration_range_is_ordered
 

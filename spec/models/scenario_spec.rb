@@ -35,14 +35,24 @@ RSpec.describe Scenario do
   end
 
   describe "player count" do
-    it "allows both ends to be blank for 「制限なし」" do
-      scenario = build(:scenario, player_count_min: nil, player_count_max: nil, player_count_note: "制限なし")
+    it "requires a minimum, because the list filters on it" do
+      expect(build(:scenario, player_count_min: nil)).not_to be_valid
+    end
 
-      expect(scenario).to be_valid
+    it "leaves the maximum blank for 「制限なし」" do
+      expect(build(:scenario, player_count_min: 1, player_count_max: nil)).to be_valid
+    end
+
+    it "takes the same value on both ends for a fixed count" do
+      expect(build(:scenario, player_count_min: 3, player_count_max: 3)).to be_valid
     end
 
     it "rejects a maximum below the minimum" do
       expect(build(:scenario, player_count_min: 3, player_count_max: 2)).not_to be_valid
+    end
+
+    it "rejects a table with nobody at it" do
+      expect(build(:scenario, player_count_min: 0)).not_to be_valid
     end
   end
 

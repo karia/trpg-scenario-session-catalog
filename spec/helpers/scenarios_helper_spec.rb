@@ -10,28 +10,16 @@ RSpec.describe ScenariosHelper do
       expect(helper.player_count_label(build(:scenario, player_count_min: 4, player_count_max: 5))).to eq("4人〜5人")
     end
 
-    it "does not read a one-sided minimum as an exact figure" do
-      expect(helper.player_count_label(build(:scenario, player_count_min: 4, player_count_max: nil))).to eq("4人")
+    it "does not read a missing maximum as an exact figure" do
+      expect(helper.player_count_label(build(:scenario, player_count_min: 4, player_count_max: nil))).to eq("4人以上")
     end
 
     it "marks a one-sided maximum as an upper bound" do
       expect(helper.player_count_label(build(:scenario, player_count_min: nil, player_count_max: 5))).to eq("5人まで")
     end
 
-    it "falls back to the note for 「制限なし」" do
-      scenario = build(:scenario, player_count_min: nil, player_count_max: nil, player_count_note: "制限なし")
-
-      expect(helper.player_count_label(scenario)).to eq("制限なし")
-    end
-
-    it "appends the note to the figures for 「1人推奨」" do
-      scenario = build(:scenario, player_count_min: 1, player_count_max: 1, player_count_note: "推奨")
-
-      expect(helper.player_count_label(scenario)).to eq("1人 推奨")
-    end
-
     it "says unset when there is nothing to show" do
-      expect(helper.player_count_label(build(:scenario))).to eq("未設定")
+      expect(helper.player_count_label(build(:scenario, player_count_min: nil))).to eq("未設定")
     end
   end
 

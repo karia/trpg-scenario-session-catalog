@@ -4,7 +4,7 @@
 # seeds は複数回 load されうるため、定数ではなくメソッドで持つ。
 def seed_attributes
   %w[
-    player_count_min player_count_max player_count_note
+    player_count_min player_count_max
     duration_min_minutes duration_max_minutes
     recommendation gm_experienced
     character_restriction character_sheet_deadline character_sheet_deadline_note

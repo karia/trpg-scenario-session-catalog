@@ -8,9 +8,7 @@ module ScenariosHelper
 
   # 値が無ければ nil。一覧は空欄に、詳細は「未設定」に落とす。
   def player_count_value(scenario)
-    numeric = bounded_label(scenario.player_count_min, scenario.player_count_max) { |n| "#{n}人" }
-
-    [ numeric, scenario.player_count_note ].compact_blank.join(" ").presence
+    bounded_label(scenario.player_count_min, scenario.player_count_max) { |n| "#{n}人" }
   end
 
   def player_count_label(scenario) = player_count_value(scenario) || UNSET
@@ -48,7 +46,7 @@ module ScenariosHelper
     # 片側だけ埋まっている場合に、確定値と取り違えられない形にする。
     def bounded_label(min, max)
       return nil if min.blank? && max.blank?
-      return yield(min) if max.blank?
+      return "#{yield(min)}以上" if max.blank?
       return "#{yield(max)}まで" if min.blank?
       return yield(min) if min == max
 
