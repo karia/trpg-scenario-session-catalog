@@ -10,7 +10,7 @@
       <div>
         <p class="font-display"><%= item.display_name %></p>
         <p class="text-xs text-muted">
-          権限: <%= item.roles.map { |r| t("people.roles.#{r}") }.join("、").presence || "なし" %>
+          権限: <%= person_role_labels(item).join("、") %>
           ／ グループ: <%= item.groups.map(&:name).join("、").presence || "なし" %>
           ／ アカウント: <%= item.user&.email || "未紐づけ" %>
         </p>

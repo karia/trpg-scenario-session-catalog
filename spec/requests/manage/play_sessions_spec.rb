@@ -19,7 +19,7 @@ RSpec.describe "Manage::PlaySessions" do
     end
 
     it "answers 404 to a plain player, whose public index? would otherwise allow it" do
-      sign_in_as create(:person, roles: %w[player])
+      sign_in_as create(:person)
 
       get manage_play_sessions_path
 

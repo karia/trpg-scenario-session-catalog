@@ -21,6 +21,14 @@
 
   <div>
     <span class="block text-xs text-muted">権限</span>
+
+    <%# プレイヤーは全員が持つ。付け外しできないことを画面でも示す。 %>
+    <label class="mr-4 inline-flex items-center gap-1 text-sm text-muted">
+      <%= check_box_tag "person_roles_player_display", "player", true,
+            disabled: true, id: "person_roles_player" %>
+      <%= t("people.roles.player") %>
+    </label>
+
     <% PersonRole::ROLES.each_key do |role| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm">
         <%= check_box_tag "person[roles][]", role, person.roles.include?(role.to_s), id: "person_roles_#{role}" %>
@@ -28,6 +36,8 @@
       </label>
     <% end %>
     <%= hidden_field_tag "person[roles][]", "" %>
+
+    <p class="mt-1 text-xs text-muted">プレイヤーはログインした全員が持ちます。外せません。</p>
   </div>
 
   <div>

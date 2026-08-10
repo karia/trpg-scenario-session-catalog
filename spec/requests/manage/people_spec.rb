@@ -32,11 +32,12 @@ RSpec.describe "Manage::People" do
       group = create(:group, name: "よく遊ぶ人たち")
 
       post manage_people_path, params: {
-        person: { display_name: "新入り", x_account: "newbie", roles: [ "player" ], group_ids: [ group.id ] }
+        person: { display_name: "新入り", x_account: "newbie", roles: [ "gm" ], group_ids: [ group.id ] }
       }
 
       person = Person.find_by(display_name: "新入り")
-      expect(person.roles).to eq([ "player" ])
+      expect(person.roles).to eq([ "gm" ])
+      expect(person).to be_player
       expect(person.groups).to eq([ group ])
     end
 

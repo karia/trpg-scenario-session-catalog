@@ -15,7 +15,6 @@ RSpec.describe Person do
 
       expect(person).to be_admin
       expect(person).to be_gm
-      expect(person).not_to be_player
     end
 
     it "rejects a role outside the known set" do
