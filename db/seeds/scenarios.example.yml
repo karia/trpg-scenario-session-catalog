@@ -16,7 +16,7 @@
   gm_experienced: true
   character_restriction: HOあり
   character_sheet_deadline: two_days_before
-  recommendation_note: GMからのオススメポイントをここに書く。ログインした人にだけ出る。
+  recommendation_note: GMからのオススメポイントをここに書く。メンバーにだけ出る。
   purchase_links:
     - label: BOOTH
       url: https://example.com/items/1
