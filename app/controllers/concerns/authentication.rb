@@ -2,11 +2,26 @@ module Authentication
   extend ActiveSupport::Concern
 
   included do
-    helper_method :current_user
+    helper_method :current_user, :current_person, :signed_in?
   end
 
-  # Phase 2 で Google 認証に差し替える。それまで全リクエストが未ログイン扱いになる。
   def current_user
-    nil
+    return @current_user if defined?(@current_user)
+
+    @current_user = session[:user_id] && User.find_by(id: session[:user_id])
   end
+
+  # Person に紐づいていないユーザーは nil を返す。ログイン必須エリアはこれで閉じる。
+  def current_person
+    current_user&.person
+  end
+
+  def signed_in? = current_user.present?
+
+  private
+    def require_person
+      return if current_person
+
+      redirect_to root_path, alert: "この画面は登録済みのメンバーだけが見られます"
+    end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_09_162643) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_022944) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_162643) do
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_game_systems_on_name", unique: true
+  end
+
+  create_table "group_memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "group_id", null: false
+    t.bigint "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_group_memberships_on_group_id"
+    t.index ["person_id", "group_id"], name: "index_group_memberships_on_person_id_and_group_id", unique: true
+    t.index ["person_id"], name: "index_group_memberships_on_person_id"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_groups_on_name", unique: true
+  end
+
+  create_table "people", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "display_name", null: false
+    t.datetime "updated_at", null: false
+    t.string "x_account"
+  end
+
+  create_table "person_roles", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "name", null: false
+    t.bigint "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id", "name"], name: "index_person_roles_on_person_id_and_name", unique: true
+    t.index ["person_id"], name: "index_person_roles_on_person_id"
   end
 
   create_table "purchase_links", force: :cascade do |t|
@@ -115,12 +148,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_162643) do
     t.index ["scenario_id"], name: "index_stream_links_on_scenario_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "google_uid", null: false
+    t.bigint "person_id"
+    t.datetime "updated_at", null: false
+    t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
+    t.index ["person_id"], name: "index_users_on_person_id", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "group_memberships", "groups"
+  add_foreign_key "group_memberships", "people"
+  add_foreign_key "person_roles", "people"
   add_foreign_key "purchase_links", "scenarios"
   add_foreign_key "scenario_authors", "authors"
   add_foreign_key "scenario_authors", "scenarios"
   add_foreign_key "scenario_game_systems", "game_systems"
   add_foreign_key "scenario_game_systems", "scenarios"
   add_foreign_key "stream_links", "scenarios"
+  add_foreign_key "users", "people"
 end

@@ -45,6 +45,10 @@ gem "aws-sdk-s3", require: false
 # Authorization [https://github.com/varvet/pundit]
 gem "pundit"
 
+# Google sign-in. CSRF protection is required for the request phase.
+gem "omniauth-google-oauth2"
+gem "omniauth-rails_csrf_protection"
+
 # SEO
 gem "meta-tags"
 gem "sitemap_generator"
