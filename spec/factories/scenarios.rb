@@ -38,3 +38,17 @@ FactoryBot.define do
     sequence(:email) { |n| "user#{n}@example.com" }
   end
 end
+
+FactoryBot.define do
+  factory :play_session do
+    scenario
+    played_on { Date.new(2026, 5, 1) }
+    status { :played }
+  end
+
+  factory :participation do
+    play_session
+    person
+    role { :player }
+  end
+end
