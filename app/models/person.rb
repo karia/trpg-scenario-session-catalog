@@ -13,14 +13,6 @@ class Person < ApplicationRecord
 
   default_scope { order(:display_name) }
 
-  # Phase 3 のセッション可視性がこの述語を使う。本人を含めるかは呼び出し側で決められるよう別に分ける。
-  scope :sharing_a_group_with, ->(person) {
-    return none if person.blank?
-
-    where(id: GroupMembership.where(group_id: GroupMembership.where(person_id: person.id).select(:group_id))
-      .select(:person_id)).where.not(id: person.id)
-  }
-
   PersonRole::ROLES.each_key do |role|
     define_method(:"#{role}?") { person_roles.any? { |r| r.name == role.to_s } }
   end

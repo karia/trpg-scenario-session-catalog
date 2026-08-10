@@ -69,6 +69,25 @@ RSpec.describe "PlaySessions" do
       expect(response.body).to include("https://charasheet.example/1234", "https://youtu.be/abc")
     end
 
+    it "shows the start time without the placeholder date a time column carries" do
+      session.update!(started_at: "20:00")
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_session_path(session)
+
+      expect(response.body).to include("2026年5月1日 20:00")
+      expect(response.body).not_to include("2000-01-01")
+    end
+
+    it "shows the note to a viewer who is allowed to see the session" do
+      session.update!(note: "覚え書きの見本")
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_session_path(session)
+
+      expect(response.body).to include("覚え書きの見本")
+    end
+
     it "links back to the scenario" do
       sign_in_as create(:person, groups: [ group ])
 

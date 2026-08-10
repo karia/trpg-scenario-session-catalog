@@ -3,6 +3,9 @@ class PlaySessionPolicy < ApplicationPolicy
   def show? = Scope.new(person, PlaySession).resolve.exists?(record.id)
 
   # シナリオと同じく、編集できるのは管理者と GM。
+  # 管理画面は公開側の index? とは別の判断。編集者だけが入る。
+  def manage? = editor?
+
   def create? = editor?
   def update? = editor?
   def destroy? = editor?
@@ -14,18 +17,17 @@ class PlaySessionPolicy < ApplicationPolicy
 
       # 本人が参加している回と、参加者の誰かと同じグループに属する回。
       # 行が膨らまないよう結合ではなく EXISTS で書く。
-      scope.where(
-        Participation.where("participations.play_session_id = play_sessions.id")
-          .where(person_id: visible_person_ids).arel.exists
-      )
+      mine = Participation.where("participations.play_session_id = play_sessions.id")
+
+      scope.where(mine.where(person_id: peer_person_ids).arel.exists)
+        .or(scope.where(mine.where(person_id: person.id).arel.exists))
     end
 
     private
-      def visible_person_ids
-        peers = GroupMembership.where(group_id: GroupMembership.where(person_id: person.id).select(:group_id))
+      # 同じグループの人の id。本人は所属が無くても参加者として見えるので別に足す。
+      def peer_person_ids
+        GroupMembership.where(group_id: GroupMembership.where(person_id: person.id).select(:group_id))
           .select(:person_id)
-
-        Person.where(id: peers).or(Person.where(id: person.id)).select(:id)
       end
   end
 end

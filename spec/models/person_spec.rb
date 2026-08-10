@@ -39,15 +39,5 @@ RSpec.describe Person do
 
       expect(person.groups.map(&:name)).to contain_exactly("よく遊ぶ人たち", "ペア卓")
     end
-
-    it "finds the people who share any group" do
-      group = create(:group)
-      me = create(:person, groups: [ group ])
-      peer = create(:person, groups: [ group ])
-      stranger = create(:person)
-
-      expect(described_class.sharing_a_group_with(me)).to include(peer)
-      expect(described_class.sharing_a_group_with(me)).not_to include(stranger)
-    end
   end
 end

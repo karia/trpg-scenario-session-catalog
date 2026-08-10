@@ -3,7 +3,7 @@ module Manage
     before_action :set_scenario, only: %i[edit update destroy]
 
     def index
-      authorize Scenario
+      authorize Scenario, :manage?
       @scenarios = Scenario.includes(:game_systems, :authors).order(:title)
     end
 

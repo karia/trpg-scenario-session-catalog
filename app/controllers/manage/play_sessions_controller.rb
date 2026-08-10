@@ -3,9 +3,9 @@ module Manage
     before_action :set_play_session, only: %i[edit update destroy]
 
     def index
-      authorize PlaySession
+      authorize PlaySession, :manage?
       # 編集者は保守のためすべての回を見る。閲覧側の Scope とは別の判断。
-      @play_sessions = PlaySession.includes(:scenario, participations: :person).newest_first
+      @play_sessions = maintained_sessions
     end
 
     def edit
@@ -18,7 +18,7 @@ module Manage
       if @play_session.save
         redirect_to manage_play_sessions_path, notice: "セッションを登録しました"
       else
-        @play_sessions = PlaySession.includes(:scenario).newest_first
+        @play_sessions = maintained_sessions
         render :index, status: :unprocessable_content
       end
     end
@@ -40,6 +40,11 @@ module Manage
     end
 
     private
+      # 保守用なので公開側の Scope は通さない。入口は require_editor と manage? で守る。
+      def maintained_sessions
+        PlaySession.includes(:scenario, participations: :person).newest_first
+      end
+
       def set_play_session
         @play_session = PlaySession.find(params[:id])
       end

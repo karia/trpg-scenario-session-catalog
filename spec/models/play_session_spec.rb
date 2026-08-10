@@ -37,6 +37,13 @@ RSpec.describe PlaySession do
   end
 
   describe "ordering" do
+    it "puts a session with no start time after one with a time on the same day" do
+      timed = create(:play_session, played_on: Date.new(2026, 5, 1), started_at: "20:00")
+      untimed = create(:play_session, played_on: Date.new(2026, 5, 1), started_at: nil)
+
+      expect(described_class.newest_first.to_a).to eq([ timed, untimed ])
+    end
+
     it "puts undated sessions last rather than letting the database decide" do
       undated = create(:play_session, played_on: nil)
       older = create(:play_session, played_on: Date.new(2026, 1, 1))
