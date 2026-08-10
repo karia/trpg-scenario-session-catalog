@@ -4,7 +4,13 @@ module Manage
 
     def index
       authorize Scenario, :manage?
-      @scenarios = Scenario.includes(:game_systems, :authors).order(:title)
+      @scenarios = Scenario.includes(:game_systems, :authors).gm_ordered
+    end
+
+    def reorder
+      authorize Scenario, :reorder?
+      Scenario.rearrange(Array(params[:scenario_ids]).map(&:to_i))
+      head :no_content
     end
 
     def new

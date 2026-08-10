@@ -21,7 +21,9 @@ Rails.application.routes.draw do
   resources :people, only: [ :index, :show, :edit, :update ]
 
   namespace :manage do
-    resources :scenarios
+    resources :scenarios do
+      patch :reorder, on: :collection
+    end
     resources :game_systems, except: [ :show, :new ]
     resources :authors, except: [ :show, :new ]
     resources :people, except: [ :show, :new ]

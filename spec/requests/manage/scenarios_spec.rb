@@ -30,6 +30,39 @@ RSpec.describe "Manage::Scenarios" do
       expect(response).to have_http_status(:not_found)
       expect(Scenario.count).to eq(0)
     end
+
+    # 並び順は公開側の見た目を決める。編集エリアと同じ壁の内側に置く。
+    it "does not rearrange the list for an anonymous visitor" do
+      first = create(:scenario)
+      second = create(:scenario)
+
+      patch reorder_manage_scenarios_path, params: { scenario_ids: [ second.id, first.id ] }
+
+      expect(response).to have_http_status(:not_found)
+      expect(first.reload.position).to be < second.reload.position
+    end
+
+    it "does not rearrange the list for a user who is not linked to a person" do
+      first = create(:scenario)
+      second = create(:scenario)
+      sign_in_as create(:user, person: nil)
+
+      patch reorder_manage_scenarios_path, params: { scenario_ids: [ second.id, first.id ] }
+
+      expect(response).to have_http_status(:not_found)
+      expect(first.reload.position).to be < second.reload.position
+    end
+
+    it "does not rearrange the list for a person with no role" do
+      first = create(:scenario)
+      second = create(:scenario)
+      sign_in_as create(:person)
+
+      patch reorder_manage_scenarios_path, params: { scenario_ids: [ second.id, first.id ] }
+
+      expect(response).to have_http_status(:not_found)
+      expect(first.reload.position).to be < second.reload.position
+    end
   end
 
   describe "as a GM" do
@@ -46,6 +79,47 @@ RSpec.describe "Manage::Scenarios" do
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("カタシロ")
+    end
+
+    describe "rearranging the list" do
+      it "lists the scenarios in the order the GM arranged, not by title" do
+        create(:scenario, title: "あ", position: 2)
+        create(:scenario, title: "ま", position: 1)
+
+        authorized_get manage_scenarios_path
+
+        expect(response.body.index("ま")).to be < response.body.index("あ")
+      end
+
+      it "hands each row to the browser with its identifier" do
+        scenario = create(:scenario)
+
+        authorized_get manage_scenarios_path
+
+        expect(Capybara.string(response.body))
+          .to have_css(%(tr[draggable="true"][data-sortable-id-param="#{scenario.id}"]))
+      end
+
+      it "saves the new order" do
+        first = create(:scenario, title: "いち")
+        second = create(:scenario, title: "に")
+        third = create(:scenario, title: "さん")
+
+        patch reorder_manage_scenarios_path, params: { scenario_ids: [ third.id, first.id, second.id ] }
+
+        expect(response).to have_http_status(:no_content)
+        expect(Scenario.gm_ordered.pluck(:title)).to eq([ "さん", "いち", "に" ])
+      end
+
+      it "leaves the order alone when nothing is sent" do
+        first = create(:scenario)
+        second = create(:scenario)
+
+        patch reorder_manage_scenarios_path
+
+        expect(response).to have_http_status(:no_content)
+        expect(Scenario.gm_ordered).to eq([ first, second ])
+      end
     end
 
     it "creates a scenario with its systems, authors and links in one submission" do
