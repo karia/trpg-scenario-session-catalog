@@ -33,8 +33,6 @@
         <dd><%= player_count_label(@scenario) %></dd>
         <dt class="text-muted">目安時間</dt>
         <dd><%= duration_label(@scenario) %></dd>
-        <dt class="text-muted">おすすめ度</dt>
-        <dd class="<%= "text-seal" if @scenario.recommendation.present? %>"><%= recommendation_label(@scenario) %></dd>
         <dt class="text-muted">参加制限</dt>
         <dd class="font-sans"><%= @scenario.character_restriction.presence || "制限なし" %></dd>
         <dt class="text-muted">キャラシ</dt>

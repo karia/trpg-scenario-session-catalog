@@ -1,6 +1,6 @@
 module MetaTagsHelper
   SITE_NAME = "卓の記録".freeze
-  SITE_DESCRIPTION = "遊んだ TRPG シナリオの一覧。システム、人数、目安時間、おすすめ度から選べます。".freeze
+  SITE_DESCRIPTION = "遊んだ TRPG シナリオの一覧。システム、人数、目安時間から選べます。".freeze
 
   def default_meta_tags
     {

@@ -1,28 +1,31 @@
 module ScenariosHelper
   UNSET = "未設定".freeze
 
-  def player_count_label(scenario)
-    numeric = bounded_label(scenario.player_count_min, scenario.player_count_max) { |n| "#{n}人" }
-
-    [ numeric, scenario.player_count_note ].compact_blank.join(" ").presence || UNSET
+  def list_view_class(name, current)
+    name == current ? "font-bold text-ink no-underline" : "text-seal"
   end
 
-  def duration_label(scenario)
+
+  # 値が無ければ nil。一覧は空欄に、詳細は「未設定」に落とす。
+  def player_count_value(scenario)
+    numeric = bounded_label(scenario.player_count_min, scenario.player_count_max) { |n| "#{n}人" }
+
+    [ numeric, scenario.player_count_note ].compact_blank.join(" ").presence
+  end
+
+  def player_count_label(scenario) = player_count_value(scenario) || UNSET
+
+  def duration_value(scenario)
     min = scenario.duration_min_minutes
     max = scenario.duration_max_minutes
-    return UNSET if min.blank? && max.blank?
+    return nil if min.blank? && max.blank?
 
     # 2 時間未満は分のままのほうが元データに近く、範囲でも単位が揃う。
     unit = [ min, max ].compact.max < 120 ? :minutes : :hours
     bounded_label(min, max) { |n| humanized_minutes(n, unit:) }
   end
 
-  def recommendation_label(scenario)
-    return "回したことない" unless scenario.gm_experienced
-    return "未評価" if scenario.recommendation.blank?
-
-    "★" * scenario.recommendation
-  end
+  def duration_label(scenario) = duration_value(scenario) || UNSET
 
   def character_sheet_deadline_label(scenario)
     return scenario.character_sheet_deadline_note if scenario.character_sheet_deadline_note.present?

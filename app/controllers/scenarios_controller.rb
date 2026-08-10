@@ -1,6 +1,11 @@
 class ScenariosController < ApplicationController
+  VIEWS = %w[table gallery].freeze
+
   def index
-    @scenarios = policy_scope(Scenario).includes(:game_systems, :authors, jacket_attachment: :blob)
+    @view = VIEWS.include?(params[:view]) ? params[:view] : VIEWS.first
+    @scenarios = policy_scope(Scenario)
+      .includes(:game_systems, :authors, :purchase_links, jacket_attachment: :blob)
+      .recommended_first
     authorize Scenario
   end
 

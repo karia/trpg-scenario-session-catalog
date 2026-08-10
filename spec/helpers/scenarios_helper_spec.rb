@@ -69,20 +69,6 @@ RSpec.describe ScenariosHelper do
     end
   end
 
-  describe "#recommendation_label" do
-    it "shows stars" do
-      expect(helper.recommendation_label(build(:scenario, recommendation: 4))).to eq("★★★★")
-    end
-
-    it "distinguishes 「回したことない」 from an unrated scenario" do
-      never_run = build(:scenario, gm_experienced: false, recommendation: nil)
-      unrated = build(:scenario, gm_experienced: true, recommendation: nil)
-
-      expect(helper.recommendation_label(never_run)).to eq("回したことない")
-      expect(helper.recommendation_label(unrated)).to eq("未評価")
-    end
-  end
-
   describe "#character_sheet_deadline_label" do
     it "translates the enum" do
       expect(helper.character_sheet_deadline_label(build(:scenario, character_sheet_deadline: :two_days_before)))
