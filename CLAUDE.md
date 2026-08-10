@@ -2,9 +2,7 @@
 
 セットアップと PR の出し方は [README](README.md) にある。ここには、作業中に迷う手順と、この repo の約束を書く。
 
-## 構成
-
-Rails 8 の SSR モノリス。設計判断は [ADR-0001](docs/adr/0001-application-architecture.md)。
+## どこに何があるか
 
 | 層 | 置き場所 | 補足 |
 | --- | --- | --- |
@@ -39,7 +37,12 @@ bin/rails db:test:prepare     # テスト DB に schema.rb を流し直す
 `db/schema.rb` は必ず commit する。テストは migration ではなく schema.rb から DB を作る。
 
 **本番のマイグレーションはアプリの起動から切り離してある。** コンテナの entrypoint では走らない。
-`yuno04-k3s` の `apps/trpg-catalog/migrate-job.yaml` を Job として流し、そのあとに Deployment のイメージを差し替える。
+`yuno04-k3s` 側で次の順に行う。
+
+1. migrate の Job と Deployment の**両方**のイメージを新しい digest に書き換える。Job は Deployment と別に digest を持つので、ここを忘れると古いコードのマイグレーションが走る
+2. Job を `kubectl create -f` で流す。`generateName` なので `apply` では作れない。中身は `db:prepare`
+3. Job の完走を確認してから Deployment を `apply` する
+
 順序を逆にすると、新しいコードが古いスキーマに当たる。
 
 破壊的な変更（列の削除、型の変更）は、読み書きの両方が新旧どちらのスキーマでも動く状態を経由させる。
@@ -52,8 +55,12 @@ docker compose down -v && docker compose up -d
 bin/rails db:prepare && bin/rails db:test:prepare
 ```
 
-テストが理由なく落ちるときは、テスト DB に残留データが無いか疑う。
-`RAILS_ENV=test bin/rails runner 'puts Person.count'` が 0 でなければ、過去の実行が残している。
+テストは1例ごとにロールバックするので、通常は残留しない。
+それでも実行順に依存して落ちるときだけ、トランザクション外で commit された行を疑う。
+
+```bash
+RAILS_ENV=test bin/rails runner 'puts Person.count'   # 0 でなければ残っている
+```
 
 ## この repo の約束
 

@@ -18,26 +18,21 @@ docker compose up -d      # PostgreSQL と MinIO
 bin/setup                 # 依存の取得、DB 作成、開発サーバの起動まで
 ```
 
-`bin/setup` はサーバまで起動する。DB の用意だけしたいときは `bin/setup --skip-server`。
+DB の用意だけしたいときは `bin/setup --skip-server`。
+初回は `db:prepare` が seed も流すので、`db/seeds/scenarios.example.yml` の見本が入った状態で立ち上がる。
+入れ直すなら `bin/rails db:seed`。何度流しても増えない。
 
 `.env` は編集しなくても動く。既定値が `compose.yaml` に合わせてある。
 Google 認証を手元で試すときだけ `GOOGLE_CLIENT_ID` と `GOOGLE_CLIENT_SECRET` が要る。
 
-シナリオが 0 件だと画面が寂しいので、見本を入れておくとよい。
-`db/seeds/scenarios.example.yml` の 2 件が入る。何度流しても増えない。
-
-```bash
-bin/rails db:seed
-```
-
 ## 変更を出す
 
 ```bash
-bin/rspec                 # テスト
-prek run --all-files      # RuboCop / erb_lint / Brakeman / gitleaks
+bin/ci
 ```
 
-この2つが通ることが、PR を出す前提。CI でも同じものが走る。
+CI と同じ一式（テスト、静的解析、依存の脆弱性監査、本番イメージのビルド確認）が走る。
+これが通ることが PR を出す前提。書きながら回すなら `bin/rspec` と `prek run --all-files` で足りる。
 
 - ブランチを切って PR を出す。`main` へ直接 push しない
 - commit はテーマごとに分ける。1 つの PR に複数テーマが混ざってもよいが、commit は混ぜない
