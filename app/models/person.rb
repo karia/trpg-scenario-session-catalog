@@ -5,6 +5,10 @@ class Person < ApplicationRecord
 
   has_one :user, dependent: :nullify
   has_many :person_roles, dependent: :destroy
+  has_many :person_aliases, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :person
+  has_many :favorites, dependent: :destroy
+  has_many :favorite_scenarios, through: :favorites, source: :scenario
+  has_many :spoiler_reveals, dependent: :destroy
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
 
@@ -17,7 +21,13 @@ class Person < ApplicationRecord
     define_method(:"#{role}?") { person_roles.any? { |r| r.name == role.to_s } }
   end
 
+  accepts_nested_attributes_for :person_aliases, allow_destroy: true, reject_if: ->(attrs) { attrs["name"].blank? }
+
   def roles = person_roles.map(&:name)
+
+  def revealed?(scenario) = spoiler_reveals.exists?(scenario_id: scenario.id)
+
+  def favourite?(scenario) = favorites.exists?(scenario_id: scenario.id)
 
   def self.admins = joins(:person_roles).where(person_roles: { name: PersonRole.names[:admin] })
 

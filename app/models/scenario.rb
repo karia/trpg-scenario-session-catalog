@@ -17,6 +17,9 @@ class Scenario < ApplicationRecord
   has_many :game_systems, through: :scenario_game_systems
   has_many :scenario_authors, dependent: :destroy
   has_many :authors, through: :scenario_authors
+  has_many :favorites, dependent: :destroy
+  has_many :spoiler_reveals, dependent: :destroy
+  has_many :play_sessions, dependent: :destroy
   has_many :purchase_links, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :scenario
   has_many :stream_links, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :scenario
 

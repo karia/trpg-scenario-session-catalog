@@ -52,3 +52,20 @@ FactoryBot.define do
     role { :player }
   end
 end
+
+FactoryBot.define do
+  factory :person_alias do
+    person
+    sequence(:name) { |n| "別名#{n}" }
+  end
+
+  factory :favorite do
+    person
+    scenario
+  end
+
+  factory :spoiler_reveal do
+    person
+    scenario
+  end
+end

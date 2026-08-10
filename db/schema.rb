@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_135009) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_144652) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,6 +47,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_135009) do
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_authors_on_name", unique: true
+  end
+
+  create_table "favorites", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "person_id", null: false
+    t.bigint "scenario_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id", "scenario_id"], name: "index_favorites_on_person_id_and_scenario_id", unique: true
+    t.index ["person_id"], name: "index_favorites_on_person_id"
+    t.index ["scenario_id"], name: "index_favorites_on_scenario_id"
   end
 
   create_table "game_systems", force: :cascade do |t|
@@ -92,6 +102,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_135009) do
     t.string "display_name", null: false
     t.datetime "updated_at", null: false
     t.string "x_account"
+  end
+
+  create_table "person_aliases", force: :cascade do |t|
+    t.string "context"
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "person_id", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id"], name: "index_person_aliases_on_person_id"
   end
 
   create_table "person_roles", force: :cascade do |t|
@@ -166,6 +186,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_135009) do
     t.index ["title"], name: "index_scenarios_on_title"
   end
 
+  create_table "spoiler_reveals", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "person_id", null: false
+    t.bigint "scenario_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id", "scenario_id"], name: "index_spoiler_reveals_on_person_id_and_scenario_id", unique: true
+    t.index ["person_id"], name: "index_spoiler_reveals_on_person_id"
+    t.index ["scenario_id"], name: "index_spoiler_reveals_on_scenario_id"
+  end
+
   create_table "stream_links", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "label"
@@ -188,10 +218,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_135009) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "favorites", "people"
+  add_foreign_key "favorites", "scenarios"
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "people"
   add_foreign_key "participations", "people"
   add_foreign_key "participations", "play_sessions"
+  add_foreign_key "person_aliases", "people"
   add_foreign_key "person_roles", "people"
   add_foreign_key "play_sessions", "scenarios"
   add_foreign_key "purchase_links", "scenarios"
@@ -199,6 +232,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_135009) do
   add_foreign_key "scenario_authors", "scenarios"
   add_foreign_key "scenario_game_systems", "game_systems"
   add_foreign_key "scenario_game_systems", "scenarios"
+  add_foreign_key "spoiler_reveals", "people"
+  add_foreign_key "spoiler_reveals", "scenarios"
   add_foreign_key "stream_links", "scenarios"
   add_foreign_key "users", "people"
 end
