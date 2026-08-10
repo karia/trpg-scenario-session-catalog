@@ -21,6 +21,7 @@
 | テスト | `bin/rspec` |
 | 1 ファイルだけ | `bin/rspec spec/requests/scenarios_spec.rb:42` |
 | 静的解析をまとめて | `prek run --all-files` |
+| CI と同じ一式 | `bin/ci`（PR を出す前に通す） |
 | 開発サーバ | `bin/dev`（Puma と Tailwind の watch） |
 | シナリオの投入 | `bin/rails db:seed`（冪等） |
 
@@ -67,6 +68,7 @@ RAILS_ENV=test bin/rails runner 'puts Person.count'   # 0 でなければ残っ�
 ### 公開リポジトリとして
 
 - public repo である。クラスタ側の資格情報とリソース識別子を持ち込まない
+- インフラ側のリポジトリ名と、クラスタ内部のホスト名も書かない。「インフラ側のリポジトリ」と呼ぶ。公開サイトのホスト名は別で、README と `APP_HOST` の既定値に出ている
 - シナリオの実データは git に置かない。書式は `db/seeds/scenarios.example.yml`、投入先は `SCENARIOS_SEED_FILE` で差し替える
 
 ### 設定と実行
@@ -81,6 +83,7 @@ RAILS_ENV=test bin/rails runner 'puts Person.count'   # 0 でなければ残っ�
 - セッションの可視性は `PlaySessionPolicy::Scope` にだけ書く。一覧、詳細、シナリオ詳細の履歴が同じものを通る
 - 準備情報は `ScenarioPolicy#show_preparation_note?` が真のときだけ本文をレスポンスに載せる。CSS では隠さない
 - プロフィールの編集は本人と管理者。グループ所属は管理画面（管理者のみ）でしか変えられない
+- 認可に触れる変更では、誰に何が見えるかを spec で固定する。役割ごとの可否は `spec/policies/authorization_matrix_spec.rb` の一覧に足し、画面から見えるかどうかは `spec/requests/` に足す
 
 ### ドメイン
 
@@ -90,4 +93,11 @@ RAILS_ENV=test bin/rails runner 'puts Person.count'   # 0 でなければ残っ�
 
 ### 進め方
 
+TDD、commit の分け方、pre-commit の扱いは [README の「変更を出す」](README.md#変更を出す) にある。加えて次を守る。
+
+- 作業は `main` から切った worktree で行う。元のディレクトリは `main` のまま残す
+- PR を作ったら必ずサブエージェントで第三者レビューを実行し、GitHub の行コメントとして投稿する。規模を問わず必須で、実施の可否は尋ねない
+- レビューが返ったら内容を精査し、対応・非対応を PR 上で1件ずつ返信する
+- マージは依頼者が行う。こちらでは merge しない
+- 会話は日本語。commit と PR の title/description は英語
 - ソースに複数行コメントを書かない。書くのは、コードから読み取れない背景や理由に限る
