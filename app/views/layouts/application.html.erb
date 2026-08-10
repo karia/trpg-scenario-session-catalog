@@ -27,12 +27,16 @@
         <nav class="ml-auto flex items-center gap-4 text-xs">
           <% if signed_in? %>
             <% if current_person&.admin? || current_person&.gm? %>
-              <%= link_to "編集", manage_scenarios_path, class: "text-seal" %>
+              <%= link_to "編集", manage_scenarios_path, class: "text-seal underline" %>
             <% end %>
             <span class="text-muted"><%= current_person&.display_name || "未登録" %></span>
-            <%= button_to "ログアウト", session_path, method: :delete, class: "text-muted" %>
+            <%= button_to "ログアウト", session_path, method: :delete,
+                  class: "cursor-pointer text-muted underline" %>
           <% else %>
-            <%= button_to "ログイン", "/auth/google_oauth2", method: :post, class: "text-seal" %>
+            <%# Turbo はフォーム送信を横取りするが、Google への cross-origin リダイレクトを追えない。 %>
+            <%= button_to "Google でログイン", "/auth/google_oauth2", method: :post,
+                  data: { turbo: false },
+                  class: "cursor-pointer border border-ink px-3 py-1.5 text-ink hover:bg-ink hover:text-paper" %>
           <% end %>
         </nav>
       </div>
