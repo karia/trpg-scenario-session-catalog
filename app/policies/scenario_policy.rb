@@ -17,6 +17,9 @@ class ScenarioPolicy < ApplicationPolicy
   # 押した記録があるときだけ本文を返す。CSS では隠さない。
   def show_preparation_note? = person.present? && person.revealed?(record)
 
+  # GM の私見であり、公開エリアの一部ではあっても外部の閲覧者には見せない。
+  def show_recommendation_note? = person.present?
+
   class Scope < ApplicationPolicy::Scope
     def resolve
       scope.all

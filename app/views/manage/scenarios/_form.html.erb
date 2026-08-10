@@ -108,7 +108,8 @@
       </div>
 
       <div>
-        <%= form.label :recommendation_note, "おすすめポイント", class: "block text-xs text-muted" %>
+        <%= form.label :recommendation_note, "GMからのオススメポイント", class: "block text-xs text-muted" %>
+        <p class="text-xs text-muted">メンバーにだけ見せる。未登録のログインユーザーと未ログインには出さない。</p>
         <%= form.text_area :recommendation_note, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
 

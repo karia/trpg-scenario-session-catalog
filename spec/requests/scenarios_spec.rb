@@ -19,6 +19,7 @@ RSpec.describe "Scenarios" do
         title: "ロールシャッハシンドローム",
         synopsis: "あらすじ本文",
         preparation_note: "ネタバレを含む準備情報",
+        recommendation_note: "GM が推す一点",
         game_systems: [ create(:game_system, name: "エモクロアTRPG") ],
         authors: [ create(:author, name: "ディズム") ]
       )
@@ -44,6 +45,30 @@ RSpec.describe "Scenarios" do
       get scenario_path(scenario)
 
       expect(response.body).not_to include("ネタバレを含む準備情報")
+    end
+
+    it "keeps the recommendation note out of the response for a visitor" do
+      get scenario_path(scenario)
+
+      expect(response.body).not_to include("GM が推す一点")
+      expect(response.body).not_to include("GMからのオススメポイント")
+    end
+
+    it "keeps the recommendation note out of the response for a user with no person" do
+      sign_in_as(create(:user))
+
+      get scenario_path(scenario)
+
+      expect(response.body).not_to include("GM が推す一点")
+      expect(response.body).not_to include("GMからのオススメポイント")
+    end
+
+    it "shows the recommendation note to a signed-in member" do
+      sign_in_as(create(:person))
+
+      get scenario_path(scenario)
+
+      expect(response.body).to include("GMからのオススメポイント", "GM が推す一点")
     end
 
     it "puts the scenario name in the page title" do
