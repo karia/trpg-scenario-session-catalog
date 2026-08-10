@@ -23,3 +23,18 @@ FactoryBot.define do
     url { "https://youtu.be/abc" }
   end
 end
+
+FactoryBot.define do
+  factory :person do
+    sequence(:display_name) { |n| "人物#{n}" }
+  end
+
+  factory :group do
+    sequence(:name) { |n| "グループ#{n}" }
+  end
+
+  factory :user do
+    sequence(:google_uid) { |n| "uid-#{n}" }
+    sequence(:email) { |n| "user#{n}@example.com" }
+  end
+end

@@ -1,0 +1,26 @@
+<% content_for :title, "Google アカウントの紐づけ" %>
+<h1 class="font-display text-2xl">Google アカウントの紐づけ</h1>
+<p class="mt-2 text-sm text-muted">紐づくまで、そのアカウントは公開エリアしか見られません。</p>
+
+<% people = Person.all.to_a %>
+
+<ul class="mt-6 divide-y divide-rule border border-rule bg-surface text-sm">
+  <% @users.each do |user| %>
+    <li class="flex flex-wrap items-center justify-between gap-3 p-3">
+      <div>
+        <p class="font-mono text-xs"><%= user.email.presence || "メールアドレス不明" %></p>
+        <p class="text-xs text-muted">初回ログイン <%= l user.created_at, format: :short %></p>
+      </div>
+      <%= form_with model: [ :manage, user ], class: "flex items-center gap-2" do |form| %>
+        <%= form.label :person_id, "紐づけ先", class: "sr-only" %>
+        <%= form.collection_select :person_id, people, :id, :display_name,
+              { include_blank: "未紐づけ" }, class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+        <%= form.submit "保存", class: "bg-ink px-4 py-2 text-xs text-paper" %>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+
+<% if @users.empty? %>
+  <p class="mt-6 border border-rule bg-surface p-6 text-center text-sm text-muted">まだ誰もログインしていません。</p>
+<% end %>

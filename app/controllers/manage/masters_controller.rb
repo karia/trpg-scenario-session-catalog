@@ -4,40 +4,41 @@ module Manage
     before_action :set_record, only: %i[edit update destroy]
 
     def index
-      @records = model_class.all
+      authorize model_class
+      @records = policy_scope(model_class)
       @record = model_class.new
     end
 
-    def new
-      redirect_to url_for(action: :index)
-    end
-
     def edit
-      @records = model_class.all
+      authorize @record
+      @records = policy_scope(model_class)
       render :index
     end
 
     def create
-      @record = model_class.new(record_params)
+      @record = authorize model_class.new(record_params)
 
       if @record.save
         redirect_to url_for(action: :index), notice: "#{@record.name} を登録しました"
       else
-        @records = model_class.all
+        @records = policy_scope(model_class)
         render :index, status: :unprocessable_content
       end
     end
 
     def update
+      authorize @record
+
       if @record.update(record_params)
         redirect_to url_for(action: :index), notice: "#{@record.name} を更新しました"
       else
-        @records = model_class.all
+        @records = policy_scope(model_class)
         render :index, status: :unprocessable_content
       end
     end
 
     def destroy
+      authorize @record
       @record.destroy!
       redirect_to url_for(action: :index), notice: "削除しました"
     end
