@@ -37,7 +37,7 @@ bin/rails db:test:prepare     # テスト DB に schema.rb を流し直す
 `db/schema.rb` は必ず commit する。テストは migration ではなく schema.rb から DB を作る。
 
 **本番のマイグレーションはアプリの起動から切り離してある。** コンテナの entrypoint では走らない。
-`yuno04-k3s` 側で次の順に行う。
+インフラ側のリポジトリで次の順に行う。
 
 1. migrate の Job と Deployment の**両方**のイメージを新しい digest に書き換える。Job は Deployment と別に digest を持つので、ここを忘れると古いコードのマイグレーションが走る
 2. Job を `kubectl create -f` で流す。`generateName` なので `apply` では作れない。中身は `db:prepare`

@@ -48,7 +48,7 @@ CI と同じ一式（テスト、静的解析、依存の脆弱性監査、本�
 Rails 8 の SSR モノリス。画面は Hotwire、認可は Pundit、ファイルは Active Storage 経由で MinIO に置く。
 詳しくは [ADR-0001](docs/adr/0001-application-architecture.md) を読む。
 
-インフラ（k3s、PostgreSQL、MinIO、公開経路）は別リポジトリ `yuno04-k3s` で管理する。
+インフラ（k3s、PostgreSQL、MinIO、公開経路）は本リポジトリでは管理しない。別のリポジトリで扱う。
 このリポジトリが持つのは、アプリのコード、Dockerfile、CI、必要な環境変数の仕様まで。
 
 ## ドキュメント

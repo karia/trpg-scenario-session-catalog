@@ -34,5 +34,5 @@ Phase 3 と Phase 4 はどちらもシナリオ詳細に表示を足す。
 
 ## インフラ
 
-PostgreSQL、MinIO、Ingress、Cloudflare Tunnel の構成は `yuno04-k3s` リポジトリで扱う。
+PostgreSQL、MinIO、Ingress、公開経路の構成は本リポジトリでは扱わない。
 Phase 0 の完了条件にはそちらの作業も含む。
