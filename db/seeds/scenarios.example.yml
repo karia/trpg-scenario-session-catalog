@@ -1,0 +1,41 @@
+# db/seeds/scenarios.yml の書式を示すサンプル。実データは git に置かない。
+# 投入するときは、このファイルを scenarios.yml にコピーして中身を差し替えるか、
+# SCENARIOS_SEED_FILE で別のパスを指す。
+- title: 見本シナリオ
+  game_systems:
+    - 見本システム 1版
+    - 見本システム 2版
+  authors:
+    - 見本作者
+    - 共著の見本作者
+  player_count_min: 2
+  player_count_max: 4
+  player_count_note: 程度
+  duration_min_minutes: 180
+  duration_max_minutes: 240
+  recommendation: 4
+  gm_experienced: true
+  character_restriction: HOあり
+  character_sheet_deadline: two_days_before
+  recommendation_note: おすすめポイントをここに書く。公開ページに出る。
+  purchase_links:
+    - label: BOOTH
+      url: https://example.com/items/1
+
+# 人数と時間は片側だけでもよい。両方空なら補足だけを表示する。
+- title: 人数制限のない見本
+  game_systems:
+    - 見本システム 1版
+  authors:
+    - 見本作者
+  player_count_note: 制限なし
+  duration_min_minutes: 30
+  duration_max_minutes: 60
+  gm_experienced: false
+  character_restriction: 制限なし
+  # 選択肢に当てはまらない期限は note に原文を残し、選択肢は see_note にする。
+  character_sheet_deadline: see_note
+  character_sheet_deadline_note: 継続の場合提出不要
+  purchase_links:
+    # URL を持たない入手先も書ける。
+    - label: 書籍購入者限定特典
