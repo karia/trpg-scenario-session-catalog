@@ -89,6 +89,12 @@ RSpec.describe ScenariosHelper do
         .to eq("セッション前々日")
     end
 
+    it "prefers the free-text note when the deadline does not fit the enum" do
+      scenario = build(:scenario, character_sheet_deadline: :see_note, character_sheet_deadline_note: "継続の場合提出不要")
+
+      expect(helper.character_sheet_deadline_label(scenario)).to eq("継続の場合提出不要")
+    end
+
     it "says unset for 「-」 and a blank cell" do
       expect(helper.character_sheet_deadline_label(build(:scenario, character_sheet_deadline: nil))).to eq("未設定")
     end

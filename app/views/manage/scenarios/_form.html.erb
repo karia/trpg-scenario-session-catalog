@@ -73,6 +73,11 @@
         <%= form.text_field :character_restriction, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
       <div>
+        <%= form.label :character_sheet_deadline_note, "キャラシ提出期限の補足", class: "block text-xs text-muted" %>
+        <p class="text-xs text-muted">選択肢に当てはまらない場合はここに書く。書くと選択肢より優先して表示される。</p>
+        <%= form.text_field :character_sheet_deadline_note, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div>
         <%= form.label :character_sheet_deadline, "キャラシ提出期限", class: "block text-xs text-muted" %>
         <%= form.select :character_sheet_deadline,
               Scenario.character_sheet_deadlines.keys.map { |k| [ t("scenarios.character_sheet_deadlines.#{k}"), k ] },

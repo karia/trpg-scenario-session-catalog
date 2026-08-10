@@ -25,6 +25,7 @@ module ScenariosHelper
   end
 
   def character_sheet_deadline_label(scenario)
+    return scenario.character_sheet_deadline_note if scenario.character_sheet_deadline_note.present?
     return UNSET if scenario.character_sheet_deadline.blank?
 
     t("scenarios.character_sheet_deadlines.#{scenario.character_sheet_deadline}")

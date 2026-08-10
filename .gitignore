@@ -7,6 +7,9 @@
 # Ignore bundler config.
 /.bundle
 
+# 実際のシナリオ情報は公開しない。書式は db/seeds/scenarios.example.yml にある。
+/db/seeds/scenarios.yml
+
 # Ignore all environment files.
 /.env*
 !/.env.example
