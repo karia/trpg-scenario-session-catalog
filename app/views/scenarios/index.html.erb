@@ -7,14 +7,16 @@
   </div>
 
   <nav class="flex items-center gap-3 text-xs" aria-label="表示の切り替え">
-    <%= link_to "表形式", root_path(view: "table"), class: list_view_class("table", @view) %>
-    <%= link_to "ジャケット", root_path(view: "gallery"), class: list_view_class("gallery", @view) %>
+    <%= link_to "表形式", root_path(view: "table"), class: list_view_class("table", @view),
+          aria: { current: ("page" if @view == "table") } %>
+    <%= link_to "ジャケット", root_path(view: "gallery"), class: list_view_class("gallery", @view),
+          aria: { current: ("page" if @view == "gallery") } %>
   </nav>
 </div>
 
-<%= render "scenarios/#{@view}", scenarios: @scenarios %>
-
-<% if @scenarios.empty? %>
+<% if @scenarios.any? %>
+  <%= render "scenarios/#{@view}", scenarios: @scenarios %>
+<% else %>
   <p class="mt-8 border border-rule bg-surface p-8 text-center text-sm text-muted">
     まだシナリオが登録されていません。
   </p>

@@ -18,14 +18,14 @@
         </h2>
 
         <p class="text-xs text-muted">
-          <%= scenario.game_systems.map(&:name).join("／") %>
+          <%= scenario.game_systems.map(&:name).join("／").presence || "システム未設定" %>
         </p>
 
         <dl class="mt-auto grid grid-cols-[4rem_1fr] gap-x-3 gap-y-1 font-mono text-xs">
           <dt class="text-muted">人数</dt>
-          <dd><%= blank_to_empty(player_count_label(scenario)) %></dd>
+          <dd><%= player_count_value(scenario) %></dd>
           <dt class="text-muted">時間</dt>
-          <dd><%= blank_to_empty(duration_label(scenario)) %></dd>
+          <dd><%= duration_value(scenario) %></dd>
         </dl>
       <% end %>
     </li>

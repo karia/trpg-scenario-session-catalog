@@ -74,36 +74,46 @@ RSpec.describe "The scenario list" do
   end
 
   describe "the recommendation" do
+    # 星や見出しだけでなく、属性や生の値として漏れていないかも見る。
     it "is absent from the list" do
       get root_path
 
-      expect(response.body).not_to include("★")
-      expect(response.body).not_to include("おすすめ度")
+      expect(response.body).not_to include("★", "おすすめ度")
+      expect(response.body).not_to match(/recommendation/i)
     end
 
     it "is absent from the jacket view" do
       get root_path(view: "gallery")
 
       expect(response.body).not_to include("★")
+      expect(response.body).not_to match(/recommendation/i)
     end
 
     it "is absent from the scenario page" do
       get scenario_path(scenario)
 
-      expect(response.body).not_to include("★")
-      expect(response.body).not_to include("おすすめ度")
-      expect(response.body).not_to include("回したことない")
+      expect(response.body).not_to include("★", "おすすめ度", "回したことない")
+      expect(response.body).not_to match(/recommendation/i)
     end
 
+    # 作成順と期待順をずらす。並べ替えを外すと落ちるようにする。
     it "still orders the list, best first" do
-      create(:scenario, title: "低評価", recommendation: 1)
       create(:scenario, title: "未評価", recommendation: nil)
+      create(:scenario, title: "低評価", recommendation: 1)
 
-      get root_path
+      body = (get(root_path) && response.body)
 
-      body = response.body
       expect(body.index("見本シナリオ")).to be < body.index("低評価")
       expect(body.index("低評価")).to be < body.index("未評価")
+    end
+
+    it "breaks a tie on the title" do
+      create(:scenario, title: "い", recommendation: 5)
+      create(:scenario, title: "あ", recommendation: 5)
+
+      body = (get(root_path) && response.body)
+
+      expect(body.index("あ")).to be < body.index("い")
     end
 
     it "remains editable on the edit screen" do
