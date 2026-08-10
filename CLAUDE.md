@@ -64,16 +64,30 @@ RAILS_ENV=test bin/rails runner 'puts Person.count'   # 0 でなければ残っ�
 
 ## この repo の約束
 
+### 公開リポジトリとして
+
 - public repo である。クラスタ側の資格情報とリソース識別子を持ち込まない
+- シナリオの実データは git に置かない。書式は `db/seeds/scenarios.example.yml`、投入先は `SCENARIOS_SEED_FILE` で差し替える
+
+### 設定と実行
+
 - 設定はすべて環境変数から読む。Rails credentials は使わない（`config/master.key` は存在しない）
+
+### 認可
+
 - 認可は Pundit に寄せる。`ApplicationPolicy` は既定で拒否し、`Scope` は空集合を返す
 - 権限が無い相手には 403 ではなく 404 を返す。隠している画面の存在を教えない
 - 権限は Person に付く。`User` は認証に要る情報だけを持つ。`pundit_user` は `current_person`
-- プレイヤーは全員が持つため保存しない。`Person#player?` は常に真で、付け外しできない
-- 最初の管理者は `bin/rails admin:grant EMAIL=... NAME=...` で作る。管理画面からは作れない
 - セッションの可視性は `PlaySessionPolicy::Scope` にだけ書く。一覧、詳細、シナリオ詳細の履歴が同じものを通る
 - 準備情報は `ScenarioPolicy#show_preparation_note?` が真のときだけ本文をレスポンスに載せる。CSS では隠さない
 - プロフィールの編集は本人と管理者。グループ所属は管理画面（管理者のみ）でしか変えられない
+
+### ドメイン
+
+- プレイヤーは全員が持つため保存しない。`Person#player?` は常に真で、付け外しできない
+- 最初の管理者は `bin/rails admin:grant EMAIL=... NAME=...` で作る。管理画面からは作れない
 - おすすめ度は編集画面にだけ出す。表示はせず並び順の材料として持つ
-- シナリオの実データは git に置かない。書式は `db/seeds/scenarios.example.yml`、投入先は `SCENARIOS_SEED_FILE` で差し替える
+
+### 進め方
+
 - ソースに複数行コメントを書かない。書くのは、コードから読み取れない背景や理由に限る
