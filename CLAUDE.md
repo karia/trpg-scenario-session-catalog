@@ -30,6 +30,7 @@ Ruby と Node は mise で固定している。`mise exec --` を通すか、mis
 - インフラ（PostgreSQL、MinIO、Ingress、Cloudflare Tunnel）は `yuno04-k3s` で管理する
 - 権限は Person に付く。`User` は認証に要る情報だけを持つ。`pundit_user` は `current_person`
 - 最初の管理者は `bin/rails admin:grant EMAIL=... NAME=...` で作る。管理画面からは作れない
+- セッションの可視性は `PlaySessionPolicy::Scope` にだけ書く。一覧・詳細・シナリオ詳細の履歴が同じものを通る
 - シナリオの実データは git に置かない。書式は `db/seeds/scenarios.example.yml`、投入は `bin/rails db:seed`（冪等）
 - 投入先の実データは `SCENARIOS_SEED_FILE` で差し替えられる。既定は gitignore 済みの `db/seeds/scenarios.yml`
 

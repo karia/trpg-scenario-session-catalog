@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   resource :session, only: [ :destroy ]
 
   resources :scenarios, only: [ :index, :show ]
+  resources :play_sessions, only: [ :index, :show ]
 
   namespace :manage do
     resources :scenarios
@@ -22,6 +23,7 @@ Rails.application.routes.draw do
     resources :people, except: [ :show, :new ]
     resources :groups, except: [ :show, :new ]
     resources :users, only: [ :index, :update ]
+    resources :play_sessions, except: [ :show, :new ]
   end
 
   # sitemap_generator の出力を tmp から配信する。

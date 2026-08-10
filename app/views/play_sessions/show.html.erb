@@ -1,0 +1,51 @@
+<% content_for :title, "#{@play_session.scenario.title} のセッション" %>
+
+<article>
+  <nav class="text-xs text-muted">
+    <%= link_to "セッション一覧", play_sessions_path, class: "text-muted" %> ／
+    <%= @play_session.scenario.title %>
+  </nav>
+
+  <h1 class="mt-6 font-display text-3xl leading-tight tracking-wide">
+    <%= link_to @play_session.scenario.title, scenario_path(@play_session.scenario), class: "text-ink" %>
+  </h1>
+
+  <dl class="mt-6 grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 font-mono text-sm">
+    <dt class="text-muted">日時</dt>
+    <dd><%= play_session_schedule(@play_session) %></dd>
+    <dt class="text-muted">状態</dt>
+    <dd class="font-sans"><%= play_session_status_label(@play_session) %></dd>
+    <% if @play_session.recording_url.present? %>
+      <dt class="text-muted">録画</dt>
+      <dd class="font-sans">
+        <%= link_to @play_session.recording_url, @play_session.recording_url, rel: "noopener", class: "text-seal" %>
+      </dd>
+    <% end %>
+  </dl>
+
+  <section class="mt-10">
+    <h2 class="font-display text-xl">参加者</h2>
+    <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
+      <% @play_session.participations.each do |participation| %>
+        <li class="flex flex-wrap items-baseline gap-x-4 gap-y-1 p-3">
+          <span class="w-24 shrink-0 font-mono text-xs text-muted"><%= participation_role_label(participation) %></span>
+          <span class="font-display"><%= participation.person.display_name %></span>
+          <% if participation.character_name.present? %>
+            <span class="text-muted"><%= participation.character_name %></span>
+          <% end %>
+          <% if participation.character_sheet_url.present? %>
+            <%= link_to "キャラクターシート", participation.character_sheet_url,
+                  rel: "noopener", class: "ml-auto text-xs text-seal" %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+
+  <% if @play_session.note.present? %>
+    <section class="mt-10">
+      <h2 class="font-display text-xl">メモ</h2>
+      <p class="mt-3 whitespace-pre-line leading-relaxed"><%= @play_session.note %></p>
+    </section>
+  <% end %>
+</article>
