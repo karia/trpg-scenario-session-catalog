@@ -27,6 +27,11 @@ class Scenario < ApplicationRecord
   accepts_nested_attributes_for :purchase_links, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :stream_links, allow_destroy: true, reject_if: :all_blank
 
+  # おすすめ度は画面に出さない。並び順を決めるためだけに持つ（issue #18）。
+  scope :recommended_first, -> {
+    order(Arel.sql("recommendation DESC NULLS LAST"), :title)
+  }
+
   validates :title, presence: true
   validates :jacket, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
   validates :recommendation, inclusion: { in: 1..5 }, allow_nil: true

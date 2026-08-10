@@ -1,6 +1,13 @@
 module ScenariosHelper
   UNSET = "未設定".freeze
 
+  def list_view_class(name, current)
+    name == current ? "font-bold text-ink no-underline" : "text-seal"
+  end
+
+  # 一覧では、値が無い欄は空欄のままにする（issue #20）。
+  def blank_to_empty(label) = label == UNSET ? "" : label
+
   def player_count_label(scenario)
     numeric = bounded_label(scenario.player_count_min, scenario.player_count_max) { |n| "#{n}人" }
 
@@ -15,13 +22,6 @@ module ScenariosHelper
     # 2 時間未満は分のままのほうが元データに近く、範囲でも単位が揃う。
     unit = [ min, max ].compact.max < 120 ? :minutes : :hours
     bounded_label(min, max) { |n| humanized_minutes(n, unit:) }
-  end
-
-  def recommendation_label(scenario)
-    return "回したことない" unless scenario.gm_experienced
-    return "未評価" if scenario.recommendation.blank?
-
-    "★" * scenario.recommendation
   end
 
   def character_sheet_deadline_label(scenario)
