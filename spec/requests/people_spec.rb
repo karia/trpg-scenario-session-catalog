@@ -168,5 +168,13 @@ RSpec.describe "People" do
 
       expect(response.body).to include("本人", "別の人")
     end
+
+    it "carries no explanation under the title" do
+      sign_in_as other
+
+      get people_path
+
+      expect(response.body).not_to include("ログインしている人だけが見られます")
+    end
   end
 end

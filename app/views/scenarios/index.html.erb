@@ -1,10 +1,9 @@
 <% content_for :title, "シナリオ一覧" %>
 
 <div class="flex flex-wrap items-baseline justify-between gap-4">
-  <div>
-    <h1 class="font-display text-3xl tracking-wide">シナリオ一覧</h1>
-    <p class="mt-2 text-sm text-muted"><%= @scenarios.size %>本。人数と目安時間から選べます。</p>
-  </div>
+  <h1 class="font-display text-3xl tracking-wide">
+    シナリオ一覧<span class="ml-2 text-base text-muted">（全<%= @scenarios.size %>件）</span>
+  </h1>
 
   <nav class="flex items-center gap-3 text-xs" aria-label="表示の切り替え">
     <%= link_to "表形式", root_path(view: "table"), class: list_view_class("table", @view),

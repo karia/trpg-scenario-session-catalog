@@ -1,7 +1,7 @@
 class PlaySessionsController < ApplicationController
   def index
     authorize PlaySession
-    @play_sessions = visible_sessions.newest_first
+    @play_sessions = visible_sessions.newest_first.load
   end
 
   def show

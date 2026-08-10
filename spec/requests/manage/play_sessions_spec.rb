@@ -80,6 +80,12 @@ RSpec.describe "Manage::PlaySessions" do
       expect(response.body).to include(edit_manage_play_session_path(other))
     end
 
+    it "carries no explanation under the title" do
+      get manage_play_sessions_path
+
+      expect(response.body).not_to include("公開範囲に関わらず")
+    end
+
     it "shows the note, which the reader-facing scope would hide" do
       session = create(:play_session, scenario:, note: "覚え書きの見本")
 

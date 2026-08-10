@@ -1,6 +1,5 @@
 <% content_for :title, "メンバーの管理" %>
 <h1 class="font-display text-2xl">メンバーの管理</h1>
-<p class="mt-2 text-sm text-muted">Person は管理者が作ります。Google アカウントとの紐づけは<%= link_to "アカウント一覧", manage_users_path, class: "text-seal" %>から。</p>
 
 <%= render "form", person: @person %>
 
