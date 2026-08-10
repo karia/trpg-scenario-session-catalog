@@ -33,6 +33,14 @@ RSpec.describe "Authorization matrix" do
         expect(allows?(person, described_class, Scenario.new, :show_preparation_note?)).to be(false)
       end
     end
+
+    it "shows the recommendation note to members only" do
+      expect(allows?(anonymous, described_class, Scenario.new, :show_recommendation_note?)).to be_falsey
+      expect(allows?(unlinked, described_class, Scenario.new, :show_recommendation_note?)).to be_falsey
+      expect(allows?(no_role, described_class, Scenario.new, :show_recommendation_note?)).to be(true)
+      expect(allows?(gm, described_class, Scenario.new, :show_recommendation_note?)).to be(true)
+      expect(allows?(admin, described_class, Scenario.new, :show_recommendation_note?)).to be(true)
+    end
   end
 
   describe PersonPolicy do

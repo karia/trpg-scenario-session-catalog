@@ -86,6 +86,7 @@ RAILS_ENV=test bin/rails runner 'puts Person.count'   # 0 でなければ残っ�
 - 権限は Person に付く。`User` は認証に要る情報だけを持つ。`pundit_user` は `current_person`
 - セッションの可視性は `PlaySessionPolicy::Scope` にだけ書く。一覧、詳細、シナリオ詳細の履歴が同じものを通る
 - 準備情報は `ScenarioPolicy#show_preparation_note?` が真のときだけ本文をレスポンスに載せる。CSS では隠さない
+- GMからのオススメポイントは `ScenarioPolicy#show_recommendation_note?` が真のときだけレスポンスに載せる。未ログインには見出しごと出さない
 - プロフィールの編集は本人と管理者。グループ所属は管理画面（管理者のみ）でしか変えられない
 - 誰に何が見えるかを固定する spec の置き場所は決まっている。役割ごとの可否は `spec/policies/authorization_matrix_spec.rb` の一覧に足し、画面から見えるかどうかは `spec/requests/` に足す
 
