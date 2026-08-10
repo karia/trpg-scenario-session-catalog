@@ -19,6 +19,57 @@ RSpec.describe Scenario do
     end
   end
 
+  describe "position" do
+    it "puts a new scenario at the end of the list the GM has arranged" do
+      first = create(:scenario)
+      last = create(:scenario)
+
+      expect(last.position).to be > first.position
+    end
+
+    it "starts from the first slot when there is nothing else" do
+      expect(create(:scenario).position).to eq(1)
+    end
+
+    it "keeps a position that the caller has already decided" do
+      expect(create(:scenario, position: 42).position).to eq(42)
+    end
+
+    it "orders by the arrangement the GM made" do
+      tail = create(:scenario, title: "あ", position: 2)
+      head = create(:scenario, title: "ま", position: 1)
+
+      expect(described_class.gm_ordered).to eq([ head, tail ])
+    end
+
+    it "falls back to the identifier when two rows share a position" do
+      older = create(:scenario, position: 1)
+      newer = create(:scenario, position: 1)
+
+      expect(described_class.gm_ordered).to eq([ older, newer ])
+    end
+  end
+
+  describe ".rearrange" do
+    it "renumbers the scenarios into the order it is given" do
+      first = create(:scenario)
+      second = create(:scenario)
+      third = create(:scenario)
+
+      described_class.rearrange([ third.id, first.id, second.id ])
+
+      expect(described_class.gm_ordered).to eq([ third, first, second ])
+    end
+
+    it "ignores an identifier that belongs to nothing" do
+      scenario = create(:scenario)
+
+      described_class.rearrange([ 0, scenario.id ])
+
+      expect(scenario.reload.position).to eq(2)
+    end
+  end
+
   describe "gm_experienced" do
     it "defaults to true" do
       expect(described_class.new.gm_experienced).to be(true)

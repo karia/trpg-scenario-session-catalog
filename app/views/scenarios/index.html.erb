@@ -17,9 +17,8 @@
   <% if @listing.view != ScenarioListing::VIEWS.first %>
     <%= hidden_field_tag :view, @listing.view %>
   <% end %>
-  <% if @listing.sort %>
-    <%= hidden_field_tag :sort, @listing.sort %>
-    <%= hidden_field_tag :direction, @listing.direction %>
+  <% if @listing.order %>
+    <%= hidden_field_tag :order, @listing.order, id: nil %>
   <% end %>
 
   <div class="flex flex-wrap items-end gap-4">
@@ -51,7 +50,20 @@
 <% end %>
 
 <% if @scenarios.any? %>
-  <%= render "scenarios/#{@listing.view}", scenarios: @scenarios, listing: @listing %>
+  <%= form_with url: root_path, method: :get, data: { controller: "auto-submit" },
+        class: "mt-8 flex items-center justify-end gap-2" do |form| %>
+    <% @listing.params(order: nil).each do |key, value| %>
+      <%= hidden_field_tag key, value, id: nil %>
+    <% end %>
+
+    <%= label_tag :order, "並び順", class: "text-xs text-muted" %>
+    <%= select_tag :order, scenario_order_options(@listing),
+          data: { action: "change->auto-submit#submit" },
+          class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+    <noscript><%= form.button "並べ替える", name: nil, class: "bg-ink px-4 py-2 text-sm text-paper" %></noscript>
+  <% end %>
+
+  <%= render "scenarios/#{@listing.view}", scenarios: @scenarios %>
 <% else %>
   <p class="mt-8 border border-rule bg-surface p-8 text-center text-sm text-muted">
     <%= @listing.filtered? ? "条件に合うシナリオがありません。" : "まだシナリオが登録されていません。" %>

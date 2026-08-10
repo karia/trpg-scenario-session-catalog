@@ -54,7 +54,7 @@ module Manage
         params.expect(
           scenario: [
             :title, :synopsis, :preparation_note, :recommendation_note,
-            :recommendation, :gm_experienced, :character_restriction, :character_sheet_deadline, :character_sheet_deadline_note,
+            :gm_experienced, :character_restriction, :character_sheet_deadline, :character_sheet_deadline_note,
             :player_count_min, :player_count_max,
             :duration_min_hours, :duration_max_hours, :jacket,
             { game_system_ids: [], author_ids: [],

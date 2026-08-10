@@ -89,18 +89,15 @@
     <legend class="px-2 font-display text-sm">評価と本文</legend>
 
     <div class="space-y-4">
-      <div class="grid gap-4 sm:grid-cols-2">
-        <div>
-          <%= form.label :recommendation, "おすすめ度（1〜5）", class: "block text-xs text-muted" %>
-          <%= form.select :recommendation, (1..5).to_a, { include_blank: "未評価" },
-                class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-        </div>
-        <div class="flex items-end">
-          <label class="inline-flex items-center gap-2 text-sm">
-            <%= form.check_box :gm_experienced %> 回したことがある
-          </label>
-        </div>
+      <div>
+        <label class="inline-flex items-center gap-2 text-sm">
+          <%= form.check_box :gm_experienced %> 回したことがある
+        </label>
       </div>
+
+      <p class="text-xs text-muted">
+        並び順は<%= link_to "シナリオの管理", manage_scenarios_path, class: "text-seal" %>の一覧で行をドラッグして決めます。
+      </p>
 
       <div>
         <%= form.label :synopsis, "あらすじ", class: "block text-xs text-muted" %>

@@ -17,17 +17,17 @@ class ScenarioListing
     "duration" => "scenarios.duration_min_hours"
   }.freeze
 
+  # プルダウンは値を 1 つしか送れないため、鍵と向きを 1 つの文字列にまとめる。
   ORDERS = SORTS.keys.product(DIRECTIONS).to_h { |sort, direction|
-    [ [ sort, direction ], Arel.sql("#{SORTS.fetch(sort)} #{direction.upcase} NULLS LAST") ]
+    [ "#{sort}_#{direction}", Arel.sql("#{SORTS.fetch(sort)} #{direction.upcase} NULLS LAST") ]
   }.freeze
 
-  attr_reader :view, :sort, :direction, :author, :game_system, :player_count
+  attr_reader :view, :order, :author, :game_system, :player_count
 
   def initialize(scope, params)
     @scope = scope
     @view = params[:view].to_s.presence_in(VIEWS) || VIEWS.first
-    @sort = params[:sort].to_s.presence_in(SORTS.keys)
-    @direction = params[:direction].to_s.presence_in(DIRECTIONS) || DIRECTIONS.first
+    @order = params[:order].to_s.presence_in(ORDERS.keys)
     @author = Author.find_by(id: params[:author_id].to_s)
     @game_system = GameSystem.find_by(id: params[:game_system_id].to_s)
     @player_count = params[:player_count].to_s.to_i.then { |count| count if count.positive? }
@@ -41,16 +41,10 @@ class ScenarioListing
 
   def game_systems = GameSystem.joins(:scenarios).merge(@scope).distinct
 
-  def sorted_by?(key) = sort == key
-
-  # 同じ見出しをもう一度押したら逆順にする。
-  def next_direction(key) = sorted_by?(key) && direction == "asc" ? "desc" : "asc"
-
   def params(overrides = {})
     {
       view: (view unless view == VIEWS.first),
-      author_id: author&.id, game_system_id: game_system&.id, player_count:,
-      sort:, direction: (direction if sort)
+      author_id: author&.id, game_system_id: game_system&.id, player_count:, order:
     }.merge(overrides).compact
   end
 
@@ -69,8 +63,8 @@ class ScenarioListing
     end
 
     def ordered(relation)
-      return relation.recommended_first unless sort
+      return relation.gm_ordered unless order
 
-      relation.order(ORDERS.fetch([ sort, direction ]), :title, :id)
+      relation.order(ORDERS.fetch(order), :title, :id)
     end
 end
