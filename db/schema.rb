@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_022944) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_131131) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -122,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_022944) do
   create_table "scenarios", force: :cascade do |t|
     t.string "character_restriction"
     t.integer "character_sheet_deadline"
+    t.string "character_sheet_deadline_note"
     t.datetime "created_at", null: false
     t.integer "duration_max_minutes"
     t.integer "duration_min_minutes"
