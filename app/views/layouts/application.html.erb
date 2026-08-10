@@ -1,31 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <title><%= content_for(:title) || "Trpg Catalog" %></title>
+    <%= display_meta_tags(default_meta_tags.merge(title: content_for(:title).presence)) %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Trpg Catalog">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= render "shared/analytics" %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="min-h-dvh flex flex-col">
+    <header class="border-b border-rule bg-surface">
+      <div class="mx-auto max-w-5xl px-5 py-5 flex items-baseline gap-4">
+        <%= link_to root_path, class: "font-display text-xl tracking-wide no-underline text-ink" do %>
+          卓の記録
+        <% end %>
+        <p class="text-xs text-muted">シナリオとセッションのカタログ</p>
+      </div>
+    </header>
+
+    <% if flash.any? %>
+      <div class="mx-auto w-full max-w-5xl px-5 pt-6">
+        <% flash.each do |type, message| %>
+          <p class="border border-rule bg-surface px-4 py-3 text-sm <%= type.to_s == "alert" ? "text-seal" : "" %>" role="status">
+            <%= message %>
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <main class="mx-auto w-full max-w-5xl grow px-5 py-10">
       <%= yield %>
     </main>
+
+    <footer class="border-t border-rule bg-surface">
+      <div class="mx-auto max-w-5xl px-5 py-6 text-xs text-muted">
+        シナリオの権利はそれぞれの作者に帰属します。
+      </div>
+    </footer>
+
+    <%= render "shared/ads" %>
   </body>
 </html>

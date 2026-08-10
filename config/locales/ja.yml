@@ -1,0 +1,8 @@
+ja:
+  scenarios:
+    character_sheet_deadlines:
+      day_before: セッション前日
+      two_days_before: セッション前々日
+      one_week_before: セッション1週間前
+      not_required: 事前準備不要
+      see_note: 備考参照

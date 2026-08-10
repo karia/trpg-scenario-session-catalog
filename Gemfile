@@ -45,6 +45,10 @@ gem "aws-sdk-s3", require: false
 # Authorization [https://github.com/varvet/pundit]
 gem "pundit"
 
+# SEO
+gem "meta-tags"
+gem "sitemap_generator"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -72,5 +76,6 @@ end
 
 group :test do
   gem "capybara"
+  gem "climate_control"
   gem "selenium-webdriver"
 end
