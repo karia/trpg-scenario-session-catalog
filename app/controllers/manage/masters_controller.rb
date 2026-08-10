@@ -4,6 +4,7 @@ module Manage
     before_action :set_record, only: %i[edit update destroy]
 
     def index
+      authorize model_class
       @records = model_class.all
       @record = model_class.new
     end
@@ -13,12 +14,13 @@ module Manage
     end
 
     def edit
+      authorize @record
       @records = model_class.all
       render :index
     end
 
     def create
-      @record = model_class.new(record_params)
+      @record = authorize model_class.new(record_params)
 
       if @record.save
         redirect_to url_for(action: :index), notice: "#{@record.name} を登録しました"
@@ -29,6 +31,8 @@ module Manage
     end
 
     def update
+      authorize @record
+
       if @record.update(record_params)
         redirect_to url_for(action: :index), notice: "#{@record.name} を更新しました"
       else
@@ -38,6 +42,7 @@ module Manage
     end
 
     def destroy
+      authorize @record
       @record.destroy!
       redirect_to url_for(action: :index), notice: "削除しました"
     end

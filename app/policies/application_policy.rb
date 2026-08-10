@@ -1,44 +1,29 @@
 # frozen_string_literal: true
 
 class ApplicationPolicy
-  attr_reader :user, :record
+  attr_reader :person, :record
 
-  def initialize(user, record)
-    @user = user
+  def initialize(person, record)
+    @person = person
     @record = record
   end
 
-  def index?
-    false
-  end
+  def index? = false
+  def show? = false
+  def create? = false
+  def new? = create?
+  def update? = false
+  def edit? = update?
+  def destroy? = false
 
-  def show?
-    false
-  end
-
-  def create?
-    false
-  end
-
-  def new?
-    create?
-  end
-
-  def update?
-    false
-  end
-
-  def edit?
-    update?
-  end
-
-  def destroy?
-    false
-  end
+  private
+    def admin? = person&.admin?
+    def gm? = person&.gm?
+    def editor? = admin? || gm?
 
   class Scope
-    def initialize(user, scope)
-      @user = user
+    def initialize(person, scope)
+      @person = person
       @scope = scope
     end
 
@@ -48,7 +33,6 @@ class ApplicationPolicy
     end
 
     private
-
-    attr_reader :user, :scope
+      attr_reader :person, :scope
   end
 end

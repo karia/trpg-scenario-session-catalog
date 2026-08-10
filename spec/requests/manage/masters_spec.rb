@@ -2,23 +2,19 @@ require "rails_helper"
 
 # GameSystem と Author は Manage::MastersController の振る舞いを共有する。
 RSpec.describe "Manage masters" do
-  let(:credentials) { ActionController::HttpAuthentication::Basic.encode_credentials("editor", "secret") }
-  let(:headers) { { "HTTP_AUTHORIZATION" => credentials } }
-
-  around do |example|
-    ClimateControl.modify(MANAGE_USERNAME: "editor", MANAGE_PASSWORD: "secret") { example.run }
-  end
+  let(:headers) { {} }
 
   shared_examples "a master resource" do |factory:, index_path:, member_path:, edit_path:|
     let(:record) { create(factory, name: "既存") }
 
-    it "answers 401 without credentials" do
+    it "answers 404 to an anonymous visitor" do
       get public_send(index_path)
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:not_found)
     end
 
     it "lists the records" do
+      sign_in_as create(:person, roles: %w[gm])
       record
 
       get public_send(index_path), headers: headers
@@ -28,6 +24,7 @@ RSpec.describe "Manage masters" do
     end
 
     it "creates a record" do
+      sign_in_as create(:person, roles: %w[gm])
       post public_send(index_path), headers: headers, params: { factory => { name: "新規" } }
 
       expect(response).to redirect_to(public_send(index_path))
@@ -35,18 +32,21 @@ RSpec.describe "Manage masters" do
     end
 
     it "re-renders on a blank name" do
+      sign_in_as create(:person, roles: %w[gm])
       post public_send(index_path), headers: headers, params: { factory => { name: "" } }
 
       expect(response).to have_http_status(:unprocessable_content)
     end
 
     it "renders the edit form on the member path" do
+      sign_in_as create(:person, roles: %w[gm])
       get public_send(edit_path, record), headers: headers
 
       expect(response).to have_http_status(:ok)
     end
 
     it "updates through the member path rather than the collection" do
+      sign_in_as create(:person, roles: %w[gm])
       patch public_send(member_path, record), headers: headers, params: { factory => { name: "改名" } }
 
       expect(response).to redirect_to(public_send(index_path))
@@ -54,6 +54,7 @@ RSpec.describe "Manage masters" do
     end
 
     it "destroys a record" do
+      sign_in_as create(:person, roles: %w[gm])
       record
 
       expect { delete public_send(member_path, record), headers: headers }

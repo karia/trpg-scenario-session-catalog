@@ -1,36 +1,42 @@
 require "rails_helper"
 
 RSpec.describe "Manage::Scenarios" do
-  let(:credentials) { ActionController::HttpAuthentication::Basic.encode_credentials("editor", "secret") }
-
-  around do |example|
-    ClimateControl.modify(MANAGE_USERNAME: "editor", MANAGE_PASSWORD: "secret") { example.run }
-  end
-
-  describe "without credentials" do
-    it "answers 401 on the index" do
+  describe "without a signed-in editor" do
+    it "answers 404 to an anonymous visitor" do
       get manage_scenarios_path
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:not_found)
     end
 
-    it "answers 401 for an Authorization header with no colon" do
-      get manage_scenarios_path, headers: { "HTTP_AUTHORIZATION" => "Basic #{Base64.strict_encode64("editor")}" }
+    it "answers 404 to a user who is not linked to a person" do
+      sign_in_as create(:user, person: nil)
 
-      expect(response).to have_http_status(:unauthorized)
+      get manage_scenarios_path
+
+      expect(response).to have_http_status(:not_found)
     end
 
-    it "answers 401 on create" do
+    it "answers 404 to a person with no role" do
+      sign_in_as create(:person)
+
+      get manage_scenarios_path
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "does not create a scenario for an anonymous visitor" do
       post manage_scenarios_path, params: { scenario: { title: "侵入" } }
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:not_found)
       expect(Scenario.count).to eq(0)
     end
   end
 
-  describe "with credentials" do
+  describe "as a GM" do
+    before { sign_in_as create(:person, roles: %w[gm]) }
+
     def authorized_get(path)
-      get path, headers: { "HTTP_AUTHORIZATION" => credentials }
+      get path
     end
 
     it "lists the scenarios" do
@@ -47,7 +53,6 @@ RSpec.describe "Manage::Scenarios" do
       author = create(:author, name: "ディズム")
 
       post manage_scenarios_path,
-        headers: { "HTTP_AUTHORIZATION" => credentials },
         params: {
           scenario: {
             title: "変葬",
@@ -74,7 +79,6 @@ RSpec.describe "Manage::Scenarios" do
 
     it "re-renders the form when the title is missing" do
       post manage_scenarios_path,
-        headers: { "HTTP_AUTHORIZATION" => credentials },
         params: { scenario: { title: "" } }
 
       expect(response).to have_http_status(:unprocessable_content)
@@ -84,9 +88,7 @@ RSpec.describe "Manage::Scenarios" do
     it "updates a scenario" do
       scenario = create(:scenario, title: "旧題")
 
-      patch manage_scenario_path(scenario),
-        headers: { "HTTP_AUTHORIZATION" => credentials },
-        params: { scenario: { title: "新題" } }
+      patch manage_scenario_path(scenario), params: { scenario: { title: "新題" } }
 
       expect(scenario.reload.title).to eq("新題")
     end

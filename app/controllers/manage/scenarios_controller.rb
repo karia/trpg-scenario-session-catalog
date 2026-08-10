@@ -3,18 +3,20 @@ module Manage
     before_action :set_scenario, only: %i[edit update destroy]
 
     def index
+      authorize Scenario
       @scenarios = Scenario.includes(:game_systems, :authors).order(:title)
     end
 
     def new
-      @scenario = Scenario.new
+      @scenario = authorize Scenario.new
     end
 
     def edit
+      authorize @scenario
     end
 
     def create
-      @scenario = Scenario.new(scenario_params)
+      @scenario = authorize Scenario.new(scenario_params)
 
       if @scenario.save
         redirect_to manage_scenarios_path, notice: "#{@scenario.title} を登録しました"
@@ -24,6 +26,8 @@ module Manage
     end
 
     def update
+      authorize @scenario
+
       if @scenario.update(scenario_params)
         redirect_to manage_scenarios_path, notice: "#{@scenario.title} を更新しました"
       else
@@ -32,6 +36,7 @@ module Manage
     end
 
     def destroy
+      authorize @scenario
       @scenario.destroy!
       redirect_to manage_scenarios_path, notice: "#{@scenario.title} を削除しました"
     end
