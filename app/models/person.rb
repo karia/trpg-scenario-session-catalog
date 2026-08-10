@@ -22,6 +22,9 @@ class Person < ApplicationRecord
     define_method(:"#{role}?") { person_roles.any? { |r| r.name == role.to_s } }
   end
 
+  # Person であることがそのままプレイヤーであることを表す。付け外しはできない。
+  def player? = true
+
   # 既存行の名前を空にしたときは無視せず検証に落とす。新規の空行だけ捨てる。
   accepts_nested_attributes_for :person_aliases, allow_destroy: true,
     reject_if: ->(attrs) { attrs["id"].blank? && attrs["name"].blank? }
@@ -35,9 +38,11 @@ class Person < ApplicationRecord
   def self.admins = joins(:person_roles).where(person_roles: { name: PersonRole.names[:admin] })
 
   # has_many への代入は永続レコードだと即座に DB へ反映される。検証で見るため代入前の状態を残す。
+  # フォームが player を送ってきても落とす。保存しない権限なので無視してよい。
   def roles=(names)
     @roles_before_assignment = roles if persisted? && !defined?(@roles_before_assignment)
-    self.person_roles = Array(names).compact_blank.uniq.map { |name| PersonRole.new(name:) }
+    assignable = Array(names).compact_blank.uniq & PersonRole::ROLES.keys.map(&:to_s)
+    self.person_roles = assignable.map { |name| PersonRole.new(name:) }
   end
 
   private

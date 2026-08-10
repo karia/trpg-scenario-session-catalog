@@ -81,7 +81,7 @@ RSpec.describe PlaySessionPolicy do
     it "opens the maintenance listing to editors only" do
       expect(described_class.new(create(:person, roles: %w[gm]), PlaySession).manage?).to be(true)
       expect(described_class.new(create(:person, roles: %w[admin]), PlaySession).manage?).to be(true)
-      expect(described_class.new(create(:person, roles: %w[player]), PlaySession).manage?).to be_falsey
+      expect(described_class.new(create(:person), PlaySession).manage?).to be_falsey
       expect(described_class.new(create(:person), PlaySession).manage?).to be_falsey
       expect(described_class.new(nil, PlaySession).manage?).to be_falsey
     end

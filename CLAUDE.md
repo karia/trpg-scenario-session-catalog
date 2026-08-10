@@ -29,6 +29,7 @@ Ruby と Node は mise で固定している。`mise exec --` を通すか、mis
 - テストは RSpec。実装より先にテストを書く
 - インフラ（PostgreSQL、MinIO、Ingress、Cloudflare Tunnel）は `yuno04-k3s` で管理する
 - 権限は Person に付く。`User` は認証に要る情報だけを持つ。`pundit_user` は `current_person`
+- プレイヤーは全員が持つため保存しない。`Person#player?` は常に真で、付け外しできない
 - 最初の管理者は `bin/rails admin:grant EMAIL=... NAME=...` で作る。管理画面からは作れない
 - 準備情報は `ScenarioPolicy#show_preparation_note?` が真のときだけ本文をレスポンスに載せる。CSS では隠さない
 - プロフィールの編集は本人と管理者。グループ所属は管理画面（管理者のみ）でしか変えられない
