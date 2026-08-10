@@ -30,7 +30,7 @@
               <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
               <%= link_to "メンバー", people_path, class: "text-seal underline" %>
             <% end %>
-            <% if current_person&.admin? || current_person&.gm? %>
+            <% if policy(Scenario).manage? %>
               <%= link_to "編集", manage_scenarios_path, class: "text-seal underline" %>
             <% end %>
             <% if current_person %>

@@ -67,9 +67,23 @@ RSpec.describe "Manage navigation" do
       expect(response.body).to include(manage_scenarios_path)
     end
 
+    it "offers it to an administrator who does not also hold the GM role" do
+      sign_in_as create(:person, roles: %w[admin])
+
+      get root_path
+
+      expect(response.body).to include(manage_scenarios_path)
+    end
+
     it "does not offer it to a person with no role" do
       sign_in_as create(:person)
 
+      get root_path
+
+      expect(response.body).not_to include("/manage/")
+    end
+
+    it "does not offer it to a visitor who has not signed in" do
       get root_path
 
       expect(response.body).not_to include("/manage/")
