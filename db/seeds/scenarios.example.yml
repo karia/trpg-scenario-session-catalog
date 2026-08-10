@@ -10,9 +10,8 @@
     - 共著の見本作者
   player_count_min: 2
   player_count_max: 4
-  player_count_note: 程度
-  duration_min_minutes: 180
-  duration_max_minutes: 240
+  duration_min_hours: 3
+  duration_max_hours: 4
   recommendation: 4
   gm_experienced: true
   character_restriction: HOあり
@@ -22,15 +21,15 @@
     - label: BOOTH
       url: https://example.com/items/1
 
-# 人数と時間は片側だけでもよい。両方空なら補足だけを表示する。
-- title: 人数制限のない見本
+# 人数の下限は必須。上限が無いシナリオは player_count_max を空けておく。
+- title: 上限のない見本
   game_systems:
     - 見本システム 1版
   authors:
     - 見本作者
-  player_count_note: 制限なし
-  duration_min_minutes: 30
-  duration_max_minutes: 60
+  player_count_min: 1
+  duration_min_hours: 0.5
+  duration_max_hours: 1
   gm_experienced: false
   character_restriction: 制限なし
   # 選択肢に当てはまらない期限は note に原文を残し、選択肢は see_note にする。

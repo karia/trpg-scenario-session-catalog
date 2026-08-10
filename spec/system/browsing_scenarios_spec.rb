@@ -9,7 +9,7 @@ RSpec.describe "Browsing scenarios" do
       preparation_note: "ネタバレを含む準備情報",
       player_count_min: 1,
       player_count_max: 1,
-      duration_min_minutes: 120,
+      duration_min_hours: 2,
       recommendation: 5,
       game_systems: [ create(:game_system, name: "CoC 7版") ],
       authors: [ create(:author, name: "ディズム") ]

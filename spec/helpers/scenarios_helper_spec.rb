@@ -10,58 +10,44 @@ RSpec.describe ScenariosHelper do
       expect(helper.player_count_label(build(:scenario, player_count_min: 4, player_count_max: 5))).to eq("4人〜5人")
     end
 
-    it "does not read a one-sided minimum as an exact figure" do
-      expect(helper.player_count_label(build(:scenario, player_count_min: 4, player_count_max: nil))).to eq("4人")
+    it "does not read a missing maximum as an exact figure" do
+      expect(helper.player_count_label(build(:scenario, player_count_min: 4, player_count_max: nil))).to eq("4人以上")
     end
 
     it "marks a one-sided maximum as an upper bound" do
       expect(helper.player_count_label(build(:scenario, player_count_min: nil, player_count_max: 5))).to eq("5人まで")
     end
 
-    it "falls back to the note for 「制限なし」" do
-      scenario = build(:scenario, player_count_min: nil, player_count_max: nil, player_count_note: "制限なし")
-
-      expect(helper.player_count_label(scenario)).to eq("制限なし")
-    end
-
-    it "appends the note to the figures for 「1人推奨」" do
-      scenario = build(:scenario, player_count_min: 1, player_count_max: 1, player_count_note: "推奨")
-
-      expect(helper.player_count_label(scenario)).to eq("1人 推奨")
-    end
-
     it "says unset when there is nothing to show" do
-      expect(helper.player_count_label(build(:scenario))).to eq("未設定")
+      expect(helper.player_count_label(build(:scenario, player_count_min: nil))).to eq("未設定")
     end
   end
 
   describe "#duration_label" do
-    it "keeps 「30分～60分」 in minutes rather than mixing units" do
-      scenario = build(:scenario, duration_min_minutes: 30, duration_max_minutes: 60)
-
-      expect(helper.duration_label(scenario)).to eq("30分〜60分")
-    end
-
-    it "uses hours once the range reaches two hours" do
-      scenario = build(:scenario, duration_min_minutes: 360, duration_max_minutes: 480)
+    it "shows a range in hours" do
+      scenario = build(:scenario, duration_min_hours: 6, duration_max_hours: 8)
 
       expect(helper.duration_label(scenario)).to eq("6時間〜8時間")
     end
 
-    it "handles 「11～18時間」" do
-      scenario = build(:scenario, duration_min_minutes: 660, duration_max_minutes: 1080)
+    it "keeps 「30分」 in hours rather than switching units" do
+      scenario = build(:scenario, duration_min_hours: 0.5, duration_max_hours: 1)
 
-      expect(helper.duration_label(scenario)).to eq("11時間〜18時間")
+      expect(helper.duration_label(scenario)).to eq("0.5時間〜1時間")
     end
 
     it "shows a single figure when both ends match" do
-      expect(helper.duration_label(build(:scenario, duration_min_minutes: 120, duration_max_minutes: 120))).to eq("2時間")
+      expect(helper.duration_label(build(:scenario, duration_min_hours: 2, duration_max_hours: 2))).to eq("2時間")
     end
 
-    it "keeps an awkward range in minutes instead of fractional hours" do
-      scenario = build(:scenario, duration_min_minutes: 75, duration_max_minutes: 100)
+    it "drops the trailing zero of a whole hour" do
+      expect(helper.duration_label(build(:scenario, duration_min_hours: 11, duration_max_hours: 18)))
+        .to eq("11時間〜18時間")
+    end
 
-      expect(helper.duration_label(scenario)).to eq("75分〜100分")
+    it "does not read a missing maximum as an exact figure" do
+      expect(helper.duration_label(build(:scenario, duration_min_hours: 2.5, duration_max_hours: nil)))
+        .to eq("2.5時間以上")
     end
 
     it "says unset when there is nothing to show" do

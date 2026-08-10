@@ -35,11 +35,11 @@ RSpec.describe "db/seeds.rb" do
     expect(scenario.authors.map(&:name)).to contain_exactly("見本作者", "共著の見本作者")
   end
 
-  it "keeps a note instead of inventing a player count" do
-    scenario = Scenario.find_by(title: "人数制限のない見本")
+  it "leaves the maximum blank for a scenario with no upper bound" do
+    scenario = Scenario.find_by(title: "上限のない見本")
 
-    expect(scenario.player_count_min).to be_nil
-    expect(scenario.player_count_note).to eq("制限なし")
+    expect(scenario.player_count_min).to eq(1)
+    expect(scenario.player_count_max).to be_nil
   end
 
   it "distinguishes a scenario the GM has never run from an unrated one" do

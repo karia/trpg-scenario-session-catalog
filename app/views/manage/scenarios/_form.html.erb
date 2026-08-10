@@ -48,25 +48,24 @@
 
     <div class="grid gap-4 sm:grid-cols-2">
       <div>
-        <%= form.label :player_count_min, "PL人数（最小）", class: "block text-xs text-muted" %>
-        <%= form.number_field :player_count_min, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div>
-        <%= form.label :player_count_max, "PL人数（最大）", class: "block text-xs text-muted" %>
-        <%= form.number_field :player_count_max, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div class="sm:col-span-2">
-        <%= form.label :player_count_note, "PL人数の補足", class: "block text-xs text-muted" %>
-        <%= form.text_field :player_count_note, placeholder: "制限なし / 1人推奨 など",
+        <%= form.label :player_count_min, "PL人数（最小・必須）", class: "block text-xs text-muted" %>
+        <%= form.number_field :player_count_min, min: 1, required: true,
               class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
       <div>
-        <%= form.label :duration_min_minutes, "目安時間（分・最小）", class: "block text-xs text-muted" %>
-        <%= form.number_field :duration_min_minutes, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+        <%= form.label :player_count_max, "PL人数（最大）", class: "block text-xs text-muted" %>
+        <p class="text-xs text-muted">人数が固定なら最小と同じ値を入れる。上限が無ければ空欄。</p>
+        <%= form.number_field :player_count_max, min: 1, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
       <div>
-        <%= form.label :duration_max_minutes, "目安時間（分・最大）", class: "block text-xs text-muted" %>
-        <%= form.number_field :duration_max_minutes, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+        <%= form.label :duration_min_hours, "目安時間（時間・最小）", class: "block text-xs text-muted" %>
+        <%= form.number_field :duration_min_hours, step: 0.5, min: 0.5,
+              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+      </div>
+      <div>
+        <%= form.label :duration_max_hours, "目安時間（時間・最大）", class: "block text-xs text-muted" %>
+        <%= form.number_field :duration_max_hours, step: 0.5, min: 0.5,
+              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
       <div>
         <%= form.label :character_restriction, "参加可能キャラの制限", class: "block text-xs text-muted" %>

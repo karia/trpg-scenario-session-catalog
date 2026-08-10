@@ -35,26 +35,48 @@ RSpec.describe Scenario do
   end
 
   describe "player count" do
-    it "allows both ends to be blank for 「制限なし」" do
-      scenario = build(:scenario, player_count_min: nil, player_count_max: nil, player_count_note: "制限なし")
+    it "requires a minimum, because the list filters on it" do
+      expect(build(:scenario, player_count_min: nil)).not_to be_valid
+    end
 
-      expect(scenario).to be_valid
+    it "leaves the maximum blank for 「制限なし」" do
+      expect(build(:scenario, player_count_min: 1, player_count_max: nil)).to be_valid
+    end
+
+    it "takes the same value on both ends for a fixed count" do
+      expect(build(:scenario, player_count_min: 3, player_count_max: 3)).to be_valid
     end
 
     it "rejects a maximum below the minimum" do
       expect(build(:scenario, player_count_min: 3, player_count_max: 2)).not_to be_valid
     end
+
+    it "rejects a table with nobody at it" do
+      expect(build(:scenario, player_count_min: 0)).not_to be_valid
+    end
   end
 
   describe "duration" do
-    it "holds minutes so that 「30分～60分」 fits" do
-      scenario = build(:scenario, duration_min_minutes: 30, duration_max_minutes: 60)
+    it "holds half hours so that 「30分〜1時間」 fits" do
+      scenario = build(:scenario, duration_min_hours: 0.5, duration_max_hours: 1)
 
       expect(scenario).to be_valid
     end
 
+    it "leaves both ends blank when nobody has timed it" do
+      expect(build(:scenario, duration_min_hours: nil, duration_max_hours: nil)).to be_valid
+    end
+
     it "rejects a maximum below the minimum" do
-      expect(build(:scenario, duration_min_minutes: 120, duration_max_minutes: 60)).not_to be_valid
+      expect(build(:scenario, duration_min_hours: 2, duration_max_hours: 1)).not_to be_valid
+    end
+
+    it "rejects a step finer than half an hour" do
+      expect(build(:scenario, duration_min_hours: 1.2)).not_to be_valid
+    end
+
+    it "rejects a duration of zero" do
+      expect(build(:scenario, duration_min_hours: 0)).not_to be_valid
     end
   end
 
