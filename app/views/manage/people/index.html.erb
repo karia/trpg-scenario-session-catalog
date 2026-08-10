@@ -1,0 +1,25 @@
+<% content_for :title, "メンバーの管理" %>
+<h1 class="font-display text-2xl">メンバーの管理</h1>
+<p class="mt-2 text-sm text-muted">Person は管理者が作ります。Google アカウントとの紐づけは<%= link_to "アカウント一覧", manage_users_path, class: "text-seal" %>から。</p>
+
+<%= render "form", person: @person %>
+
+<ul class="mt-8 divide-y divide-rule border border-rule bg-surface text-sm">
+  <% @people.each do |item| %>
+    <li class="flex items-center justify-between gap-4 p-3">
+      <div>
+        <p class="font-display"><%= item.display_name %></p>
+        <p class="text-xs text-muted">
+          権限: <%= item.roles.map { |r| t("people.roles.#{r}") }.join("、").presence || "なし" %>
+          ／ グループ: <%= item.groups.map(&:name).join("、").presence || "なし" %>
+          ／ アカウント: <%= item.user&.email || "未紐づけ" %>
+        </p>
+      </div>
+      <span class="flex shrink-0 gap-3 text-xs">
+        <%= link_to "編集", edit_manage_person_path(item), class: "text-seal" %>
+        <%= button_to "削除", manage_person_path(item), method: :delete,
+              form: { data: { turbo_confirm: "#{item.display_name} を削除しますか" } }, class: "text-muted" %>
+      </span>
+    </li>
+  <% end %>
+</ul>

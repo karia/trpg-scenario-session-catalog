@@ -19,7 +19,6 @@ Ruby と Node は mise で固定している。`mise exec --` を通すか、mis
 | 静的解析 | `bin/rubocop` / `bundle exec erb_lint --lint-all` / `bin/brakeman` |
 | pre-commit を一括実行 | `prek run --all-files` |
 | 開発サーバ | `bin/dev` |
-| sitemap 生成 | `bin/rails sitemap:refresh:no_ping` |
 
 ## この repo の約束
 
@@ -29,6 +28,8 @@ Ruby と Node は mise で固定している。`mise exec --` を通すか、mis
 - 認可は Pundit に寄せる。`ApplicationPolicy` は既定で拒否し、`Scope` は空集合を返す
 - テストは RSpec。実装より先にテストを書く
 - インフラ（PostgreSQL、MinIO、Ingress、Cloudflare Tunnel）は `yuno04-k3s` で管理する
+- 権限は Person に付く。`User` は認証に要る情報だけを持つ。`pundit_user` は `current_person`
+- 最初の管理者は `bin/rails admin:grant EMAIL=... NAME=...` で作る。管理画面からは作れない
 
 ## ドキュメント
 

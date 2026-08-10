@@ -1,0 +1,41 @@
+<%= form_with model: [ :manage, person ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
+  <% if person.errors.any? %>
+    <p class="text-sm text-seal"><%= person.errors.full_messages.join("、") %></p>
+  <% end %>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <%= form.label :display_name, "表示名", class: "block text-xs text-muted" %>
+      <%= form.text_field :display_name, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+    </div>
+    <div>
+      <%= form.label :x_account, "X のアカウント名", class: "block text-xs text-muted" %>
+      <%= form.text_field :x_account, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :icon, "アイコン", class: "block text-xs text-muted" %>
+    <%= form.file_field :icon, accept: "image/*", class: "mt-1 text-sm" %>
+  </div>
+
+  <div>
+    <span class="block text-xs text-muted">権限</span>
+    <% PersonRole::ROLES.each_key do |role| %>
+      <label class="mr-4 inline-flex items-center gap-1 text-sm">
+        <%= check_box_tag "person[roles][]", role, person.roles.include?(role.to_s), id: "person_roles_#{role}" %>
+        <%= t("people.roles.#{role}") %>
+      </label>
+    <% end %>
+    <%= hidden_field_tag "person[roles][]", "" %>
+  </div>
+
+  <div>
+    <span class="block text-xs text-muted">グループ</span>
+    <%= form.collection_check_boxes :group_ids, Group.all, :id, :name do |b| %>
+      <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= b.check_box %> <%= b.text %></label>
+    <% end %>
+  </div>
+
+  <%= form.submit person.persisted? ? "更新" : "追加", class: "bg-ink px-5 py-2 text-sm text-paper" %>
+<% end %>

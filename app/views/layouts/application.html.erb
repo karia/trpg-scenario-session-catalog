@@ -23,6 +23,18 @@
           卓の記録
         <% end %>
         <p class="text-xs text-muted">シナリオとセッションのカタログ</p>
+
+        <nav class="ml-auto flex items-center gap-4 text-xs">
+          <% if signed_in? %>
+            <% if current_person&.admin? || current_person&.gm? %>
+              <%= link_to "編集", manage_scenarios_path, class: "text-seal" %>
+            <% end %>
+            <span class="text-muted"><%= current_person&.display_name || "未登録" %></span>
+            <%= button_to "ログアウト", session_path, method: :delete, class: "text-muted" %>
+          <% else %>
+            <%= button_to "ログイン", "/auth/google_oauth2", method: :post, class: "text-seal" %>
+          <% end %>
+        </nav>
       </div>
     </header>
 

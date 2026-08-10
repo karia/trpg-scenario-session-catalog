@@ -1,0 +1,3 @@
+<%= render "manage/masters/index", title: "グループの管理", records: @records, record: @record,
+      index_path: manage_groups_path, edit_path: ->(r) { edit_manage_group_path(r) },
+      record_path: ->(r) { manage_group_path(r) } %>
