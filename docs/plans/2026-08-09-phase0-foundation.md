@@ -31,7 +31,7 @@
 | `pull_request_template.md` | PR テンプレート |
 | `CLAUDE.md` | 開発コマンドとリポジトリ固有の約束 |
 
-`yuno04-k3s` 側にも作業がある。
+インフラ側のリポジトリにも作業がある。
 このリポジトリの成果物ではないが、Phase 0 の完了条件に含む。
 
 ## 作業順序
@@ -47,7 +47,7 @@
 9. Dockerfile でイメージをビルドし、ローカルのコンテナで `/up` が返ることを確認する
 10. GHCR への push ワークフローを追加する
 11. `pinact run` でワークフロー内の action を SHA に固定する
-12. `yuno04-k3s` に CloudNativePG、MinIO、Deployment、Service、Ingress を用意する
+12. インフラ側のリポジトリに CloudNativePG、MinIO、Deployment、Service、Ingress を用意する
 13. デプロイし、公開ホスト名で `/up` が返ることを確認する
 
 ## 検証手順
@@ -92,4 +92,4 @@ Phase 1 と Phase 2 の両方が Pundit に触る。
 **MinIO の公開範囲**。
 ジャケット画像は公開エリアからも参照される。
 バケットを公開にするか、署名付き URL で配信するかで、キャッシュのされ方と SEO 上の扱いが変わる。
-`yuno04-k3s` 側の設計と合わせて決める。
+インフラ側の設計と合わせて決める。

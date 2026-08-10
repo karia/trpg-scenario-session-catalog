@@ -1,13 +1,16 @@
 # 初期投入。何度流しても同じ結果になる。
 # 実データは git に置かない。書式は db/seeds/scenarios.example.yml を見る。
 # 投入後はこのサイトが正になり、以後の編集は画面から行う。
-SEED_ATTRIBUTES = %w[
-  player_count_min player_count_max player_count_note
-  duration_min_minutes duration_max_minutes
-  recommendation gm_experienced
-  character_restriction character_sheet_deadline character_sheet_deadline_note
-  recommendation_note
-].freeze
+# seeds は複数回 load されうるため、定数ではなくメソッドで持つ。
+def seed_attributes
+  %w[
+    player_count_min player_count_max player_count_note
+    duration_min_minutes duration_max_minutes
+    recommendation gm_experienced
+    character_restriction character_sheet_deadline character_sheet_deadline_note
+    recommendation_note
+  ]
+end
 
 def seed_file
   explicit = ENV["SCENARIOS_SEED_FILE"].presence
@@ -19,7 +22,7 @@ end
 
 def seed_scenario(row)
   scenario = Scenario.find_or_initialize_by(title: row.fetch("title"))
-  scenario.assign_attributes(row.slice(*SEED_ATTRIBUTES))
+  scenario.assign_attributes(row.slice(*seed_attributes))
   scenario.game_systems = Array(row["game_systems"]).map { |name| GameSystem.find_or_create_by!(name:) }
   scenario.authors = Array(row["authors"]).map { |name| Author.find_or_create_by!(name:) }
   scenario.save!
