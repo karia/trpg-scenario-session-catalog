@@ -1,0 +1,4 @@
+<% content_for :title, "セッションの編集" %>
+<h1 class="font-display text-2xl"><%= @play_session.scenario.title %> のセッション</h1>
+<%= render "form", play_session: @play_session %>
+<p class="mt-6"><%= link_to "セッション一覧に戻る", manage_play_sessions_path, class: "text-sm text-muted" %></p>

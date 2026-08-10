@@ -1,0 +1,16 @@
+<div class="grid gap-2 sm:grid-cols-[12rem_8rem_1fr_1fr_auto]">
+  <%= row.label :person_id, "参加者", class: "sr-only" %>
+  <%= row.collection_select :person_id, Person.all, :id, :display_name,
+        { include_blank: "参加者" }, class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+  <%= row.label :role, "役割", class: "sr-only" %>
+  <%= row.select :role, Participation.roles.keys.map { |k| [ t("play_sessions.roles.#{k}"), k ] },
+        {}, class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+  <%= row.label :character_name, "キャラクター名", class: "sr-only" %>
+  <%= row.text_field :character_name, placeholder: "キャラクター名", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+  <%= row.label :character_sheet_url, "キャラクターシート", class: "sr-only" %>
+  <%= row.url_field :character_sheet_url, placeholder: "キャラシ https://", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+  <label class="inline-flex items-center gap-1 text-xs text-muted">
+    <%= row.check_box :_destroy %> 外す
+  </label>
+  <%= row.hidden_field :id if row.object.persisted? %>
+</div>
