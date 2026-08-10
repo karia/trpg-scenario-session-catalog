@@ -3,7 +3,7 @@ class PeopleController < ApplicationController
 
   def index
     authorize Person
-    @people = policy_scope(Person).includes(:person_aliases, :groups)
+    @people = policy_scope(Person).includes(:person_aliases, :groups).with_attached_icon
   end
 
   def show

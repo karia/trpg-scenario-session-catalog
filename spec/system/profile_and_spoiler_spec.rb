@@ -3,6 +3,7 @@ require "rails_helper"
 RSpec.describe "A member's own pages" do
   it "edits a profile, favours a scenario and opens a spoiler" do
     person = create(:person, display_name: "本人")
+    person.person_aliases.create!(name: "古い別名", context: "とあるサーバ")
     scenario = create(:scenario, title: "見本シナリオ", preparation_note: "ネタバレを含む準備情報")
     user = create(:user, person: person)
 
@@ -15,10 +16,14 @@ RSpec.describe "A member's own pages" do
 
     visit edit_person_path(person)
     fill_in "person[x_account]", with: "karia"
-    fill_in "person[person_aliases_attributes][0][name]", with: "べつの名前" rescue nil
+    # 既存の別名の行が出ていること自体も確かめる。
+    expect(page).to have_field(with: "古い別名")
+    fill_in "person[person_aliases_attributes][0][name]", with: "べつの名前"
     click_button "保存"
 
     expect(page).to have_content("@karia")
+    expect(page).to have_content("べつの名前")
+    expect(page).to have_no_content("古い別名")
 
     visit scenario_path(scenario)
     expect(page).to have_no_content("ネタバレを含む準備情報")

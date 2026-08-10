@@ -30,6 +30,18 @@ RSpec.describe "Favorites" do
     expect(person.reload).not_to be_favourite(scenario)
   end
 
+  # コントローラが必ず current_person を使うことを固定する。person_id を送り込んでも効かない。
+  it "ignores a person_id in the request and always acts for the signed-in member" do
+    me = create(:person)
+    victim = create(:person)
+    sign_in_as me
+
+    post scenario_favorite_path(scenario), params: { person_id: victim.id }
+
+    expect(me.reload).to be_favourite(scenario)
+    expect(victim.reload).not_to be_favourite(scenario)
+  end
+
   it "does not add the same scenario twice" do
     sign_in_as create(:person)
     post scenario_favorite_path(scenario)

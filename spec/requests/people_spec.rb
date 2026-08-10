@@ -47,6 +47,22 @@ RSpec.describe "People" do
       expect(person.reload.display_name).to eq("改名した本人")
     end
 
+    it "refuses to open someone else's edit form" do
+      sign_in_as other
+
+      get edit_person_path(person)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "opens the edit form for the person themselves" do
+      sign_in_as person
+
+      get edit_person_path(person)
+
+      expect(response).to have_http_status(:ok)
+    end
+
     it "refuses someone else" do
       sign_in_as other
 
@@ -100,6 +116,40 @@ RSpec.describe "People" do
       }
 
       expect(person.reload.person_aliases.map(&:name)).to eq([ "A" ])
+    end
+  end
+
+  describe "icon uploads" do
+    def upload(content, type, name)
+      Rack::Test::UploadedFile.new(StringIO.new(content), type, original_filename: name)
+    end
+
+    # 1 人の不正なアップロードで、一覧を開いた全員が 500 になるのを防ぐ。
+    it "refuses a file that is not an image, and leaves the member list working" do
+      sign_in_as person
+
+      patch person_path(person), params: {
+        person: { display_name: "本人", icon: upload("not an image", "text/plain", "evil.txt") }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(person.reload.icon).not_to be_attached
+
+      get people_path
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "accepts a PNG" do
+      sign_in_as person
+
+      patch person_path(person), params: {
+        person: {
+          display_name: "本人",
+          icon: Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/dot.png"), "image/png")
+        }
+      }
+
+      expect(person.reload.icon).to be_attached
     end
   end
 

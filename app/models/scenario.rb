@@ -19,7 +19,8 @@ class Scenario < ApplicationRecord
   has_many :authors, through: :scenario_authors
   has_many :favorites, dependent: :destroy
   has_many :spoiler_reveals, dependent: :destroy
-  has_many :play_sessions, dependent: :destroy
+  # セッションが残っているシナリオは消させない。消すと参加記録ごと失われる。
+  has_many :play_sessions, dependent: :restrict_with_error
   has_many :purchase_links, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :scenario
   has_many :stream_links, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :scenario
 
@@ -27,6 +28,7 @@ class Scenario < ApplicationRecord
   accepts_nested_attributes_for :stream_links, allow_destroy: true, reject_if: :all_blank
 
   validates :title, presence: true
+  validates :jacket, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
   validates :recommendation, inclusion: { in: 1..5 }, allow_nil: true
   validate :player_count_range_is_ordered
   validate :duration_range_is_ordered
