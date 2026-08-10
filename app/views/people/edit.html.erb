@@ -1,0 +1,55 @@
+<% content_for :title, "#{@person.display_name} のプロフィール編集" %>
+
+<h1 class="font-display text-2xl">プロフィールの編集</h1>
+
+<%= form_with model: @person, class: "mt-6 space-y-6" do |form| %>
+  <% if @person.errors.any? %>
+    <p class="border border-seal bg-surface p-4 text-sm text-seal"><%= @person.errors.full_messages.join("、") %></p>
+  <% end %>
+
+  <fieldset class="border border-rule bg-surface p-5">
+    <legend class="px-2 font-display text-sm">あなたのこと</legend>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <%= form.label :display_name, "表示名", class: "block text-xs text-muted" %>
+        <%= form.text_field :display_name, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+      <div>
+        <%= form.label :x_account, "X のアカウント名（@ は不要）", class: "block text-xs text-muted" %>
+        <%= form.text_field :x_account, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+      <div class="sm:col-span-2">
+        <%= form.label :icon, "アイコン", class: "block text-xs text-muted" %>
+        <%= form.file_field :icon, accept: "image/*", class: "mt-1 text-sm" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="border border-rule bg-surface p-5">
+    <legend class="px-2 font-display text-sm">別名</legend>
+    <p class="text-xs text-muted">Discord のサーバごとに名前を変えている場合に使います。</p>
+
+    <div class="mt-3 space-y-3" data-controller="nested-form">
+      <template data-nested-form-target="template">
+        <%= form.fields_for :person_aliases, PersonAlias.new, child_index: "NEW_RECORD" do |row| %>
+          <%= render "alias_row", row: row %>
+        <% end %>
+      </template>
+
+      <%= form.fields_for :person_aliases do |row| %>
+        <%= render "alias_row", row: row %>
+      <% end %>
+
+      <div data-nested-form-target="anchor"></div>
+
+      <button type="button" data-action="nested-form#add" class="cursor-pointer text-sm text-seal">別名を足す</button>
+    </div>
+  </fieldset>
+
+  <p class="text-xs text-muted">グループの所属は管理者が設定します。</p>
+
+  <div class="flex gap-4">
+    <%= form.submit "保存", class: "cursor-pointer bg-ink px-6 py-2 text-sm text-paper" %>
+    <%= link_to "やめる", person_path(@person), class: "self-center text-sm text-muted" %>
+  </div>
+<% end %>

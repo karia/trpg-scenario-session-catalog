@@ -3,17 +3,17 @@ module Manage
     before_action :set_person, only: %i[edit update destroy]
 
     def index
-      authorize Person
+      authorize Person, :manage?
       @people = people_for_index
       @person = Person.new
     end
 
     def edit
-      authorize @person
+      authorize @person, :manage?
     end
 
     def create
-      @person = authorize Person.new(person_params)
+      @person = authorize Person.new(person_params), :manage?
 
       if @person.save
         redirect_to manage_people_path, notice: "#{@person.display_name} を登録しました"
@@ -24,7 +24,7 @@ module Manage
     end
 
     def update
-      authorize @person
+      authorize @person, :manage?
 
       if @person.update(person_params)
         redirect_to manage_people_path, notice: "#{@person.display_name} を更新しました"
@@ -34,7 +34,7 @@ module Manage
     end
 
     def destroy
-      authorize @person
+      authorize @person, :manage?
       @person.destroy!
       redirect_to manage_people_path, notice: "削除しました"
     end

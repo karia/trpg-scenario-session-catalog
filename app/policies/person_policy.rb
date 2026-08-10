@@ -1,14 +1,19 @@
 class PersonPolicy < ApplicationPolicy
-  # Person とグループの管理は管理者だけ。GM には開かない。
-  def index? = admin?
+  # プロフィールはログイン済みのメンバー同士なら見える。
+  def index? = person.present?
   def show? = person.present?
+
+  # 本人と管理者が編集できる。グループ所属だけは管理画面（管理者のみ）で扱う。
+  def update? = admin? || person == record
+
+  # Person の追加と削除、グループ所属の変更は管理者だけ。GM には開かない。
+  def manage? = admin?
   def create? = admin?
-  def update? = admin?
   def destroy? = admin?
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      person&.admin? ? scope.all : scope.none
+      person.present? ? scope.all : scope.none
     end
   end
 end

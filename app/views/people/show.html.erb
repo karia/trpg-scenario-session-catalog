@@ -1,0 +1,58 @@
+<% content_for :title, @person.display_name %>
+
+<article>
+  <div class="flex flex-wrap items-start gap-6">
+    <span class="size-24 shrink-0 overflow-hidden rounded-full border border-rule bg-surface">
+      <% if @person.icon.attached? %>
+        <%= image_tag @person.icon.variant(:thumb), alt: "", class: "size-full object-cover" %>
+      <% end %>
+    </span>
+
+    <div class="grow">
+      <h1 class="font-display text-3xl tracking-wide"><%= @person.display_name %></h1>
+      <% if @person.x_account.present? %>
+        <p class="mt-1 text-sm">
+          <%= link_to "@#{@person.x_account}", "https://x.com/#{@person.x_account}",
+                rel: "noopener", class: "text-seal" %>
+        </p>
+      <% end %>
+      <p class="mt-2 text-xs text-muted">
+        グループ: <%= @person.groups.map(&:name).join("、").presence || "なし" %>
+      </p>
+    </div>
+
+    <% if policy(@person).update? %>
+      <%= link_to "編集", edit_person_path(@person), class: "text-sm text-seal" %>
+    <% end %>
+  </div>
+
+  <% if @person.person_aliases.any? %>
+    <section class="mt-10">
+      <h2 class="font-display text-xl">別名</h2>
+      <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
+        <% @person.person_aliases.each do |person_alias| %>
+          <li class="flex items-baseline gap-4 p-3">
+            <span class="font-display"><%= person_alias.name %></span>
+            <span class="text-xs text-muted"><%= person_alias.context %></span>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+
+  <section class="mt-10">
+    <h2 class="font-display text-xl">お気に入りシナリオ</h2>
+    <% favorites = @person.favorite_scenarios.order(:title) %>
+    <% if favorites.any? %>
+      <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
+        <% favorites.each do |scenario| %>
+          <li class="p-3">
+            <%= link_to scenario.title, scenario_path(scenario), class: "text-seal" %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="mt-3 text-sm text-muted">まだありません。</p>
+    <% end %>
+  </section>
+</article>
