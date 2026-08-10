@@ -1,0 +1,11 @@
+<span id="favorite_<%= scenario.id %>">
+  <% if policy(scenario).favourite? %>
+    <% if current_person.favourite?(scenario) %>
+      <%= button_to "お気に入りを外す", scenario_favorite_path(scenario), method: :delete,
+            class: "cursor-pointer border border-seal px-3 py-1.5 text-xs text-seal" %>
+    <% else %>
+      <%= button_to "お気に入りに入れる", scenario_favorite_path(scenario),
+            class: "cursor-pointer border border-rule px-3 py-1.5 text-xs text-muted hover:border-seal hover:text-seal" %>
+    <% end %>
+  <% end %>
+</span>

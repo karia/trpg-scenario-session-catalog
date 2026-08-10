@@ -85,6 +85,21 @@ RSpec.describe "Manage::Scenarios" do
       expect(Scenario.count).to eq(0)
     end
 
+    # セッションごと消えると参加記録が失われる。外部キーで止まっていた挙動を保つ。
+    it "refuses to delete a scenario that still has sessions" do
+      scenario = create(:scenario)
+      create(:play_session, scenario: scenario)
+
+      expect { delete manage_scenario_path(scenario) }.not_to change(Scenario, :count)
+      expect(PlaySession.count).to eq(1)
+    end
+
+    it "deletes a scenario that has no sessions" do
+      scenario = create(:scenario)
+
+      expect { delete manage_scenario_path(scenario) }.to change(Scenario, :count).by(-1)
+    end
+
     it "updates a scenario" do
       scenario = create(:scenario, title: "旧題")
 

@@ -42,6 +42,9 @@ gem "image_processing", "~> 1.2"
 # S3-compatible storage for Active Storage (MinIO in development and production)
 gem "aws-sdk-s3", require: false
 
+# Content type and size validation for attachments
+gem "active_storage_validations"
+
 # Authorization [https://github.com/varvet/pundit]
 gem "pundit"
 

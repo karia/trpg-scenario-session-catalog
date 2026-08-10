@@ -1,0 +1,24 @@
+<% content_for :title, "メンバー" %>
+
+<h1 class="font-display text-3xl tracking-wide">メンバー</h1>
+<p class="mt-2 text-sm text-muted">ログインしている人だけが見られます。</p>
+
+<ul class="mt-8 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
+  <% @people.each do |member| %>
+    <li class="bg-surface">
+      <%= link_to person_path(member), class: "flex items-center gap-3 p-4 no-underline text-ink hover:bg-paper" do %>
+        <span class="size-12 shrink-0 overflow-hidden rounded-full bg-paper">
+          <% if member.icon.attached? %>
+            <%= image_tag member.icon.variant(:thumb), alt: "", class: "size-full object-cover" %>
+          <% end %>
+        </span>
+        <span>
+          <span class="block font-display"><%= member.display_name %></span>
+          <% if member.person_aliases.any? %>
+            <span class="block text-xs text-muted"><%= member.person_aliases.map(&:name).join("、") %></span>
+          <% end %>
+        </span>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

@@ -13,8 +13,12 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   resource :session, only: [ :destroy ]
 
-  resources :scenarios, only: [ :index, :show ]
+  resources :scenarios, only: [ :index, :show ] do
+    resource :favorite, only: [ :create, :destroy ]
+    resource :spoiler_reveal, only: [ :create ]
+  end
   resources :play_sessions, only: [ :index, :show ]
+  resources :people, only: [ :index, :show, :edit, :update ]
 
   namespace :manage do
     resources :scenarios

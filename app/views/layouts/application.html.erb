@@ -28,11 +28,16 @@
           <% if signed_in? %>
             <% if current_person %>
               <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
+              <%= link_to "メンバー", people_path, class: "text-seal underline" %>
             <% end %>
             <% if current_person&.admin? || current_person&.gm? %>
               <%= link_to "編集", manage_scenarios_path, class: "text-seal underline" %>
             <% end %>
-            <span class="text-muted"><%= current_person&.display_name || "未登録" %></span>
+            <% if current_person %>
+              <%= link_to current_person.display_name, person_path(current_person), class: "text-muted" %>
+            <% else %>
+              <span class="text-muted">未登録</span>
+            <% end %>
             <%= button_to "ログアウト", session_path, method: :delete,
                   class: "cursor-pointer text-muted underline" %>
           <% else %>

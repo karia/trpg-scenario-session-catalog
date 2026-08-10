@@ -5,10 +5,15 @@ class Person < ApplicationRecord
 
   has_one :user, dependent: :nullify
   has_many :person_roles, dependent: :destroy
+  has_many :person_aliases, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :person
+  has_many :favorites, dependent: :destroy
+  has_many :favorite_scenarios, through: :favorites, source: :scenario
+  has_many :spoiler_reveals, dependent: :destroy
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
 
   validates :display_name, presence: true
+  validates :icon, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 5.megabytes }
   validate :keeps_at_least_one_admin
 
   default_scope { order(:display_name) }
@@ -17,7 +22,15 @@ class Person < ApplicationRecord
     define_method(:"#{role}?") { person_roles.any? { |r| r.name == role.to_s } }
   end
 
+  # 既存行の名前を空にしたときは無視せず検証に落とす。新規の空行だけ捨てる。
+  accepts_nested_attributes_for :person_aliases, allow_destroy: true,
+    reject_if: ->(attrs) { attrs["id"].blank? && attrs["name"].blank? }
+
   def roles = person_roles.map(&:name)
+
+  def revealed?(scenario) = spoiler_reveals.exists?(scenario_id: scenario.id)
+
+  def favourite?(scenario) = favorites.exists?(scenario_id: scenario.id)
 
   def self.admins = joins(:person_roles).where(person_roles: { name: PersonRole.names[:admin] })
 

@@ -36,10 +36,23 @@ RSpec.describe "Authorization matrix" do
   end
 
   describe PersonPolicy do
-    it "is admin only, including against GMs" do
-      expect(allows?(gm, described_class, Person.new, :index?)).to be_falsey
-      expect(allows?(gm, described_class, Person.new, :update?)).to be_falsey
-      expect(allows?(admin, described_class, Person.new, :index?)).to be(true)
+    it "shows profiles to any signed-in member and to nobody else" do
+      expect(allows?(anonymous, described_class, Person.new, :show?)).to be_falsey
+      expect(allows?(unlinked, described_class, Person.new, :show?)).to be_falsey
+      expect(allows?(no_role, described_class, Person.new, :show?)).to be(true)
+    end
+
+    it "lets a person edit their own profile and nobody else's" do
+      expect(allows?(no_role, described_class, no_role, :update?)).to be(true)
+      expect(allows?(no_role, described_class, gm, :update?)).to be_falsey
+      expect(allows?(admin, described_class, no_role, :update?)).to be(true)
+    end
+
+    # 管理画面はグループ所属を触れるため、本人であっても管理者以外は入れない。
+    it "keeps the manage screen to admins, even against the person themselves" do
+      expect(allows?(gm, described_class, gm, :manage?)).to be_falsey
+      expect(allows?(no_role, described_class, no_role, :manage?)).to be_falsey
+      expect(allows?(admin, described_class, no_role, :manage?)).to be(true)
     end
   end
 
@@ -70,13 +83,18 @@ RSpec.describe "Authorization matrix" do
   end
 
   describe "scopes" do
-    it "returns nothing to a GM for people and groups" do
-      create(:person)
+    it "returns nothing about groups or accounts to a GM" do
       create(:group)
 
-      expect(PersonPolicy::Scope.new(gm, Person).resolve).to be_empty
       expect(GroupPolicy::Scope.new(gm, Group).resolve).to be_empty
       expect(UserPolicy::Scope.new(gm, User).resolve).to be_empty
+    end
+
+    it "returns the member list to any signed-in member but not to a visitor" do
+      create(:person)
+
+      expect(PersonPolicy::Scope.new(no_role, Person).resolve).not_to be_empty
+      expect(PersonPolicy::Scope.new(anonymous, Person).resolve).to be_empty
     end
 
     it "returns the master tables to a GM, who edits scenarios" do

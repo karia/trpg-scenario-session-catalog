@@ -37,8 +37,12 @@ module Manage
 
     def destroy
       authorize @scenario
-      @scenario.destroy!
-      redirect_to manage_scenarios_path, notice: "#{@scenario.title} を削除しました"
+
+      if @scenario.destroy
+        redirect_to manage_scenarios_path, notice: "#{@scenario.title} を削除しました"
+      else
+        redirect_to manage_scenarios_path, alert: @scenario.errors.full_messages.join("、")
+      end
     end
 
     private

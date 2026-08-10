@@ -10,8 +10,12 @@ class ScenarioPolicy < ApplicationPolicy
   def update? = editor?
   def destroy? = editor?
 
-  # 準備情報は Phase 4 のネタバレ防止ボタンが入るまで誰にも見せない。
-  def show_preparation_note? = false
+  # お気に入りとネタバレ防止ボタンは Person に紐づくため、紐づいた人だけが押せる。
+  def favourite? = person.present?
+  def reveal_preparation_note? = person.present?
+
+  # 押した記録があるときだけ本文を返す。CSS では隠さない。
+  def show_preparation_note? = person.present? && person.revealed?(record)
 
   class Scope < ApplicationPolicy::Scope
     def resolve
