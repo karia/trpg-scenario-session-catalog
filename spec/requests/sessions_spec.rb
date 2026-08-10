@@ -41,15 +41,39 @@ RSpec.describe "Sessions" do
       expect { sign_in }.not_to change(User, :count)
     end
 
-    it "reports a failure from the provider instead of raising" do
+    it "sends a provider failure to the failure page rather than raising" do
       OmniAuth.config.mock_auth[:google_oauth2] = :invalid_credentials
 
       post "/auth/google_oauth2"
       follow_redirect!
-      follow_redirect!
 
-      expect(response).to redirect_to(root_path).or have_http_status(:ok)
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to be_present
       expect(User.count).to eq(0)
+    end
+
+    it "replaces the session on sign-in, so a fixed cookie cannot be reused" do
+      # test 環境は forgery protection を切っているため、トークンを書かせる間だけ有効にする。
+      # 有効なままだと omniauth-rails_csrf_protection が開始リクエストを弾く。
+      ActionController::Base.allow_forgery_protection = true
+      get root_path
+      before = session[:_csrf_token]
+      ActionController::Base.allow_forgery_protection = false
+
+      expect(before).to be_present
+
+      sign_in
+
+      expect(session[:_csrf_token]).not_to eq(before)
+      expect(session[:user_id]).to eq(User.sole.id)
+    ensure
+      ActionController::Base.allow_forgery_protection = false
+    end
+
+    it "answers 404 for a callback from an unknown provider" do
+      get "/auth/bogus/callback"
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 

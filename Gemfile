@@ -49,6 +49,9 @@ gem "pundit"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
 
+# Japanese translations for Rails' own messages (validation errors and dates)
+gem "rails-i18n"
+
 # SEO
 gem "meta-tags"
 gem "sitemap_generator"

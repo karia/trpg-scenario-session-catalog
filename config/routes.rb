@@ -8,7 +8,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # 開始は POST 限定（omniauth-rails_csrf_protection）。コールバックは Google からの GET。
-  match "/auth/:provider/callback", to: "sessions#create", via: [ :get, :post ]
+  match "/auth/:provider/callback", to: "sessions#create", via: [ :get, :post ],
+    constraints: { provider: /google_oauth2/ }
   get "/auth/failure", to: "sessions#failure"
   resource :session, only: [ :destroy ]
 
@@ -16,10 +17,10 @@ Rails.application.routes.draw do
 
   namespace :manage do
     resources :scenarios
-    resources :game_systems, except: [ :show ]
-    resources :authors, except: [ :show ]
-    resources :people, except: [ :show ]
-    resources :groups, except: [ :show ]
+    resources :game_systems, except: [ :show, :new ]
+    resources :authors, except: [ :show, :new ]
+    resources :people, except: [ :show, :new ]
+    resources :groups, except: [ :show, :new ]
     resources :users, only: [ :index, :update ]
   end
 

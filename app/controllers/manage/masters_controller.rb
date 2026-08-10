@@ -5,17 +5,13 @@ module Manage
 
     def index
       authorize model_class
-      @records = model_class.all
+      @records = policy_scope(model_class)
       @record = model_class.new
-    end
-
-    def new
-      redirect_to url_for(action: :index)
     end
 
     def edit
       authorize @record
-      @records = model_class.all
+      @records = policy_scope(model_class)
       render :index
     end
 
@@ -25,7 +21,7 @@ module Manage
       if @record.save
         redirect_to url_for(action: :index), notice: "#{@record.name} を登録しました"
       else
-        @records = model_class.all
+        @records = policy_scope(model_class)
         render :index, status: :unprocessable_content
       end
     end
@@ -36,7 +32,7 @@ module Manage
       if @record.update(record_params)
         redirect_to url_for(action: :index), notice: "#{@record.name} を更新しました"
       else
-        @records = model_class.all
+        @records = policy_scope(model_class)
         render :index, status: :unprocessable_content
       end
     end

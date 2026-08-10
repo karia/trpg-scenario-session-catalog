@@ -17,11 +17,4 @@ module Authentication
   end
 
   def signed_in? = current_user.present?
-
-  private
-    def require_person
-      return if current_person
-
-      redirect_to root_path, alert: "この画面は登録済みのメンバーだけが見られます"
-    end
 end

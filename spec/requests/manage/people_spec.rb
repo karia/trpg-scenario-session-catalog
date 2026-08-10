@@ -70,6 +70,49 @@ RSpec.describe "Manage::People" do
     end
   end
 
+  describe "the account linking screen" do
+    it "answers 404 to a GM, who must not be able to rebind accounts" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      get manage_users_path
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "refuses a GM's attempt to link an account" do
+      sign_in_as create(:person, roles: %w[gm])
+      user = create(:user, person: nil)
+      target = create(:person, roles: %w[admin])
+
+      patch manage_user_path(user), params: { user: { person_id: target.id } }
+
+      expect(response).to have_http_status(:not_found)
+      expect(user.reload.person).to be_nil
+    end
+  end
+
+  describe "keeping an administrator" do
+    it "refuses to remove the last admin role" do
+      admin = create(:person, roles: %w[admin])
+      sign_in_as admin
+
+      patch manage_person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(admin.reload).to be_admin
+    end
+
+    it "allows it once another admin exists" do
+      admin = create(:person, roles: %w[admin])
+      create(:person, roles: %w[admin])
+      sign_in_as admin
+
+      patch manage_person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
+
+      expect(admin.reload).not_to be_admin
+    end
+  end
+
   describe "linking effects" do
     it "opens the signed-in area once the account is linked" do
       admin = create(:person, roles: %w[admin])

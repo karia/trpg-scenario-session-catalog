@@ -6,7 +6,9 @@ class SessionsController < ApplicationController
     reset_session
     session[:user_id] = user.id
 
-    redirect_to after_sign_in_path(user)
+    redirect_to root_path, notice: sign_in_notice(user)
+  rescue KeyError, ActiveRecord::ActiveRecordError
+    failure
   end
 
   def destroy
@@ -19,9 +21,9 @@ class SessionsController < ApplicationController
   end
 
   private
-    def after_sign_in_path(user)
-      return root_path if user.linked?
+    def sign_in_notice(user)
+      return "ログインしました" if user.linked?
 
-      root_path
+      "ログインしました。管理者がメンバー登録するまで、閲覧できるのは公開ページだけです"
     end
 end

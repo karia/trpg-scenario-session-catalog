@@ -4,12 +4,8 @@ module Manage
 
     def index
       authorize Person
-      @people = policy_scope(Person).includes(:person_roles, :groups, :user)
+      @people = people_for_index
       @person = Person.new
-    end
-
-    def new
-      @person = authorize Person.new
     end
 
     def edit
@@ -22,7 +18,7 @@ module Manage
       if @person.save
         redirect_to manage_people_path, notice: "#{@person.display_name} を登録しました"
       else
-        @people = policy_scope(Person)
+        @people = people_for_index
         render :index, status: :unprocessable_content
       end
     end
@@ -44,6 +40,10 @@ module Manage
     end
 
     private
+      def people_for_index
+        policy_scope(Person).includes(:person_roles, :groups, :user)
+      end
+
       def set_person
         @person = Person.find(params[:id])
       end

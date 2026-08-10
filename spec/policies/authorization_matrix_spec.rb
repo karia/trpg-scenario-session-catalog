@@ -2,6 +2,7 @@ require "rails_helper"
 
 # ADR-0001 は認可の漏れをそのまま情報漏えいとして扱う。役割ごとの可否を一覧で固定する。
 RSpec.describe "Authorization matrix" do
+  # current_person は未ログインでも Person 未紐づけでも nil になる。両方を明示的に置く。
   let(:anonymous) { nil }
   let(:unlinked) { nil }
   let(:no_role) { create(:person) }
@@ -14,20 +15,21 @@ RSpec.describe "Authorization matrix" do
 
   describe ScenarioPolicy do
     it "lets anyone read" do
-      [ anonymous, no_role, gm, admin ].each do |person|
+      [ anonymous, unlinked, no_role, gm, admin ].each do |person|
         expect(allows?(person, described_class, Scenario.new, :show?)).to be(true)
       end
     end
 
     it "lets only editors write" do
       expect(allows?(anonymous, described_class, Scenario.new, :update?)).to be_falsey
+      expect(allows?(unlinked, described_class, Scenario.new, :update?)).to be_falsey
       expect(allows?(no_role, described_class, Scenario.new, :update?)).to be_falsey
       expect(allows?(gm, described_class, Scenario.new, :update?)).to be(true)
       expect(allows?(admin, described_class, Scenario.new, :update?)).to be(true)
     end
 
     it "hides the preparation note from everyone until Phase 4" do
-      [ anonymous, no_role, gm, admin ].each do |person|
+      [ anonymous, unlinked, no_role, gm, admin ].each do |person|
         expect(allows?(person, described_class, Scenario.new, :show_preparation_note?)).to be(false)
       end
     end
@@ -38,6 +40,17 @@ RSpec.describe "Authorization matrix" do
       expect(allows?(gm, described_class, Person.new, :index?)).to be_falsey
       expect(allows?(gm, described_class, Person.new, :update?)).to be_falsey
       expect(allows?(admin, described_class, Person.new, :index?)).to be(true)
+    end
+  end
+
+  describe UserPolicy do
+    it "is admin only, so a GM cannot rebind accounts to people and grant themselves roles" do
+      expect(allows?(anonymous, described_class, User.new, :index?)).to be_falsey
+      expect(allows?(no_role, described_class, User.new, :index?)).to be_falsey
+      expect(allows?(gm, described_class, User.new, :index?)).to be_falsey
+      expect(allows?(gm, described_class, User.new, :update?)).to be_falsey
+      expect(allows?(admin, described_class, User.new, :index?)).to be(true)
+      expect(allows?(admin, described_class, User.new, :update?)).to be(true)
     end
   end
 
@@ -55,6 +68,21 @@ RSpec.describe "Authorization matrix" do
 
       expect(PersonPolicy::Scope.new(gm, Person).resolve).to be_empty
       expect(GroupPolicy::Scope.new(gm, Group).resolve).to be_empty
+      expect(UserPolicy::Scope.new(gm, User).resolve).to be_empty
+    end
+
+    it "returns the master tables to a GM, who edits scenarios" do
+      create(:game_system)
+      create(:author)
+
+      expect(GameSystemPolicy::Scope.new(gm, GameSystem).resolve).not_to be_empty
+      expect(AuthorPolicy::Scope.new(gm, Author).resolve).not_to be_empty
+    end
+
+    it "returns nothing from the master tables to someone with no role" do
+      create(:game_system)
+
+      expect(GameSystemPolicy::Scope.new(no_role, GameSystem).resolve).to be_empty
     end
 
     it "returns everything to an admin" do
