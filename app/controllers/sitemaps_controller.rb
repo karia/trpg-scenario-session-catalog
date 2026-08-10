@@ -1,8 +1,10 @@
+# 60 本規模なので事前生成せず、その場で組み立てる。生成物のための書き込み先が要らない。
 class SitemapsController < ActionController::Base
   def show
-    path = Rails.root.join("tmp/sitemaps/sitemap.xml")
-    return head :not_found unless File.exist?(path)
+    @scenarios = Scenario.order(:id)
 
-    send_file path, type: "application/xml", disposition: "inline"
+    fresh_when etag: [ @scenarios.maximum(:updated_at), @scenarios.count ],
+               last_modified: @scenarios.maximum(:updated_at),
+               public: true
   end
 end

@@ -19,7 +19,6 @@ Ruby と Node は mise で固定している。`mise exec --` を通すか、mis
 | 静的解析 | `bin/rubocop` / `bundle exec erb_lint --lint-all` / `bin/brakeman` |
 | pre-commit を一括実行 | `prek run --all-files` |
 | 開発サーバ | `bin/dev` |
-| sitemap 生成 | `bin/rails sitemap:refresh:no_ping` |
 
 ## この repo の約束
 
