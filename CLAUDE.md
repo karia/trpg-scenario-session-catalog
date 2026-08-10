@@ -1,44 +1,72 @@
 # CLAUDE.md
 
-## セットアップ
+セットアップと PR の出し方は [README](README.md) にある。ここには、作業中に迷う手順と、この repo の約束を書く。
 
-```
-mise install
-cp .env.example .env
-docker compose up -d
-bin/rails db:prepare
-```
+## 構成
 
-Ruby と Node は mise で固定している。`mise exec --` を通すか、mise の shims を PATH に置く。
+Rails 8 の SSR モノリス。設計判断は [ADR-0001](docs/adr/0001-application-architecture.md)。
 
-## 日常的に使うコマンド
+| 層 | 置き場所 | 補足 |
+| --- | --- | --- |
+| 公開エリア | `app/controllers/scenarios_controller.rb` ほか | 未ログインでも見える。SEO の対象はここだけ |
+| ログイン必須エリア | `play_sessions` / `people` | `current_person` が nil なら入れない |
+| 編集エリア | `app/controllers/manage/` | `Manage::BaseController` が入口を塞ぐ |
+| 認可 | `app/policies/` | 判断はすべてここ。ビューやコントローラに条件を散らさない |
 
-| 目的 | コマンド |
+認証は Google のみ。`User` は Google アカウント、`Person` は人物で、1 対 1 で紐づく。
+紐づいていない `User` は「ログイン済みだが公開エリアしか見えない」通常の状態。
+
+## よく使う手順
+
+| したいこと | コマンド |
 | --- | --- |
 | テスト | `bin/rspec` |
-| 静的解析 | `bin/rubocop` / `bundle exec erb_lint --lint-all` / `bin/brakeman` |
-| pre-commit を一括実行 | `prek run --all-files` |
-| 開発サーバ | `bin/dev` |
+| 1 ファイルだけ | `bin/rspec spec/requests/scenarios_spec.rb:42` |
+| 静的解析をまとめて | `prek run --all-files` |
+| 開発サーバ | `bin/dev`（Puma と Tailwind の watch） |
+| シナリオの投入 | `bin/rails db:seed`（冪等） |
+
+Ruby と Node は mise で固定している。shims を PATH に置いていない環境では `mise exec --` を頭に付ける。
+
+## データベースを変える
+
+```bash
+bin/rails generate migration AddFooToBar foo:string
+bin/rails db:migrate          # 開発 DB に当て、db/schema.rb が更新される
+bin/rails db:test:prepare     # テスト DB に schema.rb を流し直す
+```
+
+`db/schema.rb` は必ず commit する。テストは migration ではなく schema.rb から DB を作る。
+
+**本番のマイグレーションはアプリの起動から切り離してある。** コンテナの entrypoint では走らない。
+`yuno04-k3s` の `apps/trpg-catalog/migrate-job.yaml` を Job として流し、そのあとに Deployment のイメージを差し替える。
+順序を逆にすると、新しいコードが古いスキーマに当たる。
+
+破壊的な変更（列の削除、型の変更）は、読み書きの両方が新旧どちらのスキーマでも動く状態を経由させる。
+Pod の入れ替え中は新旧が同時に動く。
+
+## 手元の DB が壊れたら
+
+```bash
+docker compose down -v && docker compose up -d
+bin/rails db:prepare && bin/rails db:test:prepare
+```
+
+テストが理由なく落ちるときは、テスト DB に残留データが無いか疑う。
+`RAILS_ENV=test bin/rails runner 'puts Person.count'` が 0 でなければ、過去の実行が残している。
 
 ## この repo の約束
 
 - public repo である。クラスタ側の資格情報とリソース識別子を持ち込まない
 - 設定はすべて環境変数から読む。Rails credentials は使わない（`config/master.key` は存在しない）
-- マイグレーションはリリース時の Job が実行する。コンテナの entrypoint では走らせない
 - 認可は Pundit に寄せる。`ApplicationPolicy` は既定で拒否し、`Scope` は空集合を返す
-- テストは RSpec。実装より先にテストを書く
-- インフラ（PostgreSQL、MinIO、Ingress、Cloudflare Tunnel）は `yuno04-k3s` で管理する
+- 権限が無い相手には 403 ではなく 404 を返す。隠している画面の存在を教えない
 - 権限は Person に付く。`User` は認証に要る情報だけを持つ。`pundit_user` は `current_person`
-- おすすめ度は編集画面にだけ出す。表示はせず並び順の材料として持つ（issue #18）
 - プレイヤーは全員が持つため保存しない。`Person#player?` は常に真で、付け外しできない
 - 最初の管理者は `bin/rails admin:grant EMAIL=... NAME=...` で作る。管理画面からは作れない
+- セッションの可視性は `PlaySessionPolicy::Scope` にだけ書く。一覧、詳細、シナリオ詳細の履歴が同じものを通る
 - 準備情報は `ScenarioPolicy#show_preparation_note?` が真のときだけ本文をレスポンスに載せる。CSS では隠さない
 - プロフィールの編集は本人と管理者。グループ所属は管理画面（管理者のみ）でしか変えられない
-- セッションの可視性は `PlaySessionPolicy::Scope` にだけ書く。一覧・詳細・シナリオ詳細の履歴が同じものを通る
-- シナリオの実データは git に置かない。書式は `db/seeds/scenarios.example.yml`、投入は `bin/rails db:seed`（冪等）
-- 投入先の実データは `SCENARIOS_SEED_FILE` で差し替えられる。既定は gitignore 済みの `db/seeds/scenarios.yml`
-
-## ドキュメント
-
-- [ADR](docs/adr/) — 設計判断
-- [実装計画](docs/plans/) — フェーズごとの作業手順
+- おすすめ度は編集画面にだけ出す。表示はせず並び順の材料として持つ
+- シナリオの実データは git に置かない。書式は `db/seeds/scenarios.example.yml`、投入先は `SCENARIOS_SEED_FILE` で差し替える
+- ソースに複数行コメントを書かない。書くのは、コードから読み取れない背景や理由に限る
