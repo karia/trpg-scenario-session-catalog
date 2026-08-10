@@ -41,11 +41,6 @@ class ScenarioListing
 
   def game_systems = GameSystem.joins(:scenarios).merge(@scope).distinct
 
-  def player_count_options
-    ceiling = [ @scope.maximum(:player_count_max), @scope.maximum(:player_count_min), 1 ].compact.max
-    1..ceiling
-  end
-
   def sorted_by?(key) = sort == key
 
   # 同じ見出しをもう一度押したら逆順にする。

@@ -16,7 +16,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
       duration_min_hours: 0.5, game_systems: [ emoklore ], authors: [ a_author ])
   end
   let!(:last) do
-    create(:scenario, title: "びり", recommendation: 3, player_count_min: 6, player_count_max: nil,
+    create(:scenario, title: "最後の見本", recommendation: 3, player_count_min: 6, player_count_max: nil,
       duration_min_hours: nil, game_systems: [ coc, emoklore ], authors: [ a_author, ma_author ])
   end
 
@@ -37,13 +37,13 @@ RSpec.describe "Sorting and filtering the scenario list" do
     it "orders by title" do
       get root_path(sort: "title", direction: "asc")
 
-      expect_order("いちばん", "なかほど", "びり")
+      expect_order("いちばん", "なかほど", "最後の見本")
     end
 
     it "reverses the title order when asked" do
       get root_path(sort: "title", direction: "desc")
 
-      expect_order("びり", "なかほど", "いちばん")
+      expect_order("最後の見本", "なかほど", "いちばん")
     end
 
     it "orders by the first author" do
@@ -61,7 +61,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
     it "orders by the smallest party the scenario takes" do
       get root_path(sort: "player_count", direction: "asc")
 
-      expect_order("いちばん", "なかほど", "びり")
+      expect_order("いちばん", "なかほど", "最後の見本")
     end
 
     it "orders by the shortest session the scenario takes" do
@@ -73,26 +73,26 @@ RSpec.describe "Sorting and filtering the scenario list" do
     it "keeps a scenario with no duration at the bottom in both directions" do
       get root_path(sort: "duration", direction: "desc")
 
-      expect_order("なかほど", "いちばん", "びり")
+      expect_order("なかほど", "いちばん", "最後の見本")
     end
 
     it "lists a scenario with two authors once" do
       get root_path(sort: "author", direction: "asc")
 
-      expect(response.body.scan("びり").size).to eq(1)
+      expect(response.body.scan("最後の見本").size).to eq(1)
     end
 
     it "falls back to the recommended order for a sort it does not know" do
       get root_path(sort: "recommendation) --", direction: "asc")
 
       expect(response).to have_http_status(:ok)
-      expect_order("なかほど", "びり", "いちばん")
+      expect_order("なかほど", "最後の見本", "いちばん")
     end
 
     it "falls back to ascending for a direction it does not know" do
       get root_path(sort: "title", direction: "sideways")
 
-      expect_order("いちばん", "なかほど", "びり")
+      expect_order("いちばん", "なかほど", "最後の見本")
     end
 
     it "offers the ascending order on a heading that is not sorted yet" do
@@ -125,14 +125,14 @@ RSpec.describe "Sorting and filtering the scenario list" do
     it "keeps only the scenarios of one author" do
       get root_path(author_id: ma_author.id)
 
-      expect(response.body).to include("なかほど", "びり")
+      expect(response.body).to include("なかほど", "最後の見本")
       expect(response.body).not_to include("いちばん")
     end
 
     it "keeps only the scenarios of one system" do
       get root_path(game_system_id: emoklore.id)
 
-      expect(response.body).to include("いちばん", "びり")
+      expect(response.body).to include("いちばん", "最後の見本")
       expect(response.body).not_to include("なかほど")
     end
 
@@ -140,13 +140,13 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(player_count: 3)
 
       expect(response.body).to include("なかほど")
-      expect(response.body).not_to include("いちばん", "びり")
+      expect(response.body).not_to include("いちばん", "最後の見本")
     end
 
     it "counts a scenario with no upper bound as playable by a larger party" do
       get root_path(player_count: 9)
 
-      expect(response.body).to include("びり")
+      expect(response.body).to include("最後の見本")
       expect(response.body).not_to include("いちばん", "なかほど")
     end
 
@@ -154,19 +154,19 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(game_system_id: emoklore.id, player_count: 2)
 
       expect(response.body).to include("いちばん")
-      expect(response.body).not_to include("なかほど", "びり")
+      expect(response.body).not_to include("なかほど", "最後の見本")
     end
 
     it "combines a filter with a sort" do
       get root_path(author_id: ma_author.id, sort: "title", direction: "desc")
 
-      expect_order("びり", "なかほど")
+      expect_order("最後の見本", "なかほど")
     end
 
     it "ignores an author who does not exist" do
       get root_path(author_id: 0)
 
-      expect(response.body).to include("いちばん", "なかほど", "びり")
+      expect(response.body).to include("いちばん", "なかほど", "最後の見本")
     end
 
     it "offers a way to clear the filters" do
@@ -181,10 +181,14 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(response.body).not_to include("絞り込みを解除")
     end
 
-    it "offers a menu of authors, systems and party sizes" do
+    it "offers author and system menus and a numeric party-size input" do
       get root_path
 
-      expect(response.body).to include('name="author_id"', 'name="game_system_id"', 'name="player_count"')
+      document = Capybara.string(response.body)
+
+      expect(document).to have_css('select[name="author_id"]')
+      expect(document).to have_css('select[name="game_system_id"]')
+      expect(document).to have_css('input[type="number"][name="player_count"][min="1"]')
     end
 
     it "filters the jacket view as well" do

@@ -37,9 +37,8 @@
     </div>
     <div>
       <%= label_tag :player_count, "人数", class: "block text-xs text-muted" %>
-      <%= select_tag :player_count,
-            options_for_select(@listing.player_count_options.map { |n| [ "#{n}人", n ] }, @listing.player_count),
-            include_blank: "すべて", class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
+      <%= number_field_tag :player_count, @listing.player_count, min: 1, autocomplete: "off", placeholder: "すべて",
+            class: "mt-1 w-24 border border-rule bg-paper px-3 py-2 text-sm" %>
     </div>
 
     <%= form.button "絞り込む", name: nil, class: "bg-ink px-5 py-2 text-sm text-paper" %>
