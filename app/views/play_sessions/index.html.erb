@@ -1,7 +1,8 @@
 <% content_for :title, "セッション一覧" %>
 
-<h1 class="font-display text-3xl tracking-wide">セッション一覧</h1>
-<p class="mt-2 text-sm text-muted">同じグループの人が参加した回だけが並びます。</p>
+<h1 class="font-display text-3xl tracking-wide">
+  セッション一覧<span class="ml-2 text-base text-muted">（全<%= @play_sessions.size %>件）</span>
+</h1>
 
 <ul class="mt-8 divide-y divide-rule border border-rule bg-surface">
   <% @play_sessions.each do |session| %>

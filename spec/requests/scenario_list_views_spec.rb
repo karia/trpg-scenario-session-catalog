@@ -46,6 +46,22 @@ RSpec.describe "The scenario list" do
     end
   end
 
+  describe "the heading" do
+    it "counts the scenarios beside the title" do
+      create(:scenario, title: "もう1本")
+
+      get root_path
+
+      expect(response.body[%r{<h1.*?</h1>}m]).to include("（全2件）")
+    end
+
+    it "carries no explanation under the title" do
+      get root_path
+
+      expect(response.body).not_to include("人数と目安時間から選べます")
+    end
+  end
+
   describe "switching" do
     it "offers a link to the jacket view" do
       get root_path

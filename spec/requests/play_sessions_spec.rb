@@ -41,6 +41,33 @@ RSpec.describe "PlaySessions" do
 
       expect(response.body).to include("見本シナリオ")
     end
+
+    # 件数は見える範囲の数。全体の数を出すと、見えない回があることを教えてしまう。
+    it "counts only the sessions the viewer may see" do
+      hidden = create(:play_session, scenario: create(:scenario, title: "見えない回"))
+      hidden.participations.create!(person: create(:person), role: :gm)
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_sessions_path
+
+      expect(response.body[%r{<h1.*?</h1>}m]).to include("（全1件）")
+    end
+
+    it "counts nothing for someone who shares no group" do
+      sign_in_as create(:person)
+
+      get play_sessions_path
+
+      expect(response.body[%r{<h1.*?</h1>}m]).to include("（全0件）")
+    end
+
+    it "carries no explanation under the title" do
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_sessions_path
+
+      expect(response.body).not_to include("同じグループの人が参加した回だけが並びます")
+    end
   end
 
   describe "GET /play_sessions/:id" do
