@@ -73,7 +73,12 @@ RAILS_ENV=test bin/rails runner 'puts Person.count'   # 0 でなければ残っ�
 
 ### 設定と実行
 
-- 設定はすべて環境変数から読む。Rails credentials は使わない（`config/master.key` は存在しない）
+[The Twelve-Factor App](https://12factor.net/) に従う。この 4 つは崩さない。
+
+- 設定はすべて環境変数から読む。Rails credentials は使わない（`config/master.key` は存在しない）。本番で欠けては困る変数は `config/initializers/required_env.rb` に足し、起動時に落とす
+- ログは標準出力にだけ出す（`config/environments/production.rb`）。ファイルへの書き出しや収集サービスへの直接送信を足さない。収集はクラスタ側に任せる
+- マイグレーションはリリース時の Job が実行する。`bin/docker-entrypoint` にも起動時フックにも入れない。手順は「データベースを変える」にある
+- 状態はプロセスの外に置く。アップロードは Active Storage 経由で MinIO、キャッシュとキューは Solid Cache / Solid Queue の DB に入れる。ローカルディスクとプロセス内メモリに残すと、Pod の入れ替えで消える
 
 ### 認可
 
