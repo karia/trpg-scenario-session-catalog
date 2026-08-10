@@ -1,0 +1,24 @@
+<% content_for :title, "セッションの管理" %>
+<h1 class="font-display text-2xl">セッションの管理</h1>
+<p class="mt-2 text-sm text-muted">ここでは公開範囲に関わらず全ての回が並びます。</p>
+
+<%= render "form", play_session: @play_session || PlaySession.new %>
+
+<ul class="mt-8 divide-y divide-rule border border-rule bg-surface text-sm">
+  <% @play_sessions.each do |session| %>
+    <li class="flex flex-wrap items-baseline justify-between gap-3 p-3">
+      <div>
+        <p class="font-display"><%= session.scenario.title %></p>
+        <p class="font-mono text-xs text-muted">
+          <%= play_session_schedule(session) %> ／ <%= play_session_status_label(session) %>
+          ／ <%= session.participations.map { |p| p.person.display_name }.join("、").presence || "参加者なし" %>
+        </p>
+      </div>
+      <span class="flex shrink-0 gap-3 text-xs">
+        <%= link_to "編集", edit_manage_play_session_path(session), class: "text-seal" %>
+        <%= button_to "削除", manage_play_session_path(session), method: :delete,
+              form: { data: { turbo_confirm: "このセッションを削除しますか" } }, class: "text-muted" %>
+      </span>
+    </li>
+  <% end %>
+</ul>

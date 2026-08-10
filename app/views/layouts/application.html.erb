@@ -26,6 +26,9 @@
 
         <nav class="ml-auto flex items-center gap-4 text-xs">
           <% if signed_in? %>
+            <% if current_person %>
+              <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
+            <% end %>
             <% if current_person&.admin? || current_person&.gm? %>
               <%= link_to "編集", manage_scenarios_path, class: "text-seal underline" %>
             <% end %>

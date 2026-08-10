@@ -1,0 +1,66 @@
+<%= form_with model: [ :manage, play_session ], class: "mt-6 space-y-6" do |form| %>
+  <% if play_session.errors.any? %>
+    <div class="border border-seal bg-surface p-4 text-sm text-seal">
+      <%= play_session.errors.full_messages.join("、") %>
+    </div>
+  <% end %>
+
+  <fieldset class="border border-rule bg-surface p-5">
+    <legend class="px-2 font-display text-sm">セッション</legend>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <%= form.label :scenario_id, "シナリオ", class: "block text-xs text-muted" %>
+        <%= form.collection_select :scenario_id, Scenario.order(:title), :id, :title,
+              { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+      <div>
+        <%= form.label :played_on, "日付（未定なら空欄）", class: "block text-xs text-muted" %>
+        <%= form.date_field :played_on, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+      <div>
+        <%= form.label :started_at, "開始時刻（未定なら空欄）", class: "block text-xs text-muted" %>
+        <%= form.time_field :started_at, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+      <div>
+        <%= form.label :status, "状態", class: "block text-xs text-muted" %>
+        <%= form.select :status, PlaySession.statuses.keys.map { |k| [ t("play_sessions.statuses.#{k}"), k ] },
+              {}, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+      <div>
+        <%= form.label :recording_url, "録画リンク", class: "block text-xs text-muted" %>
+        <%= form.url_field :recording_url, placeholder: "https://", class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+      <div class="sm:col-span-2">
+        <%= form.label :note, "メモ", class: "block text-xs text-muted" %>
+        <%= form.text_area :note, rows: 3, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="border border-rule bg-surface p-5">
+    <legend class="px-2 font-display text-sm">参加者</legend>
+    <p class="text-xs text-muted">キャラクター名とキャラシは PL のみ。GM とサブキーパーは空でよい。</p>
+
+    <div class="mt-3 space-y-3" data-controller="nested-form">
+      <template data-nested-form-target="template">
+        <%= form.fields_for :participations, Participation.new, child_index: "NEW_RECORD" do |row| %>
+          <%= render "participation_row", row: row %>
+        <% end %>
+      </template>
+
+      <%= form.fields_for :participations do |row| %>
+        <%= render "participation_row", row: row %>
+      <% end %>
+
+      <div data-nested-form-target="anchor"></div>
+
+      <button type="button" data-action="nested-form#add" class="cursor-pointer text-sm text-seal">参加者を足す</button>
+    </div>
+  </fieldset>
+
+  <div class="flex gap-4">
+    <%= form.submit play_session.persisted? ? "更新" : "登録", class: "cursor-pointer bg-ink px-6 py-2 text-sm text-paper" %>
+    <%= link_to "やめる", manage_play_sessions_path, class: "self-center text-sm text-muted" %>
+  </div>
+<% end %>

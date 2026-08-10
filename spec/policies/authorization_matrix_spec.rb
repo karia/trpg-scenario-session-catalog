@@ -54,6 +54,14 @@ RSpec.describe "Authorization matrix" do
     end
   end
 
+  describe "the manage entry points" do
+    it "are editor-only, even though the public index? is wider" do
+      expect(allows?(no_role, ScenarioPolicy, Scenario.new, :index?)).to be(true)
+      expect(allows?(no_role, ScenarioPolicy, Scenario.new, :manage?)).to be_falsey
+      expect(allows?(gm, ScenarioPolicy, Scenario.new, :manage?)).to be(true)
+    end
+  end
+
   describe GroupPolicy do
     it "is admin only" do
       expect(allows?(gm, described_class, Group.new, :index?)).to be_falsey
