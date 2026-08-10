@@ -32,6 +32,24 @@ RSpec.describe "The player role" do
     expect(person).to be_player
   end
 
+  # player だけを落とす。未知の値まで黙って捨てると、綴り間違いが成功して見える。
+  it "still rejects a role name that is not known at all" do
+    person = create(:person)
+
+    expect(person.update(roles: %w[owner])).to be(false)
+    expect(person.reload.roles).to be_empty
+  end
+
+  # 未知の整数が残った行があっても、翻訳キーの引き当てでロケール全体を出さない。
+  it "ignores a stored role whose value is no longer known" do
+    person = create(:person, roles: %w[gm])
+    ActiveRecord::Base.connection.execute(
+      "INSERT INTO person_roles (person_id, name, created_at, updated_at) VALUES (#{person.id}, 99, NOW(), NOW())"
+    )
+
+    expect(person.reload.roles).to eq([ "gm" ])
+  end
+
   it "grants nothing beyond what a person with no roles can do" do
     plain = create(:person)
 

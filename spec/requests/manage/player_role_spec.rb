@@ -29,11 +29,20 @@ RSpec.describe "The player role on the manage screen" do
     expect(person.reload.roles).to eq([ "gm" ])
   end
 
-  it "lists プレイヤー for everyone on the member index" do
+  # フォームにも「プレイヤー」の文字があるため、一覧行の書式ごと確かめる。
+  it "lists プレイヤー as a role for everyone on the member index" do
     person
 
     get manage_people_path
 
-    expect(response.body).to include("プレイヤー")
+    expect(response.body).to include("権限: プレイヤー")
+  end
+
+  it "lists the stored roles after プレイヤー" do
+    create(:person, display_name: "GM の人", roles: %w[gm])
+
+    get manage_people_path
+
+    expect(response.body).to include("権限: プレイヤー、GM")
   end
 end

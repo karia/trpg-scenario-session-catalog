@@ -15,6 +15,7 @@ class Person < ApplicationRecord
   validates :display_name, presence: true
   validates :icon, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 5.megabytes }
   validate :keeps_at_least_one_admin
+  validate :roles_are_known
 
   default_scope { order(:display_name) }
 
@@ -29,7 +30,8 @@ class Person < ApplicationRecord
   accepts_nested_attributes_for :person_aliases, allow_destroy: true,
     reject_if: ->(attrs) { attrs["id"].blank? && attrs["name"].blank? }
 
-  def roles = person_roles.map(&:name)
+  # 未知の値が入った行は名前を引けない。表示側でロケール全体を出さないよう落とす。
+  def roles = person_roles.map(&:name).compact
 
   def revealed?(scenario) = spoiler_reveals.exists?(scenario_id: scenario.id)
 
@@ -38,14 +40,22 @@ class Person < ApplicationRecord
   def self.admins = joins(:person_roles).where(person_roles: { name: PersonRole.names[:admin] })
 
   # has_many への代入は永続レコードだと即座に DB へ反映される。検証で見るため代入前の状態を残す。
-  # フォームが player を送ってきても落とす。保存しない権限なので無視してよい。
+  # 古いフォームが送ってくる player だけを黙って落とす。それ以外の未知の値は検証エラーにする。
+  # 不正な行をそのまま代入すると RecordNotSaved で 500 になるため、ここで取り分ける。
   def roles=(names)
     @roles_before_assignment = roles if persisted? && !defined?(@roles_before_assignment)
-    assignable = Array(names).compact_blank.uniq & PersonRole::ROLES.keys.map(&:to_s)
-    self.person_roles = assignable.map { |name| PersonRole.new(name:) }
+    submitted = Array(names).compact_blank.uniq - %w[player]
+    @unknown_roles = submitted - PersonRole::ROLES.keys.map(&:to_s)
+    self.person_roles = (submitted - @unknown_roles).map { |name| PersonRole.new(name:) }
   end
 
   private
+    def roles_are_known
+      return if @unknown_roles.blank?
+
+      errors.add(:base, "知らない権限です: #{@unknown_roles.join(", ")}")
+    end
+
     # 全員が管理者でなくなると、rake タスク以外に復旧手段が無くなる。
     def keeps_at_least_one_admin
       return unless defined?(@roles_before_assignment)
