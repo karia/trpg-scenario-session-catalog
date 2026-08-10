@@ -41,6 +41,12 @@ RSpec.describe "Manage::People" do
       expect(person.groups).to eq([ group ])
     end
 
+    it "carries no explanation under the title" do
+      get manage_people_path
+
+      expect(response.body).not_to include("Person は管理者が作ります")
+    end
+
     it "links a Google account to a person" do
       user = create(:user, person: nil, email: "someone@example.com")
       person = create(:person, display_name: "だれか")
