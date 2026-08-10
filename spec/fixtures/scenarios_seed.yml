@@ -8,8 +8,8 @@
     - 共著の見本作者
   player_count_min: 4
   player_count_max: 5
-  duration_min_minutes: 360
-  duration_max_minutes: 600
+  duration_min_hours: 6
+  duration_max_hours: 10
   recommendation: 4
   gm_experienced: true
   character_restriction: HOあり
@@ -25,8 +25,8 @@
   authors:
     - 見本作者
   player_count_min: 1
-  duration_min_minutes: 30
-  duration_max_minutes: 60
+  duration_min_hours: 0.5
+  duration_max_hours: 1
   recommendation: 3
   gm_experienced: true
   character_sheet_deadline: day_before
@@ -38,8 +38,8 @@
     - 見本作者
   player_count_min: 4
   player_count_max: 4
-  duration_min_minutes: 600
-  duration_max_minutes: 900
+  duration_min_hours: 10
+  duration_max_hours: 15
   gm_experienced: false
 
 - title: 未評価の見本
@@ -49,8 +49,8 @@
     - 見本作者
   player_count_min: 2
   player_count_max: 2
-  duration_min_minutes: 240
-  duration_max_minutes: 300
+  duration_min_hours: 4
+  duration_max_hours: 5
   gm_experienced: true
 
 - title: 期限が選択肢に無い見本
@@ -60,8 +60,8 @@
     - 見本作者
   player_count_min: 1
   player_count_max: 1
-  duration_min_minutes: 90
-  duration_max_minutes: 90
+  duration_min_hours: 1.5
+  duration_max_hours: 1.5
   recommendation: 5
   gm_experienced: true
   character_sheet_deadline: see_note

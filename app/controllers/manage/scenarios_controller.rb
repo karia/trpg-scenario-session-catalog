@@ -56,7 +56,7 @@ module Manage
             :title, :synopsis, :preparation_note, :recommendation_note,
             :recommendation, :gm_experienced, :character_restriction, :character_sheet_deadline, :character_sheet_deadline_note,
             :player_count_min, :player_count_max,
-            :duration_min_minutes, :duration_max_minutes, :jacket,
+            :duration_min_hours, :duration_max_hours, :jacket,
             { game_system_ids: [], author_ids: [],
               purchase_links_attributes: [ [ :id, :label, :url, :position, :_destroy ] ],
               stream_links_attributes: [ [ :id, :label, :url, :position, :_destroy ] ] }

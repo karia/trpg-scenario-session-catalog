@@ -19,7 +19,7 @@ module StructuredDataHelper
       "inLanguage" => "ja"
     }
     data["author"] = scenario.authors.map { |a| { "@type" => "Person", "name" => a.name } } if scenario.authors.any?
-    data["timeRequired"] = "PT#{scenario.duration_min_minutes}M" if scenario.duration_min_minutes.present?
+    data["timeRequired"] = "PT#{(scenario.duration_min_hours * 60).to_i}M" if scenario.duration_min_hours.present?
 
     # JSON をそのまま埋めると、タイトル中の "</script" で要素を抜けられる。
     json = JSON.generate(data).gsub("<", '\\u003c')

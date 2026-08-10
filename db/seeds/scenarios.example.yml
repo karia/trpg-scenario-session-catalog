@@ -10,8 +10,8 @@
     - 共著の見本作者
   player_count_min: 2
   player_count_max: 4
-  duration_min_minutes: 180
-  duration_max_minutes: 240
+  duration_min_hours: 3
+  duration_max_hours: 4
   recommendation: 4
   gm_experienced: true
   character_restriction: HOあり
@@ -28,8 +28,8 @@
   authors:
     - 見本作者
   player_count_min: 1
-  duration_min_minutes: 30
-  duration_max_minutes: 60
+  duration_min_hours: 0.5
+  duration_max_hours: 1
   gm_experienced: false
   character_restriction: 制限なし
   # 選択肢に当てはまらない期限は note に原文を残し、選択肢は see_note にする。

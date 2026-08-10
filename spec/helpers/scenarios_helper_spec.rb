@@ -24,32 +24,30 @@ RSpec.describe ScenariosHelper do
   end
 
   describe "#duration_label" do
-    it "keeps 「30分～60分」 in minutes rather than mixing units" do
-      scenario = build(:scenario, duration_min_minutes: 30, duration_max_minutes: 60)
-
-      expect(helper.duration_label(scenario)).to eq("30分〜60分")
-    end
-
-    it "uses hours once the range reaches two hours" do
-      scenario = build(:scenario, duration_min_minutes: 360, duration_max_minutes: 480)
+    it "shows a range in hours" do
+      scenario = build(:scenario, duration_min_hours: 6, duration_max_hours: 8)
 
       expect(helper.duration_label(scenario)).to eq("6時間〜8時間")
     end
 
-    it "handles 「11～18時間」" do
-      scenario = build(:scenario, duration_min_minutes: 660, duration_max_minutes: 1080)
+    it "keeps 「30分」 in hours rather than switching units" do
+      scenario = build(:scenario, duration_min_hours: 0.5, duration_max_hours: 1)
 
-      expect(helper.duration_label(scenario)).to eq("11時間〜18時間")
+      expect(helper.duration_label(scenario)).to eq("0.5時間〜1時間")
     end
 
     it "shows a single figure when both ends match" do
-      expect(helper.duration_label(build(:scenario, duration_min_minutes: 120, duration_max_minutes: 120))).to eq("2時間")
+      expect(helper.duration_label(build(:scenario, duration_min_hours: 2, duration_max_hours: 2))).to eq("2時間")
     end
 
-    it "keeps an awkward range in minutes instead of fractional hours" do
-      scenario = build(:scenario, duration_min_minutes: 75, duration_max_minutes: 100)
+    it "drops the trailing zero of a whole hour" do
+      expect(helper.duration_label(build(:scenario, duration_min_hours: 11, duration_max_hours: 18)))
+        .to eq("11時間〜18時間")
+    end
 
-      expect(helper.duration_label(scenario)).to eq("75分〜100分")
+    it "does not read a missing maximum as an exact figure" do
+      expect(helper.duration_label(build(:scenario, duration_min_hours: 2.5, duration_max_hours: nil)))
+        .to eq("2.5時間以上")
     end
 
     it "says unset when there is nothing to show" do

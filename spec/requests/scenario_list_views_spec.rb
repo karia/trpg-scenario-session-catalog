@@ -8,8 +8,8 @@ RSpec.describe "The scenario list" do
       recommendation: 5,
       player_count_min: 3,
       player_count_max: 3,
-      duration_min_minutes: 360,
-      duration_max_minutes: 480,
+      duration_min_hours: 6,
+      duration_max_hours: 8,
       game_systems: [ create(:game_system, name: "見本システム") ],
       authors: [ create(:author, name: "見本作者") ]
     ).tap { |s| s.purchase_links.create!(label: "BOOTH", url: "https://example.com/items/1") }

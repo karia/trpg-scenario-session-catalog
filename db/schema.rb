@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_11_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_010100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -171,8 +171,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_010000) do
     t.integer "character_sheet_deadline"
     t.string "character_sheet_deadline_note"
     t.datetime "created_at", null: false
-    t.integer "duration_max_minutes"
-    t.integer "duration_min_minutes"
+    t.decimal "duration_max_hours", precision: 4, scale: 1
+    t.decimal "duration_min_hours", precision: 4, scale: 1
     t.boolean "gm_experienced", default: true, null: false
     t.integer "player_count_max"
     t.integer "player_count_min", null: false

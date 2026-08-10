@@ -5,7 +5,7 @@
 def seed_attributes
   %w[
     player_count_min player_count_max
-    duration_min_minutes duration_max_minutes
+    duration_min_hours duration_max_hours
     recommendation gm_experienced
     character_restriction character_sheet_deadline character_sheet_deadline_note
     recommendation_note

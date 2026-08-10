@@ -14,13 +14,7 @@ module ScenariosHelper
   def player_count_label(scenario) = player_count_value(scenario) || UNSET
 
   def duration_value(scenario)
-    min = scenario.duration_min_minutes
-    max = scenario.duration_max_minutes
-    return nil if min.blank? && max.blank?
-
-    # 2 時間未満は分のままのほうが元データに近く、範囲でも単位が揃う。
-    unit = [ min, max ].compact.max < 120 ? :minutes : :hours
-    bounded_label(min, max) { |n| humanized_minutes(n, unit:) }
+    bounded_label(scenario.duration_min_hours, scenario.duration_max_hours) { |n| humanized_hours(n) }
   end
 
   def duration_label(scenario) = duration_value(scenario) || UNSET
@@ -32,13 +26,8 @@ module ScenariosHelper
     t("scenarios.character_sheet_deadlines.#{scenario.character_sheet_deadline}")
   end
 
-  # 「30分〜1時間」のように単位が混ざると読みにくいため、範囲は単位を揃える。
-  def humanized_minutes(minutes, unit: nil)
-    unit ||= minutes < 60 ? :minutes : :hours
-    return "#{minutes}分" if unit == :minutes
-
-    hours = minutes / 60.0
-    formatted = (hours % 1).zero? ? hours.to_i : hours.round(1)
+  def humanized_hours(hours)
+    formatted = (hours % 1).zero? ? hours.to_i : hours.to_f
     "#{formatted}時間"
   end
 

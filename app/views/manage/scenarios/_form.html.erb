@@ -58,12 +58,14 @@
         <%= form.number_field :player_count_max, min: 1, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
       <div>
-        <%= form.label :duration_min_minutes, "目安時間（分・最小）", class: "block text-xs text-muted" %>
-        <%= form.number_field :duration_min_minutes, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+        <%= form.label :duration_min_hours, "目安時間（時間・最小）", class: "block text-xs text-muted" %>
+        <%= form.number_field :duration_min_hours, step: 0.5, min: 0.5,
+              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
       <div>
-        <%= form.label :duration_max_minutes, "目安時間（分・最大）", class: "block text-xs text-muted" %>
-        <%= form.number_field :duration_max_minutes, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
+        <%= form.label :duration_max_hours, "目安時間（時間・最大）", class: "block text-xs text-muted" %>
+        <%= form.number_field :duration_max_hours, step: 0.5, min: 0.5,
+              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
       <div>
         <%= form.label :character_restriction, "参加可能キャラの制限", class: "block text-xs text-muted" %>

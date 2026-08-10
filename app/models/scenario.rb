@@ -38,8 +38,11 @@ class Scenario < ApplicationRecord
   # 人数での絞り込みが下限を軸にするため、下限だけは必ず要る（issue #28）。
   validates :player_count_min, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :player_count_max, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_nil: true
+  validates :duration_min_hours, :duration_max_hours,
+    numericality: { greater_than: 0 }, allow_nil: true
   validate :player_count_range_is_ordered
   validate :duration_range_is_ordered
+  validate :durations_are_half_hours
 
   private
     def player_count_range_is_ordered
@@ -50,9 +53,18 @@ class Scenario < ApplicationRecord
     end
 
     def duration_range_is_ordered
-      return if duration_min_minutes.blank? || duration_max_minutes.blank?
-      return if duration_min_minutes <= duration_max_minutes
+      return if duration_min_hours.blank? || duration_max_hours.blank?
+      return if duration_min_hours <= duration_max_hours
 
-      errors.add(:duration_max_minutes, :greater_than_or_equal_to, count: duration_min_minutes)
+      errors.add(:duration_max_hours, :greater_than_or_equal_to, count: duration_min_hours)
+    end
+
+    def durations_are_half_hours
+      %i[duration_min_hours duration_max_hours].each do |attribute|
+        hours = public_send(attribute)
+        next if hours.blank? || (hours * 2) % 1 == 0
+
+        errors.add(attribute, "は0.5時間単位で入力してください")
+      end
     end
 end
