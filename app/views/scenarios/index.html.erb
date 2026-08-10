@@ -6,17 +6,55 @@
   </h1>
 
   <nav class="flex items-center gap-3 text-xs" aria-label="表示の切り替え">
-    <%= link_to "表形式", root_path(view: "table"), class: list_view_class("table", @view),
-          aria: { current: ("page" if @view == "table") } %>
-    <%= link_to "ジャケット", root_path(view: "gallery"), class: list_view_class("gallery", @view),
-          aria: { current: ("page" if @view == "gallery") } %>
+    <%= link_to "表形式", root_path(@listing.params(view: "table")), class: list_view_class("table", @listing.view),
+          aria: { current: ("page" if @listing.view == "table") } %>
+    <%= link_to "ジャケット", root_path(@listing.params(view: "gallery")), class: list_view_class("gallery", @listing.view),
+          aria: { current: ("page" if @listing.view == "gallery") } %>
   </nav>
 </div>
 
+<%= form_with url: root_path, method: :get, class: "mt-6 border border-rule bg-surface p-4" do |form| %>
+  <% if @listing.view != ScenarioListing::VIEWS.first %>
+    <%= hidden_field_tag :view, @listing.view %>
+  <% end %>
+  <% if @listing.sort %>
+    <%= hidden_field_tag :sort, @listing.sort %>
+    <%= hidden_field_tag :direction, @listing.direction %>
+  <% end %>
+
+  <div class="flex flex-wrap items-end gap-4">
+    <div>
+      <%= label_tag :author_id, "作者", class: "block text-xs text-muted" %>
+      <%= select_tag :author_id,
+            options_from_collection_for_select(@listing.authors, :id, :name, @listing.author&.id),
+            include_blank: "すべて", class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
+    </div>
+    <div>
+      <%= label_tag :game_system_id, "システム", class: "block text-xs text-muted" %>
+      <%= select_tag :game_system_id,
+            options_from_collection_for_select(@listing.game_systems, :id, :name, @listing.game_system&.id),
+            include_blank: "すべて", class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
+    </div>
+    <div>
+      <%= label_tag :player_count, "人数", class: "block text-xs text-muted" %>
+      <%= select_tag :player_count,
+            options_for_select(@listing.player_count_options.map { |n| [ "#{n}人", n ] }, @listing.player_count),
+            include_blank: "すべて", class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
+    </div>
+
+    <%= form.button "絞り込む", name: nil, class: "bg-ink px-5 py-2 text-sm text-paper" %>
+
+    <% if @listing.filtered? %>
+      <%= link_to "絞り込みを解除", root_path(@listing.params(author_id: nil, game_system_id: nil, player_count: nil)),
+            class: "self-center text-sm text-seal" %>
+    <% end %>
+  </div>
+<% end %>
+
 <% if @scenarios.any? %>
-  <%= render "scenarios/#{@view}", scenarios: @scenarios %>
+  <%= render "scenarios/#{@listing.view}", scenarios: @scenarios, listing: @listing %>
 <% else %>
   <p class="mt-8 border border-rule bg-surface p-8 text-center text-sm text-muted">
-    まだシナリオが登録されていません。
+    <%= @listing.filtered? ? "条件に合うシナリオがありません。" : "まだシナリオが登録されていません。" %>
   </p>
 <% end %>

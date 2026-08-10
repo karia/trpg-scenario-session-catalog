@@ -5,6 +5,19 @@ module ScenariosHelper
     name == current ? "font-bold text-ink no-underline" : "text-seal"
   end
 
+  def scenario_sort_link(label, key, listing)
+    marker = listing.sorted_by?(key) ? (listing.direction == "asc" ? "▲" : "▼") : ""
+    path = root_path(listing.params(sort: key, direction: listing.next_direction(key)))
+
+    link_to "#{label}#{marker}", path, class: "text-seal no-underline"
+  end
+
+  def scenario_sort_order(key, listing)
+    return "none" unless listing.sorted_by?(key)
+
+    listing.direction == "asc" ? "ascending" : "descending"
+  end
+
 
   # 値が無ければ nil。一覧は空欄に、詳細は「未設定」に落とす。
   def player_count_value(scenario)
