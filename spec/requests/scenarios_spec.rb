@@ -49,7 +49,7 @@ RSpec.describe "Scenarios" do
     it "puts the scenario name in the page title" do
       get scenario_path(scenario)
 
-      expect(response.body).to include("<title>ロールシャッハシンドローム | 卓の記録</title>")
+      expect(response.body).to include("<title>ロールシャッハシンドローム | TRPGカタログ</title>")
     end
 
     it "gives the JSON-LD block a nonce that matches the policy header" do
