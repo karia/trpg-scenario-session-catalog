@@ -14,22 +14,20 @@
         <%= form.collection_select :scenario_id, Scenario.order(:title), :id, :title,
               { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
       </div>
-      <div>
-        <%= form.label :played_on, "日付（未定なら空欄）", class: "block text-xs text-muted" %>
-        <%= form.date_field :played_on, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
-      </div>
-      <div>
-        <%= form.label :started_at, "開始時刻（未定なら空欄）", class: "block text-xs text-muted" %>
-        <%= form.time_field :started_at, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
-      </div>
-      <div>
-        <%= form.label :status, "状態", class: "block text-xs text-muted" %>
-        <%= form.select :status, PlaySession.statuses.keys.map { |k| [ t("play_sessions.statuses.#{k}"), k ] },
-              {}, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
-      </div>
-      <div>
-        <%= form.label :recording_url, "録画リンク", class: "block text-xs text-muted" %>
-        <%= form.url_field :recording_url, placeholder: "https://", class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      <div class="sm:col-span-2">
+        <p class="text-xs text-muted">日程と録画リンク</p>
+        <div class="mt-1 space-y-3" data-controller="nested-form" data-nested-form-token-value="NEW_SCHEDULE">
+          <template data-nested-form-target="template">
+            <%= form.fields_for :session_schedules, SessionSchedule.new, child_index: "NEW_SCHEDULE" do |schedule_form| %>
+              <%= render "session_schedule_row", schedule_form: schedule_form %>
+            <% end %>
+          </template>
+          <%= form.fields_for :session_schedules do |schedule_form| %>
+            <%= render "session_schedule_row", schedule_form: schedule_form %>
+          <% end %>
+          <div data-nested-form-target="anchor"></div>
+          <button type="button" data-action="nested-form#add" class="cursor-pointer text-sm text-seal">日程を足す</button>
+        </div>
       </div>
       <% if policy(play_session).update_cocofolia_url? %>
         <div>

@@ -43,8 +43,17 @@ end
 FactoryBot.define do
   factory :play_session do
     scenario
-    played_on { Date.new(2026, 5, 1) }
-    status { :played }
+  end
+
+  factory :session_schedule do
+    play_session
+    scheduled_on { Date.new(2026, 5, 1) }
+    started_at { "20:00" }
+  end
+
+  factory :recording_link do
+    session_schedule
+    sequence(:url) { |n| "https://youtu.be/recording#{n}" }
   end
 
   factory :participation do

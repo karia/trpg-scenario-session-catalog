@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_11_153058) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_170106) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -147,6 +147,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_153058) do
     t.index ["scenario_id"], name: "index_purchase_links_on_scenario_id"
   end
 
+  create_table "recording_links", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "position", default: 0, null: false
+    t.bigint "session_schedule_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "url", null: false
+    t.index ["session_schedule_id"], name: "index_recording_links_on_session_schedule_id"
+  end
+
   create_table "scenario_authors", force: :cascade do |t|
     t.bigint "author_id", null: false
     t.datetime "created_at", null: false
@@ -186,6 +195,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_153058) do
     t.datetime "updated_at", null: false
     t.index ["position"], name: "index_scenarios_on_position"
     t.index ["title"], name: "index_scenarios_on_title"
+  end
+
+  create_table "session_schedules", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "play_session_id", null: false
+    t.integer "position", default: 0, null: false
+    t.date "scheduled_on"
+    t.time "started_at"
+    t.datetime "updated_at", null: false
+    t.index ["play_session_id", "scheduled_on", "started_at"], name: "idx_on_play_session_id_scheduled_on_started_at_3d7aa28832"
+    t.index ["play_session_id"], name: "index_session_schedules_on_play_session_id"
   end
 
   create_table "site_settings", force: :cascade do |t|
@@ -236,10 +256,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_153058) do
   add_foreign_key "person_roles", "people"
   add_foreign_key "play_sessions", "scenarios"
   add_foreign_key "purchase_links", "scenarios"
+  add_foreign_key "recording_links", "session_schedules"
   add_foreign_key "scenario_authors", "authors"
   add_foreign_key "scenario_authors", "scenarios"
   add_foreign_key "scenario_game_systems", "game_systems"
   add_foreign_key "scenario_game_systems", "scenarios"
+  add_foreign_key "session_schedules", "play_sessions"
   add_foreign_key "spoiler_reveals", "people"
   add_foreign_key "spoiler_reveals", "scenarios"
   add_foreign_key "stream_links", "scenarios"

@@ -1,0 +1,7 @@
+<div class="flex flex-wrap items-center gap-3">
+  <%= recording_form.url_field :url, placeholder: "https://",
+        class: "min-w-64 grow border border-rule bg-surface px-3 py-2 text-sm" %>
+  <% if recording_form.object.persisted? %>
+    <label class="text-xs text-muted"><%= recording_form.check_box :_destroy %> 削除</label>
+  <% end %>
+</div>
