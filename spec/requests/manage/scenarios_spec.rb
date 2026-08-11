@@ -284,6 +284,15 @@ RSpec.describe "Manage::Scenarios" do
       expect(response.body).to include("booth-fallback.png")
     end
 
+    it "limits the jacket picker to supported image formats" do
+      scenario = create(:scenario)
+
+      get edit_manage_scenario_path(scenario)
+
+      expect(Capybara.string(response.body))
+        .to have_css('input[name="scenario[jacket]"][accept="image/png,image/jpeg,image/webp"]')
+    end
+
     it "refreshes the BOOTH image and reports success" do
       scenario = create(:scenario)
       result = BoothImageImporter::Result.new(success: true, message: "BOOTH画像を更新しました")

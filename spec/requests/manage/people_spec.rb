@@ -28,6 +28,15 @@ RSpec.describe "Manage::People" do
   describe "as an admin" do
     before { sign_in_as create(:person, roles: %w[admin], display_name: "カーリア") }
 
+    it "limits the icon picker to supported image formats" do
+      person = create(:person)
+
+      get edit_manage_person_path(person)
+
+      expect(Capybara.string(response.body))
+        .to have_css('input[name="person[icon]"][accept="image/png,image/jpeg,image/webp"]')
+    end
+
     it "creates a person with roles and groups" do
       group = create(:group, name: "よく遊ぶ人たち")
 
