@@ -67,6 +67,25 @@ RSpec.describe BoothImageImporter do
     expect(scenario.reload.booth_image.blob).to eq(old_blob)
   end
 
+  it "keeps the existing image when uploading the replacement fails" do
+    scenario.booth_image.attach(
+      io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "old.png", content_type: "image/png"
+    )
+    old_blob = scenario.booth_image.blob
+    allow(client).to receive(:get).with(page_url, kind: :page).and_return(
+      BoothHttpClient::Response.new(body: %(<meta property="og:image" content="#{image_url}">), content_type: "text/html")
+    )
+    allow(client).to receive(:get).with(image_url, kind: :image).and_return(
+      BoothHttpClient::Response.new(body: File.binread(Rails.root.join("spec/fixtures/files/dot.png")), content_type: "image/png")
+    )
+    allow(ActiveStorage::Blob).to receive(:create_and_upload!).and_raise(IOError, "storage unavailable")
+
+    result = described_class.new(scenario, client:).call(force: true)
+
+    expect(result).not_to be_success
+    expect(scenario.reload.booth_image.blob).to eq(old_blob)
+  end
+
   it "removes a stale imported image automatically when no BOOTH URL remains" do
     scenario.booth_image.attach(
       io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "old.png", content_type: "image/png"

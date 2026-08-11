@@ -20,7 +20,7 @@ class BoothImageImporter
     attach(image, image_url, source_url)
 
     Result.new(success: true, message: "BOOTH画像を更新しました")
-  rescue BoothHttpClient::Error, Nokogiri::XML::SyntaxError => error
+  rescue BoothHttpClient::Error, Nokogiri::XML::SyntaxError, StandardError => error
     Rails.logger.warn("BOOTH image import failed for scenario #{scenario.id}: #{error.message}")
     Result.new(success: false, message: "BOOTH画像を取得できませんでした")
   end
@@ -50,10 +50,14 @@ class BoothImageImporter
 
     def attach(image, image_url, source_url)
       filename = File.basename(URI.parse(image_url).path).presence || "booth-image"
-      scenario.booth_image.attach(
+      blob = ActiveStorage::Blob.create_and_upload!(
         io: StringIO.new(image.body), filename:, content_type: image.content_type,
         metadata: { source_url: }
       )
+      scenario.booth_image.attach(blob)
+    rescue StandardError
+      blob&.purge
+      raise
     end
 
     def validate_image!(image, image_url)

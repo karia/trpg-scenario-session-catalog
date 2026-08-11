@@ -46,4 +46,18 @@ RSpec.describe BoothHttpClient do
     expect { client.get("https://booth.pximg.net/image.png", kind: :image) }
       .to raise_error(described_class::Error, "unexpected content type")
   end
+
+  it "stops reading a response as soon as it exceeds the size limit" do
+    oversized = instance_double(Net::HTTPOK, :[] => nil)
+    allow(oversized).to receive(:read_body).and_yield("a" * 1.megabyte).and_yield("b")
+    http = instance_double(Net::HTTP)
+    allow(Net::HTTP).to receive(:new).and_return(http)
+    allow(http).to receive(:use_ssl=)
+    allow(http).to receive(:open_timeout=)
+    allow(http).to receive(:read_timeout=)
+    allow(http).to receive(:request).and_yield(oversized)
+
+    expect { client.get("https://booth.pm/items/1", kind: :page) }
+      .to raise_error(described_class::Error, "response is too large")
+  end
 end

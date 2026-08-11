@@ -16,7 +16,7 @@ class BoothHttpClient
   private
     def fetch(uri, kind:, redirects_left:)
       validate_uri!(uri, kind:)
-      response = request(uri)
+      response = request(uri, limit: LIMITS.fetch(kind))
 
       if response.is_a?(Net::HTTPRedirection)
         raise Error, "too many redirects" if redirects_left.zero?
@@ -32,13 +32,24 @@ class BoothHttpClient
       Response.new(body:, content_type:)
     end
 
-    def request(uri)
+    def request(uri, limit:)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.open_timeout = 5
       http.read_timeout = 10
       request = Net::HTTP::Get.new(uri, "User-Agent" => "trpg-scenario-session-catalog")
-      http.request(request)
+      http.request(request) do |response|
+        content_length = response["content-length"]&.to_i
+        raise Error, "response is too large" if content_length&.>(limit)
+
+        body = +"".b
+        response.read_body do |chunk|
+          raise Error, "response is too large" if body.bytesize + chunk.bytesize > limit
+
+          body << chunk
+        end
+        response.body = body
+      end
     rescue Timeout::Error, SocketError, SystemCallError, OpenSSL::SSL::SSLError => error
       raise Error, error.message
     end
@@ -57,6 +68,5 @@ class BoothHttpClient
       expected = kind == :page ? "text/html" : %r{\Aimage/}
       valid_type = expected.is_a?(Regexp) ? content_type.match?(expected) : content_type == expected
       raise Error, "unexpected content type" unless valid_type
-      raise Error, "response is too large" if body.bytesize > LIMITS.fetch(kind)
     end
 end
