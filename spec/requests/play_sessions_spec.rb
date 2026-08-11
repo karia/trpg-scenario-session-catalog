@@ -105,6 +105,18 @@ RSpec.describe "PlaySessions" do
       expect(response.body).to include("https://charasheet.example/1234", "https://youtu.be/abc")
     end
 
+    it "embeds a YouTube recording" do
+      session.update!(recording_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_session_path(session)
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css(
+        'iframe[title="録画"][src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"]'
+      )
+    end
+
     it "shows the start time without the placeholder date a time column carries" do
       session.update!(started_at: "20:00")
       sign_in_as create(:person, groups: [ group ])

@@ -41,6 +41,19 @@ RSpec.describe "Scenarios" do
       expect(response.body).to include("https://booth.pm/ja/items/1", "https://youtu.be/abc")
     end
 
+    it "embeds YouTube stream links and leaves other stream links clickable" do
+      scenario.stream_links.create!(label: "YouTube配信", url: "https://youtu.be/dQw4w9WgXcQ")
+      scenario.stream_links.create!(label: "別サイトの配信", url: "https://example.com/stream")
+
+      get scenario_path(scenario)
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css(
+        'iframe[title="YouTube配信"][src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"]'
+      )
+      expect(page).to have_link("別サイトの配信", href: "https://example.com/stream")
+    end
+
     it "keeps the preparation note out of the response entirely" do
       get scenario_path(scenario)
 
