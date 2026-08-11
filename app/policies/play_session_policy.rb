@@ -10,6 +10,12 @@ class PlaySessionPolicy < ApplicationPolicy
   def update? = editor?
   def destroy? = editor?
 
+  def show_cocofolia_url?
+    person.present? && record.participations.any? { |participation| participation.person_id == person.id }
+  end
+
+  def update_cocofolia_url? = !!gm?
+
   class Scope < ApplicationPolicy::Scope
     def resolve
       return scope.none if person.blank?

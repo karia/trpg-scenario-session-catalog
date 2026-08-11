@@ -10,6 +10,7 @@ class PlaySession < ApplicationRecord
     reject_if: ->(attrs) { attrs["person_id"].blank? }
 
   validates :recording_url, http_url: true
+  validates :cocofolia_url, http_url: true
   validate :participants_are_distinct
 
   # 日付が無い回を末尾に固定する。データベース既定の NULL の並びに任せない。

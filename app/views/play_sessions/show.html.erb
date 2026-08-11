@@ -27,6 +27,13 @@
               link_text: @play_session.recording_url, rel: "noopener", show_url: false %>
       </dd>
     <% end %>
+    <% if @play_session.cocofolia_url.present? && policy(@play_session).show_cocofolia_url? %>
+      <dt class="text-muted">ココフォリア</dt>
+      <dd class="font-sans">
+        <%= link_to @play_session.cocofolia_url, @play_session.cocofolia_url,
+              rel: "noopener", class: "text-seal" %>
+      </dd>
+    <% end %>
   </dl>
 
   <section class="mt-10">
