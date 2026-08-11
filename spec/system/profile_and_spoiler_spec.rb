@@ -28,8 +28,11 @@ RSpec.describe "A member's own pages" do
     visit scenario_path(scenario)
     expect(page).to have_no_content("ネタバレを含む準備情報")
 
-    click_button "ネタバレを開く"
+    click_button "プレーヤー向け事前情報を見る"
     expect(page).to have_content("ネタバレを含む準備情報")
+
+    click_button "プレーヤー向け事前情報を閉じる"
+    expect(page).to have_no_content("ネタバレを含む準備情報")
 
     visit scenario_path(scenario)
     click_button "お気に入りに入れる"
