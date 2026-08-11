@@ -46,6 +46,19 @@ RSpec.describe "Manage masters" do
       expect(response.body).to include(public_send(member_path, record), "詳細に戻る")
     end
 
+    it "aligns name fields and chooses the display name from a select" do
+      record.aliases.create!(name: "別名")
+      sign_in_as create(:person, roles: %w[gm])
+
+      get public_send(edit_path, record), headers: headers
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("input.w-full", count: 2)
+      expect(page).to have_css("input[type=checkbox][disabled]", count: 2)
+      expect(page).to have_no_css("input[type=radio]")
+      expect(page).to have_select("#{factory}[display_alias_key]", options: [ "既存（現在の表示名）", "別名" ])
+    end
+
     it "renders a detail with links to its edit screen and list" do
       sign_in_as create(:person, roles: %w[gm])
 
@@ -70,6 +83,36 @@ RSpec.describe "Manage masters" do
 
       expect(response).to redirect_to(public_send(member_path, record))
       expect(record.reload.name).to eq("改名")
+    end
+
+    it "adds aliases and promotes a visible one to the display name" do
+      sign_in_as create(:person, roles: %w[gm])
+      patch public_send(member_path, record), params: {
+        factory => { aliases_attributes: [ { name: "別名", visible: "1" } ] }
+      }
+      selected = record.reload.aliases.sole
+
+      patch public_send(member_path, record), params: {
+        factory => { name: record.name, display_alias_key: selected.id }
+      }
+
+      expect(record.reload.name).to eq("別名")
+      expect(selected.reload.name).to eq("既存")
+    end
+
+    it "adds an alias and selects it as the display name in one update" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      patch public_send(member_path, record), params: {
+        factory => {
+          name: record.name,
+          display_alias_key: "new-name",
+          aliases_attributes: [ { name: "新しい表示名", visible: "1", selection_key: "new-name" } ]
+        }
+      }
+
+      expect(record.reload.name).to eq("新しい表示名")
+      expect(record.aliases.sole.name).to eq("既存")
     end
 
     it "destroys a record" do

@@ -1,0 +1,43 @@
+<fieldset class="border border-rule bg-surface p-5">
+  <legend class="px-2 font-display text-sm">名前</legend>
+  <p class="text-xs text-muted">表示名は一覧や詳細で使われ、常に公開されます。</p>
+
+  <div class="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+    <%= form.text_field display_attribute, class: "w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+    <label class="inline-flex items-center gap-1 text-xs text-muted">
+      <%= check_box_tag nil, nil, true, disabled: true %> 表示
+    </label>
+    <label class="inline-flex items-center gap-1 text-xs text-muted">
+      <%= check_box_tag nil, nil, false, disabled: true %> 削除
+    </label>
+  </div>
+
+  <div class="mt-3 space-y-3" data-controller="nested-form"
+       data-action="input->nested-form#syncAliasOptions change->nested-form#syncAliasOptions">
+    <template data-nested-form-target="template">
+      <%= form.fields_for :aliases, alias_class.new, child_index: "NEW_RECORD" do |row| %>
+        <%= render "shared/alias_row", form: form, row: row %>
+      <% end %>
+    </template>
+
+    <%= form.fields_for :aliases do |row| %>
+      <%= render "shared/alias_row", form: form, row: row %>
+    <% end %>
+
+    <div data-nested-form-target="anchor"></div>
+    <button type="button" data-action="nested-form#add" class="cursor-pointer text-sm text-seal">名前を足す</button>
+
+    <div class="pt-3">
+      <%= form.label :display_alias_key, "表示名", class: "block text-xs text-muted" %>
+      <%= form.select :display_alias_key,
+            [ [ "#{form.object.public_send(display_attribute)}（現在の表示名）", "" ] ] +
+              form.object.aliases.map { |item| [ item.name, item.selection_key.presence || item.id ] },
+            {},
+            class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm",
+            data: {
+              nested_form_target: "aliasSelect",
+              base_label: "#{form.object.public_send(display_attribute)}（現在の表示名）"
+            } %>
+    </div>
+  </div>
+</fieldset>

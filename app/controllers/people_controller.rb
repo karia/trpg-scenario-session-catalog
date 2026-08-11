@@ -3,7 +3,7 @@ class PeopleController < ApplicationController
 
   def index
     authorize Person
-    @people = policy_scope(Person).includes(:person_aliases, :groups).with_attached_icon
+    @people = policy_scope(Person).includes(:aliases, :groups).with_attached_icon
   end
 
   def show
@@ -31,7 +31,8 @@ class PeopleController < ApplicationController
 
     # グループ所属はここでは受け取らない。管理画面（管理者のみ）で扱う。
     def person_params
-      params.expect(person: [ :display_name, :x_account, :icon,
-        { person_aliases_attributes: [ [ :id, :name, :context, :position, :_destroy ] ] } ])
+      params.expect(person: [ :display_name, :display_alias_key, :x_account, :icon,
+        { aliases_attributes: [ [ :id, :name, :context, :visible, :position, :selection_key, :_destroy ] ],
+          person_aliases_attributes: [ [ :id, :name, :context, :visible, :position, :_destroy ] ] } ])
     end
 end

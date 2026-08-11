@@ -6,6 +6,10 @@
     <%= link_to "編集", url_for(action: :edit, id: @record), class: "text-sm text-seal" %>
   </div>
 
+  <% if @record.visible_aliases.any? %>
+    <p class="mt-3 text-sm text-muted">別名: <%= @record.visible_aliases.map(&:name).join("、") %></p>
+  <% end %>
+
   <% if @record.respond_to?(:scenarios) %>
     <section class="mt-8">
       <h2 class="font-display text-xl">シナリオ</h2>

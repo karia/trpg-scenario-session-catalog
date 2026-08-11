@@ -1,7 +1,7 @@
-class PersonAlias < ApplicationRecord
+class AuthorAlias < ApplicationRecord
   attr_accessor :selection_key
 
-  belongs_to :person
+  belongs_to :author
 
   validates :name, presence: true
 end

@@ -7,10 +7,8 @@
     <p class="text-sm text-seal"><%= @record.errors.full_messages.join("、") %></p>
   <% end %>
 
-  <div>
-    <%= form.label :name, "名前", class: "block text-xs text-muted" %>
-    <%= form.text_field :name, class: "mt-1 w-64 border border-rule bg-paper px-3 py-2 text-sm" %>
-  </div>
+  <%= render "shared/alias_fields", form: form, display_attribute: :name,
+        alias_class: @record.class.reflect_on_association(:aliases).klass %>
 
   <div class="flex gap-4">
     <%= form.submit "更新", class: "bg-ink px-5 py-2 text-sm text-paper" %>

@@ -1,7 +1,7 @@
-class PersonAlias < ApplicationRecord
+class GameSystemAlias < ApplicationRecord
   attr_accessor :selection_key
 
-  belongs_to :person
+  belongs_to :game_system
 
   validates :name, presence: true
 end
