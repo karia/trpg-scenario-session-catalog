@@ -169,6 +169,13 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(response.body).not_to include("いちばん", "なかほど")
     end
 
+    it "treats five as the open-ended five-or-more bucket" do
+      get root_path(player_count: 5)
+
+      expect(response.body).to include("最後の見本")
+      expect(response.body).not_to include("いちばん", "なかほど")
+    end
+
     it "applies two filters at once" do
       get root_path(game_system_ids: [ emoklore.id ], player_count: 2)
 
@@ -193,10 +200,10 @@ RSpec.describe "Sorting and filtering the scenario list" do
 
       document = Capybara.string(response.body)
 
-      expect(document).to have_css('[aria-label="人数"] a', count: 5)
-      expect(document).to have_link("1人")
-      expect(document).to have_link("5人以上")
-      expect(document).to have_css('[aria-label="システム"] a', count: 2)
+      expect(document).to have_css('[aria-label="人数"] button', count: 5)
+      expect(document).to have_button("1人")
+      expect(document).to have_button("5人以上")
+      expect(document).to have_css('[aria-label="システム"] button', count: 2)
       expect(document).to have_no_css('select[name="game_system_id"]')
       expect(document).to have_no_css('input[type="number"][name="player_count"]')
     end
@@ -205,9 +212,10 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(player_count: 5, game_system_ids: [ emoklore.id ])
 
       document = Capybara.string(response.body)
-      expect(document).to have_css('[aria-label="人数"] a[aria-pressed="true"]', text: "5人以上")
-      expect(document).to have_css('[aria-label="システム"] a[aria-pressed="true"]', text: "エモクロア")
-      expect(document.find('[aria-label="人数"] a', text: "5人以上")[:href]).not_to include("player_count")
+      expect(document).to have_css('[aria-label="人数"] button[aria-pressed="true"]', text: "5人以上")
+      expect(document).to have_css('[aria-label="システム"] button[aria-pressed="true"]', text: "エモクロア")
+      selected_form = document.find('[aria-label="人数"] button', text: "5人以上").ancestor("form")
+      expect(selected_form).to have_no_css('input[name="player_count"]', visible: :all)
     end
 
     it "offers author suggestions and removable selected author tags" do
@@ -229,7 +237,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
     end
 
     it "says so when nothing matches" do
-      get root_path(player_count: 5, game_system_ids: [ emoklore.id ])
+      get root_path(player_count: 4, game_system_ids: [ emoklore.id ])
 
       expect(response.body).to include("条件に合うシナリオがありません")
     end

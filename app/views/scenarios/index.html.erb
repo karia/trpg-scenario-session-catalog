@@ -19,9 +19,10 @@
     <div class="mt-2 flex flex-wrap gap-2" aria-label="人数">
       <% [ [ 1, "1人" ], [ 2, "2人" ], [ 3, "3人" ], [ 4, "4人" ], [ 5, "5人以上" ] ].each do |count, label| %>
         <% selected = @listing.player_count == count %>
-        <%= link_to label, root_path(@listing.params(player_count: (selected ? nil : count))),
+        <%= button_to label, root_path, method: :get,
+              params: @listing.params(player_count: (selected ? nil : count)), form: { class: "inline" },
               aria: { pressed: selected },
-              class: "border px-3 py-1.5 text-sm no-underline #{selected ? 'border-ink bg-ink text-paper' : 'border-rule text-ink hover:border-ink'}" %>
+              class: "cursor-pointer border px-3 py-1.5 text-sm #{selected ? 'border-ink bg-ink text-paper' : 'border-rule text-ink hover:border-ink'}" %>
       <% end %>
     </div>
   </fieldset>
@@ -32,9 +33,10 @@
       <% @listing.game_system_options.each do |game_system| %>
         <% selected = @listing.game_systems.include?(game_system) %>
         <% ids = selected ? @listing.game_systems.without(game_system).map(&:id) : @listing.game_systems.map(&:id) + [ game_system.id ] %>
-        <%= link_to game_system.name, root_path(@listing.params(game_system_ids: ids.presence)),
+        <%= button_to game_system.name, root_path, method: :get,
+              params: @listing.params(game_system_ids: ids.presence), form: { class: "inline" },
               aria: { pressed: selected },
-              class: "border px-3 py-1.5 text-sm no-underline #{selected ? 'border-ink bg-ink text-paper' : 'border-rule text-ink hover:border-ink'}" %>
+              class: "cursor-pointer border px-3 py-1.5 text-sm #{selected ? 'border-ink bg-ink text-paper' : 'border-rule text-ink hover:border-ink'}" %>
       <% end %>
     </div>
   </fieldset>

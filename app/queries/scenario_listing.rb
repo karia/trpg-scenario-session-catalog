@@ -65,6 +65,10 @@ class ScenarioListing
       end
       return relation unless player_count
 
+      if player_count == 5
+        return relation.where("scenarios.player_count_max IS NULL OR scenarios.player_count_max >= 5")
+      end
+
       relation
         .where(player_count_min: ..player_count)
         .where("scenarios.player_count_max IS NULL OR scenarios.player_count_max >= :count", count: player_count)
