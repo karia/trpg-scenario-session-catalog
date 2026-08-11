@@ -54,6 +54,18 @@ RSpec.describe "Scenarios" do
       expect(page).to have_link("別サイトの配信", href: "https://example.com/stream")
     end
 
+    it "leaves a YouTube URL with a malformed query string clickable" do
+      url = "https://youtube.com/watch?v=dQw4w9WgXcQ&x=%"
+      scenario.stream_links.create!(label: "配信", url:)
+
+      get scenario_path(scenario)
+
+      page = Capybara.string(response.body)
+      expect(response).to have_http_status(:ok)
+      expect(page).to have_link("配信", href: url)
+      expect(page).to have_no_css("iframe")
+    end
+
     it "keeps the preparation note out of the response entirely" do
       get scenario_path(scenario)
 

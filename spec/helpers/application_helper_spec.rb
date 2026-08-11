@@ -17,5 +17,9 @@ RSpec.describe ApplicationHelper do
       expect(helper.youtube_embed_url("https://example.com/watch?v=dQw4w9WgXcQ")).to be_nil
       expect(helper.youtube_embed_url("https://youtube.com/watch?v=not/valid")).to be_nil
     end
+
+    it "returns nil when the query string is malformed" do
+      expect(helper.youtube_embed_url("https://youtube.com/watch?v=dQw4w9WgXcQ&x=%")).to be_nil
+    end
   end
 end
