@@ -1,6 +1,6 @@
 module Manage
   class ScenariosController < BaseController
-    before_action :set_scenario, only: %i[edit update destroy move refresh_booth_image]
+    before_action :set_scenario, only: %i[edit update destroy move refresh_booth_image destroy_jacket]
 
     def index
       authorize Scenario, :manage?
@@ -23,6 +23,12 @@ module Manage
       authorize @scenario, :update?
       result = BoothImageImporter.new(@scenario).call(force: true)
       redirect_to edit_manage_scenario_path(@scenario), (result.success? ? { notice: result.message } : { alert: result.message })
+    end
+
+    def destroy_jacket
+      authorize @scenario, :update?
+      @scenario.jacket.purge
+      redirect_to edit_manage_scenario_path(@scenario), notice: "ジャケット画像を削除しました"
     end
 
     def new

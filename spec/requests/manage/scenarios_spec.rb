@@ -81,6 +81,18 @@ RSpec.describe "Manage::Scenarios" do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "does not delete a jacket for anyone outside the editors" do
+      scenario = create(:scenario)
+      scenario.jacket.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "jacket.png", content_type: "image/png"
+      )
+
+      delete jacket_manage_scenario_path(scenario)
+
+      expect(response).to have_http_status(:not_found)
+      expect(scenario.reload.jacket).to be_attached
+    end
   end
 
   describe "as a GM" do
@@ -236,6 +248,40 @@ RSpec.describe "Manage::Scenarios" do
       get edit_manage_scenario_path(scenario)
 
       expect(response.body).to include("BOOTH画像を更新")
+    end
+
+    it "offers jacket deletion only when a jacket is attached" do
+      scenario = create(:scenario)
+
+      get edit_manage_scenario_path(scenario)
+      expect(response.body).not_to include("ジャケット画像を削除")
+
+      scenario.jacket.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "jacket.png", content_type: "image/png"
+      )
+
+      get edit_manage_scenario_path(scenario)
+      expect(Capybara.string(response.body))
+        .to have_css(%(form[action="#{jacket_manage_scenario_path(scenario)}"] button), text: "ジャケット画像を削除")
+    end
+
+    it "deletes an uploaded jacket and exposes the BOOTH image fallback" do
+      scenario = create(:scenario)
+      scenario.jacket.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "jacket.png", content_type: "image/png"
+      )
+      scenario.booth_image.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "booth-fallback.png", content_type: "image/png"
+      )
+
+      delete jacket_manage_scenario_path(scenario)
+
+      expect(response).to redirect_to(edit_manage_scenario_path(scenario))
+      expect(flash[:notice]).to eq("ジャケット画像を削除しました")
+      expect(scenario.reload.jacket).not_to be_attached
+
+      get scenario_path(scenario)
+      expect(response.body).to include("booth-fallback.png")
     end
 
     it "refreshes the BOOTH image and reports success" do
