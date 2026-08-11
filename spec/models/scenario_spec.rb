@@ -1,6 +1,17 @@
 require "rails_helper"
 
 RSpec.describe Scenario do
+  describe "jacket image variants" do
+    it "fits uploaded and imported images inside their bounds without cropping" do
+      %i[jacket booth_image].each do |attachment|
+        variants = described_class.reflect_on_attachment(attachment).named_variants
+
+        expect(variants[:thumb].transformations).to include(resize_to_limit: [ 480, 640 ])
+        expect(variants[:cover].transformations).to include(resize_to_limit: [ 800, 1200 ])
+      end
+    end
+  end
+
   describe "BOOTH image source" do
     it "uses the first BOOTH purchase URL" do
       scenario = create(:scenario)

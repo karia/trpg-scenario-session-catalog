@@ -11,12 +11,12 @@ class Scenario < ApplicationRecord
   }, validate: { allow_nil: true }
 
   has_one_attached :jacket do |attachable|
-    attachable.variant :thumb, resize_to_fill: [ 480, 640 ], format: :webp, saver: { quality: 80 }
+    attachable.variant :thumb, resize_to_limit: [ 480, 640 ], format: :webp, saver: { quality: 80 }
     attachable.variant :cover, resize_to_limit: [ 800, 1200 ], format: :webp, saver: { quality: 85 }
   end
 
   has_one_attached :booth_image do |attachable|
-    attachable.variant :thumb, resize_to_fill: [ 480, 640 ], format: :webp, saver: { quality: 80 }
+    attachable.variant :thumb, resize_to_limit: [ 480, 640 ], format: :webp, saver: { quality: 80 }
     attachable.variant :cover, resize_to_limit: [ 800, 1200 ], format: :webp, saver: { quality: 85 }
   end
 

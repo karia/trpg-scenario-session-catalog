@@ -70,10 +70,16 @@ RSpec.describe "The scenario list" do
     end
 
     it "shows the jackets when asked" do
+      scenario.jacket.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "jacket.png", content_type: "image/png"
+      )
+
       get root_path(view: "gallery")
 
       expect(response.body).not_to include("<table")
       expect(response.body).to include("aspect-3/4")
+      expect(Capybara.string(response.body)).to have_css("img.object-contain")
+      expect(Capybara.string(response.body)).not_to have_css("img.object-cover")
     end
 
     it "uses the imported BOOTH image when no jacket is attached" do

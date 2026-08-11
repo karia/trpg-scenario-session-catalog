@@ -60,6 +60,17 @@ RSpec.describe "Scenarios" do
       expect(response.body).to include("booth-detail.png")
     end
 
+    it "fits the whole jacket inside its frame" do
+      scenario.jacket.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "jacket.png", content_type: "image/png"
+      )
+
+      get scenario_path(scenario)
+
+      expect(Capybara.string(response.body)).to have_css("img.object-contain")
+      expect(Capybara.string(response.body)).not_to have_css("img.object-cover")
+    end
+
     it "keeps the GM supplementary information out of the response for a visitor" do
       get scenario_path(scenario)
 
