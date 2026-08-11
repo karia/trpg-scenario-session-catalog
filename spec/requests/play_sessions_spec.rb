@@ -139,6 +139,35 @@ RSpec.describe "PlaySessions" do
       expect(response.body).to include("覚え書きの見本")
     end
 
+    it "shows the Cocofolia URL to a participant" do
+      session.update!(cocofolia_url: "https://ccfolia.com/rooms/participant-only")
+      sign_in_as participant
+
+      get play_session_path(session)
+
+      expect(response.body).to include("ココフォリア", "https://ccfolia.com/rooms/participant-only")
+    end
+
+    it "keeps the Cocofolia URL out of the response for a group peer who is not a participant" do
+      session.update!(cocofolia_url: "https://ccfolia.com/rooms/participant-only")
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_session_path(session)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include("ココフォリア", "https://ccfolia.com/rooms/participant-only")
+    end
+
+    it "keeps the Cocofolia URL out of the response for an admin who is not a participant" do
+      session.update!(cocofolia_url: "https://ccfolia.com/rooms/participant-only")
+      sign_in_as create(:person, roles: %w[admin])
+
+      get play_session_path(session)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include("ココフォリア", "https://ccfolia.com/rooms/participant-only")
+    end
+
     it "links back to the scenario" do
       sign_in_as create(:person, groups: [ group ])
 

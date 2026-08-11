@@ -80,6 +80,19 @@ RSpec.describe "Authorization matrix" do
     end
   end
 
+  describe PlaySessionPolicy do
+    it "shows the Cocofolia URL to participants, regardless of editor roles" do
+      session = create(:play_session)
+      session.participations.create!(person: no_role, role: :player)
+
+      expect(allows?(anonymous, described_class, session, :show_cocofolia_url?)).to be_falsey
+      expect(allows?(unlinked, described_class, session, :show_cocofolia_url?)).to be_falsey
+      expect(allows?(no_role, described_class, session, :show_cocofolia_url?)).to be(true)
+      expect(allows?(gm, described_class, session, :show_cocofolia_url?)).to be(false)
+      expect(allows?(admin, described_class, session, :show_cocofolia_url?)).to be(false)
+    end
+  end
+
   describe UserPolicy do
     it "is admin only, so a GM cannot rebind accounts to people and grant themselves roles" do
       expect(allows?(anonymous, described_class, User.new, :index?)).to be_falsey

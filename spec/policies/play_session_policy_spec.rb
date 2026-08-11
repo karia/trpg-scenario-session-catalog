@@ -92,5 +92,17 @@ RSpec.describe PlaySessionPolicy do
       expect(described_class.new(create(:person), session).update?).to be_falsey
       expect(described_class.new(nil, session).update?).to be_falsey
     end
+
+    it "shows the Cocofolia URL only to participants" do
+      peer = create(:person, groups: [ group ])
+      admin = create(:person, roles: %w[admin])
+      gm = create(:person, roles: %w[gm])
+
+      expect(described_class.new(participant, session).show_cocofolia_url?).to be(true)
+      expect(described_class.new(peer, session).show_cocofolia_url?).to be(false)
+      expect(described_class.new(admin, session).show_cocofolia_url?).to be(false)
+      expect(described_class.new(gm, session).show_cocofolia_url?).to be(false)
+      expect(described_class.new(nil, session).show_cocofolia_url?).to be(false)
+    end
   end
 end
