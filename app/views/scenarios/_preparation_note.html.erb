@@ -1,16 +1,19 @@
-<%# Phase 1 が空で置いた場所。show.html.erb には触らない。 %>
 <% if scenario.preparation_note.present? %>
   <section class="mt-10" id="preparation_note_<%= scenario.id %>">
-    <h2 class="font-display text-xl">シナリオ準備情報</h2>
+    <h2 class="font-display text-xl">プレーヤー向け事前情報</h2>
 
     <% if policy(scenario).show_preparation_note? %>
       <p class="mt-3 whitespace-pre-line leading-relaxed"><%= scenario.preparation_note %></p>
+      <%= button_to "プレーヤー向け事前情報を閉じる", scenario_spoiler_reveal_path(scenario), method: :delete,
+            class: "mt-3 cursor-pointer border border-rule px-4 py-3 text-sm text-muted" %>
     <% elsif policy(scenario).reveal_preparation_note? %>
-      <p class="mt-3 text-sm text-muted">ネタバレを含みます。読む準備ができたら開いてください。</p>
-      <%= button_to "ネタバレを開く", scenario_spoiler_reveal_path(scenario),
+      <p class="mt-3 text-sm text-muted">
+        本編のネタバレはありませんが、購入しないとわからない情報等を含みます。GMから許可があった場合のみ開いてください。
+      </p>
+      <%= button_to "プレーヤー向け事前情報を見る", scenario_spoiler_reveal_path(scenario),
             class: "mt-3 cursor-pointer redacted px-4 py-3 text-sm" %>
     <% else %>
-      <p class="mt-3 redacted px-4 py-3 text-sm">ネタバレを含みます。ログインすると開けるようになります。</p>
+      <p class="mt-3 redacted px-4 py-3 text-sm">GMが許可したログイン済メンバーのみ表示可能です。</p>
     <% end %>
   </section>
 <% end %>

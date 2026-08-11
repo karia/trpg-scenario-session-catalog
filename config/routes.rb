@@ -15,7 +15,7 @@ Rails.application.routes.draw do
 
   resources :scenarios, only: [ :index, :show ] do
     resource :favorite, only: [ :create, :destroy ]
-    resource :spoiler_reveal, only: [ :create ]
+    resource :spoiler_reveal, only: [ :create, :destroy ]
   end
   resources :play_sessions, only: [ :index, :show ]
   resources :people, only: [ :index, :show, :edit, :update ]
