@@ -30,8 +30,7 @@ class ScenarioListing
     @order = params[:order].to_s.presence_in(ORDERS.keys)
     author_ids = Array(params[:author_ids].presence || params[:author_id]).map(&:to_s)
     @author_name = params[:author_name].to_s.strip
-    added_author = Author.find_by(name: author_name)
-    added_author ||= AuthorAlias.find_by(name: author_name, visible: true)&.author
+    added_author = Author.find_by(id: author_id_for_name(author_name))
     author_ids << added_author.id.to_s if added_author
     @author_name_error = author_name.present? && added_author.nil?
     @authors = Author.where(id: author_ids).order(:name).to_a
@@ -44,13 +43,11 @@ class ScenarioListing
 
   def filtered? = authors.any? || game_systems.any? || player_count.present?
 
-  def author_options = Author.joins(:scenarios).merge(@scope).distinct.order(:name)
+  def author_options = Author.where(id: author_option_ids).order(:name)
 
   def author_suggestions
-    option_ids = author_options.unscope(:order).pluck(:id)
-    names = Author.where(id: option_ids).pluck(:name)
-    aliases = AuthorAlias.where(author_id: option_ids, visible: true).pluck(:name)
-    (names + aliases).uniq.sort
+    selected_ids = authors.map(&:id)
+    author_names.filter_map { |name, ids| name if ids.one? && ids.intersect?(selected_ids) == false }.sort
   end
 
   def author_name_error? = @author_name_error
@@ -67,6 +64,24 @@ class ScenarioListing
   end
 
   private
+    def author_option_ids
+      @author_option_ids ||= Author.joins(:scenarios).merge(@scope).distinct.reorder(nil).pluck(:id)
+    end
+
+    def author_names
+      names = Hash.new { |hash, key| hash[key] = [] }
+      Author.where(id: author_option_ids).pluck(:name, :id).each { |name, id| names[name] << id }
+      AuthorAlias.where(author_id: author_option_ids, visible: true).pluck(:name, :author_id).each do |name, author_id|
+        names[name] << author_id
+      end
+      names.transform_values(&:uniq)
+    end
+
+    def author_id_for_name(name)
+      ids = author_names.fetch(name, [])
+      ids.first if ids.one?
+    end
+
     def filtered
       relation = @scope
       if authors.any?

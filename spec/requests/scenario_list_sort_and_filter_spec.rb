@@ -240,6 +240,27 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(response.body).not_to include("いちばん")
     end
 
+    it "rejects an alias shared by multiple authors" do
+      AuthorAlias.create!(author: ma_author, name: "先生")
+      AuthorAlias.create!(author: a_author, name: "先生")
+
+      get root_path(author_name: "先生")
+
+      document = Capybara.string(response.body)
+      expect(document).to have_css('[role="alert"]', text: "候補から作者を選択してください")
+      expect(document).to have_no_css('datalist option[value="先生"]')
+    end
+
+    it "does not suggest names belonging to a selected author" do
+      AuthorAlias.create!(author: ma_author, name: "ま先生")
+
+      get root_path(author_ids: [ ma_author.id ])
+
+      document = Capybara.string(response.body)
+      expect(document).to have_no_css('datalist option[value="ま作者"]')
+      expect(document).to have_no_css('datalist option[value="ま先生"]')
+    end
+
     it "identifies a name that was not selected from the author suggestions" do
       get root_path(author_name: "知らない作者")
 
