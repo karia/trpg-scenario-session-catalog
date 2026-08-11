@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // 入手先と配信リンクの行を増やす。増やした行は保存時にまとめて送られる。
 export default class extends Controller {
-  static targets = ["template", "anchor", "aliasName", "aliasSelect"]
+  static targets = ["template", "anchor", "aliasRow", "aliasSelect"]
   static values = { token: { type: String, default: "NEW_RECORD" } }
 
   connect() {
@@ -21,9 +21,14 @@ export default class extends Controller {
     const selected = this.aliasSelectTarget.value
     const options = [new Option(this.aliasSelectTarget.dataset.baseLabel, "")]
 
-    this.aliasNameTargets.forEach((input) => {
-      const name = input.value.trim()
-      if (name !== "") options.push(new Option(name, input.dataset.selectionKey))
+    this.aliasRowTargets.forEach((row) => {
+      const name = row.querySelector("[data-alias-name]")
+      const visible = row.querySelector("[data-alias-visible]")
+      const destroy = row.querySelector("[data-alias-destroy]")
+
+      if (name.value.trim() !== "" && visible.checked && !destroy.checked) {
+        options.push(new Option(name.value.trim(), name.dataset.selectionKey))
+      }
     })
 
     this.aliasSelectTarget.replaceChildren(...options)

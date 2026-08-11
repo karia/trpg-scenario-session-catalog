@@ -13,7 +13,7 @@
   </div>
 
   <div class="mt-3 space-y-3" data-controller="nested-form"
-       data-action="input->nested-form#syncAliasOptions">
+       data-action="input->nested-form#syncAliasOptions change->nested-form#syncAliasOptions">
     <template data-nested-form-target="template">
       <%= form.fields_for :aliases, alias_class.new, child_index: "NEW_RECORD" do |row| %>
         <%= render "shared/alias_row", form: form, row: row %>

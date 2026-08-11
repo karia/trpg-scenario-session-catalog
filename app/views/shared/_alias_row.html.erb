@@ -1,12 +1,12 @@
-<div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+<div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]" data-nested-form-target="aliasRow">
   <% selection_key = row.object.selection_key.presence || row.object.id || row.index %>
   <%= row.text_field :name, placeholder: "別名", class: "w-full border border-rule bg-paper px-3 py-2 text-sm",
-        data: { nested_form_target: "aliasName", selection_key: selection_key } %>
+        data: { alias_name: true, selection_key: selection_key } %>
   <label class="inline-flex items-center gap-1 text-xs text-muted">
-    <%= row.check_box :visible %> 表示
+    <%= row.check_box :visible, data: { alias_visible: true } %> 表示
   </label>
   <label class="inline-flex items-center gap-1 text-xs text-muted">
-    <%= row.check_box :_destroy %> 削除
+    <%= row.check_box :_destroy, data: { alias_destroy: true } %> 削除
   </label>
   <%= row.hidden_field :id if row.object.persisted? %>
   <%= row.hidden_field :selection_key, value: selection_key %>
