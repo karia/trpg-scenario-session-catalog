@@ -49,6 +49,14 @@ RSpec.describe "Authorization matrix" do
       expect(allows?(gm, described_class, Scenario.new, :show_recommendation_note?)).to be(true)
       expect(allows?(admin, described_class, Scenario.new, :show_recommendation_note?)).to be(true)
     end
+
+    it "shows the GM supplementary information to members only" do
+      expect(allows?(anonymous, described_class, Scenario.new, :show_gm_supplementary_info?)).to be_falsey
+      expect(allows?(unlinked, described_class, Scenario.new, :show_gm_supplementary_info?)).to be_falsey
+      expect(allows?(no_role, described_class, Scenario.new, :show_gm_supplementary_info?)).to be(true)
+      expect(allows?(gm, described_class, Scenario.new, :show_gm_supplementary_info?)).to be(true)
+      expect(allows?(admin, described_class, Scenario.new, :show_gm_supplementary_info?)).to be(true)
+    end
   end
 
   describe PersonPolicy do

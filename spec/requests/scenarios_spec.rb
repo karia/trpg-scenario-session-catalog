@@ -20,6 +20,13 @@ RSpec.describe "Scenarios" do
         synopsis: "あらすじ本文",
         preparation_note: "ネタバレを含む準備情報",
         recommendation_note: "GM が推す一点",
+        player_count_min: 2,
+        player_count_max: 4,
+        duration_min_hours: 3,
+        duration_max_hours: 5,
+        character_restriction: "継続キャラクター限定",
+        character_sheet_deadline: :two_days_before,
+        character_sheet_deadline_note: "正午までに提出",
         game_systems: [ create(:game_system, name: "エモクロアTRPG") ],
         authors: [ create(:author, name: "ディズム") ]
       )
@@ -39,6 +46,36 @@ RSpec.describe "Scenarios" do
 
       expect(response.body).to include("ロールシャッハシンドローム", "あらすじ本文", "エモクロアTRPG", "ディズム")
       expect(response.body).to include("https://booth.pm/ja/items/1", "https://youtu.be/abc")
+      expect(response.body).to include("2人〜4人", "3時間〜5時間")
+      expect(response.body).to include("この情報はGMが独自判断で記載しており、シナリオ公式の案内と異なる場合があります")
+    end
+
+    it "keeps the GM supplementary information out of the response for a visitor" do
+      get scenario_path(scenario)
+
+      expect(response.body).not_to include("GMからの補足情報", "継続キャラクター限定", "正午までに提出")
+      expect(response.body).not_to include("セッション前々日")
+    end
+
+    it "keeps the GM supplementary information out of the response for a user with no person" do
+      sign_in_as(create(:user))
+
+      get scenario_path(scenario)
+
+      expect(response.body).not_to include("GMからの補足情報", "継続キャラクター限定", "正午までに提出")
+      expect(response.body).not_to include("セッション前々日")
+    end
+
+    it "shows the GM supplementary information below the recommendation to a signed-in member" do
+      sign_in_as(create(:person))
+
+      get scenario_path(scenario)
+
+      expect(response.body).to include(
+        "GMからの補足情報", "参加可能キャラの制限", "継続キャラクター限定",
+        "キャラシ提出期限", "セッション前々日", "キャラシ提出期限の補足", "正午までに提出"
+      )
+      expect(response.body.index("GMからのオススメポイント")).to be < response.body.index("GMからの補足情報")
     end
 
     it "keeps the preparation note out of the response entirely" do
