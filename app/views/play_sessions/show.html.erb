@@ -17,15 +17,15 @@
 
   <dl class="mt-6 grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 font-mono text-sm">
     <dt class="text-muted">日時</dt>
-    <dd><%= play_session_schedule(@play_session) %></dd>
-    <dt class="text-muted">状態</dt>
-    <dd class="font-sans"><%= play_session_status_label(@play_session) %></dd>
-    <% if @play_session.recording_url.present? %>
-      <dt class="text-muted">録画</dt>
-      <dd class="space-y-2 font-sans">
-        <%= render "shared/video_link", title: "録画", url: @play_session.recording_url,
-              link_text: @play_session.recording_url, rel: "noopener", show_url: false %>
-      </dd>
+    <dd><%= play_session_schedule(@play_session) %>（<%= play_session_status_label(@play_session) %>）</dd>
+    <% @play_session.session_schedules.each do |schedule| %>
+      <% schedule.recording_links.each do |recording| %>
+        <dt class="text-muted">録画</dt>
+        <dd class="space-y-2 font-sans">
+          <%= render "shared/video_link", title: "録画", url: recording.url,
+                link_text: recording.url, rel: "noopener", show_url: false %>
+        </dd>
+      <% end %>
     <% end %>
     <% if @play_session.cocofolia_url.present? && policy(@play_session).show_cocofolia_url? %>
       <dt class="text-muted">ココフォリア</dt>

@@ -5,35 +5,51 @@ RSpec.describe PlaySession do
     expect(build(:play_session, scenario: nil)).not_to be_valid
   end
 
-  describe "schedule" do
-    it "allows a date with no time, for a session whose start is not fixed yet" do
-      expect(build(:play_session, played_on: Date.new(2026, 9, 1), started_at: nil)).to be_valid
+  describe "schedules" do
+    it "keeps multiple starts in chronological order" do
+      session = create(:play_session)
+      later = create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 3, 20))
+      earlier = create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
+
+      expect(session.session_schedules.reload).to eq([ earlier, later ])
     end
 
-    it "allows neither, for a session with no date at all" do
-      expect(build(:play_session, played_on: nil, started_at: nil)).to be_valid
+    it "destroys schedules and their recording links with the session" do
+      schedule = create(:session_schedule)
+      create(:recording_link, session_schedule: schedule)
+
+      expect { schedule.play_session.destroy! }
+        .to change(SessionSchedule, :count).by(-1)
+        .and change(RecordingLink, :count).by(-1)
     end
   end
 
   describe "status" do
-    it "defaults to scheduled" do
-      expect(described_class.new.status).to eq("scheduled")
+    it "is scheduled before the first start" do
+      session = create(:play_session)
+      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
+
+      expect(session.derived_status(Time.zone.local(2026, 5, 1, 19, 59))).to eq(:scheduled)
     end
 
-    it "covers scheduled, played and cancelled" do
-      expect(described_class.statuses.keys).to match_array(%w[scheduled played cancelled])
+    it "is in progress from the first start until the last start" do
+      session = create(:play_session)
+      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
+      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 3, 20))
+
+      expect(session.derived_status(Time.zone.local(2026, 5, 2, 20))).to eq(:in_progress)
     end
 
-    it "is not derived from the date, so a past date can still be cancelled" do
-      session = build(:play_session, played_on: 1.year.ago.to_date, status: :cancelled)
+    it "is completed from the last start" do
+      session = create(:play_session)
+      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
 
-      expect(session).to be_valid
-      expect(session).to be_cancelled
+      expect(session.derived_status(Time.zone.local(2026, 5, 1, 20))).to eq(:completed)
     end
-  end
 
-  it "rejects a recording URL that is not an http URL" do
-    expect(build(:play_session, recording_url: "javascript:alert(1)")).not_to be_valid
+    it "treats an undated session as scheduled" do
+      expect(create(:play_session).derived_status).to eq(:scheduled)
+    end
   end
 
   it "rejects a Cocofolia URL that is not an http URL" do
@@ -41,17 +57,12 @@ RSpec.describe PlaySession do
   end
 
   describe "ordering" do
-    it "puts a session with no start time after one with a time on the same day" do
-      timed = create(:play_session, played_on: Date.new(2026, 5, 1), started_at: "20:00")
-      untimed = create(:play_session, played_on: Date.new(2026, 5, 1), started_at: nil)
-
-      expect(described_class.newest_first.to_a).to eq([ timed, untimed ])
-    end
-
-    it "puts undated sessions last rather than letting the database decide" do
-      undated = create(:play_session, played_on: nil)
-      older = create(:play_session, played_on: Date.new(2026, 1, 1))
-      newer = create(:play_session, played_on: Date.new(2026, 6, 1))
+    it "orders by the first start and puts undated sessions last" do
+      undated = create(:play_session)
+      older = create(:play_session)
+      newer = create(:play_session)
+      create(:session_schedule, play_session: older, started_at: Time.zone.local(2026, 1, 1, 20))
+      create(:session_schedule, play_session: newer, started_at: Time.zone.local(2026, 6, 1, 20))
 
       expect(described_class.newest_first.to_a).to eq([ newer, older, undated ])
     end

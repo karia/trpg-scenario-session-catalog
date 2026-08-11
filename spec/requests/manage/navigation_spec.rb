@@ -32,11 +32,11 @@ RSpec.describe "Manage navigation" do
     end
 
     it "can edit a session" do
-      session = create(:play_session, status: :scheduled)
+      session = create(:play_session)
 
-      patch manage_play_session_path(session), params: { play_session: { status: "played" } }
+      patch manage_play_session_path(session), params: { play_session: { note: "管理者が更新" } }
 
-      expect(session.reload).to be_played
+      expect(session.reload.note).to eq("管理者が更新")
     end
   end
 

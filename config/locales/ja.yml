@@ -26,11 +26,12 @@ ja:
   time:
     formats:
       short: "%Y-%m-%d %H:%M"
+      session_schedule: "%Y年%-m月%-d日（%a） %H:%M"
   play_sessions:
     statuses:
-      scheduled: 予定
-      played: 実施済み
-      cancelled: 中止
+      scheduled: 開催予定
+      in_progress: 開催中
+      completed: 開催済
     roles:
       gm: GM
       player: PL

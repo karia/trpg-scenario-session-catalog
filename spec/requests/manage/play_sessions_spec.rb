@@ -45,10 +45,16 @@ RSpec.describe "Manage::PlaySessions" do
       post manage_play_sessions_path, params: {
         play_session: {
           scenario_id: scenario.id,
-          played_on: "2026-05-01",
-          started_at: "20:00",
-          status: "played",
-          recording_url: "https://youtu.be/abc",
+          session_schedules_attributes: [
+            {
+              started_at: "2026-05-01T20:00",
+              recording_links_attributes: [
+                { url: "https://youtu.be/abc" },
+                { url: "https://youtu.be/def" }
+              ]
+            },
+            { started_at: "2026-05-03T20:00" }
+          ],
           cocofolia_url: "https://ccfolia.com/rooms/example",
           participations_attributes: [
             { person_id: gm.id, role: "gm" },
@@ -61,6 +67,12 @@ RSpec.describe "Manage::PlaySessions" do
       session = PlaySession.sole
       expect(response).to redirect_to(play_session_path(session))
       expect(session.scenario).to eq(scenario)
+      expect(session.session_schedules.map(&:started_at)).to eq([
+        Time.zone.local(2026, 5, 1, 20), Time.zone.local(2026, 5, 3, 20)
+      ])
+      expect(session.session_schedules.first.recording_links.map(&:url)).to eq(
+        %w[https://youtu.be/abc https://youtu.be/def]
+      )
       expect(session.participations.map(&:role)).to contain_exactly("gm", "player")
       expect(session.cocofolia_url).to eq("https://ccfolia.com/rooms/example")
       expect(session.participations.find(&:player?).character_sheet_url).to eq("https://charasheet.example/1")
@@ -163,13 +175,16 @@ RSpec.describe "Manage::PlaySessions" do
       expect { delete manage_play_session_path(session) }.to change(PlaySession, :count).by(-1)
     end
 
-    it "updates a session" do
-      session = create(:play_session, scenario:, status: :scheduled)
+    it "updates and removes nested schedules" do
+      session = create(:play_session, scenario:)
+      schedule = create(:session_schedule, play_session: session)
 
-      patch manage_play_session_path(session), params: { play_session: { status: "played" } }
+      patch manage_play_session_path(session), params: {
+        play_session: { session_schedules_attributes: [ { id: schedule.id, _destroy: "1" } ] }
+      }
 
       expect(response).to redirect_to(play_session_path(session))
-      expect(session.reload).to be_played
+      expect(session.reload.session_schedules).to be_empty
     end
   end
 

@@ -42,7 +42,7 @@ module Manage
     private
       # 保守用なので公開側の Scope は通さない。入口は require_editor と manage? で守る。
       def maintained_sessions
-        PlaySession.includes(:scenario, participations: :person).newest_first
+        PlaySession.includes(:scenario, :session_schedules, participations: :person).newest_first
       end
 
       def set_play_session
@@ -52,7 +52,11 @@ module Manage
       def play_session_params
         permitted = params.expect(
           play_session: [
-            :scenario_id, :played_on, :started_at, :status, :recording_url, :cocofolia_url, :note,
+            :scenario_id, :cocofolia_url, :note,
+            { session_schedules_attributes: [
+              [ :id, :started_at, :position, :_destroy,
+                { recording_links_attributes: [ [ :id, :url, :position, :_destroy ] ] } ]
+            ] },
             { participations_attributes: [ [ :id, :person_id, :role, :character_name, :character_sheet_url, :position, :_destroy ] ] }
           ]
         )

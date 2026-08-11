@@ -9,7 +9,7 @@
       <div>
         <p class="font-display"><%= session.scenario.title %></p>
         <p class="font-mono text-xs text-muted">
-          <%= play_session_schedule(session) %> ／ <%= play_session_status_label(session) %>
+          <%= play_session_schedule(session) %>（<%= play_session_status_label(session) %>）
           ／ <%= session.participations.map { |p| p.person.display_name }.join("、").presence || "参加者なし" %>
         </p>
       </div>

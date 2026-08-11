@@ -4,7 +4,11 @@ RSpec.describe "PlaySessions" do
   let(:group) { create(:group) }
   let(:participant) { create(:person, display_name: "参加した人", groups: [ group ]) }
   let(:scenario) { create(:scenario, title: "見本シナリオ") }
-  let(:session) { create(:play_session, scenario:, played_on: Date.new(2026, 5, 1), status: :played) }
+  let(:session) do
+    create(:play_session, scenario:).tap do |play_session|
+      create(:session_schedule, play_session:, started_at: Time.zone.local(2026, 5, 1, 20))
+    end
+  end
 
   before do
     session.participations.create!(person: participant, role: :gm)
@@ -103,7 +107,7 @@ RSpec.describe "PlaySessions" do
         character_name: "探索者A",
         character_sheet_url: "https://charasheet.example/1234"
       )
-      session.update!(recording_url: "https://youtu.be/abc")
+      create(:recording_link, session_schedule: session.session_schedules.first, url: "https://youtu.be/abc")
       sign_in_as create(:person, groups: [ group ])
 
       get play_session_path(session)
@@ -114,7 +118,8 @@ RSpec.describe "PlaySessions" do
     end
 
     it "embeds a YouTube recording" do
-      session.update!(recording_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+      create(:recording_link, session_schedule: session.session_schedules.first,
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
       sign_in_as create(:person, groups: [ group ])
 
       get play_session_path(session)
@@ -128,13 +133,28 @@ RSpec.describe "PlaySessions" do
       expect(page).to have_no_text("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
     end
 
-    it "shows the start time without the placeholder date a time column carries" do
-      session.update!(started_at: "20:00")
+    it "shows every recording under its schedule" do
+      second_schedule = create(:session_schedule, play_session: session,
+        started_at: Time.zone.local(2026, 5, 3, 20))
+      create(:recording_link, session_schedule: session.session_schedules.first,
+        url: "https://videos.example/first")
+      create(:recording_link, session_schedule: second_schedule,
+        url: "https://videos.example/second")
       sign_in_as create(:person, groups: [ group ])
 
       get play_session_path(session)
 
-      expect(response.body).to include("2026年5月1日 20:00")
+      expect(response.body).to include("https://videos.example/first", "https://videos.example/second")
+      expect(response.body).to include("2026年5月1日（金） 20:00、2026年5月3日（日） 20:00")
+      expect(response.body).not_to include(">状態<")
+    end
+
+    it "shows the start time without the placeholder date a time column carries" do
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_session_path(session)
+
+      expect(response.body).to include("2026年5月1日（金） 20:00")
       expect(response.body).not_to include("2000-01-01")
     end
 

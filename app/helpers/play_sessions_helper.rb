@@ -5,14 +5,14 @@ module PlaySessionsHelper
   end
 
   def play_session_schedule(session)
-    return "日程未定" if session.played_on.blank?
+    schedules = session.session_schedules.filter_map(&:started_at)
+    return "日程未定" if schedules.empty?
 
-    date = l(session.played_on, format: :long)
-    session.started_at.present? ? "#{date} #{session.started_at.strftime("%H:%M")}" : date
+    schedules.map { |started_at| l(started_at, format: :session_schedule) }.join("、")
   end
 
   def play_session_status_label(session)
-    t("play_sessions.statuses.#{session.status}")
+    t("play_sessions.statuses.#{session.derived_status}")
   end
 
   def participation_role_label(participation)
