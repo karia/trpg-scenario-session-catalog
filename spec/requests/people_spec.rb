@@ -124,6 +124,15 @@ RSpec.describe "People" do
       Rack::Test::UploadedFile.new(StringIO.new(content), type, original_filename: name)
     end
 
+    it "limits the icon picker to supported image formats" do
+      sign_in_as person
+
+      get edit_person_path(person)
+
+      expect(Capybara.string(response.body))
+        .to have_css('input[name="person[icon]"][accept="image/png,image/jpeg,image/webp"]')
+    end
+
     # 1 人の不正なアップロードで、一覧を開いた全員が 500 になるのを防ぐ。
     it "refuses a file that is not an image, and leaves the member list working" do
       sign_in_as person

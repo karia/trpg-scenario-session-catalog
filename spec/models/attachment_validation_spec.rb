@@ -4,11 +4,24 @@ require "rails_helper"
 # 一覧を開いた全員に 500 が出る。添付の時点で弾く。
 RSpec.describe "Attachment validation" do
   def upload(content, type, name)
-    Rack::Test::UploadedFile.new(StringIO.new(content), type, original_filename: name)
+    file = Tempfile.new
+    file.binmode
+    file.write(content)
+    file.close
+    Rack::Test::UploadedFile.new(file.path, type, original_filename: name)
+  ensure
+    file&.unlink
   end
 
   def png
     Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/dot.png"), "image/png")
+  end
+
+  def attach_legacy_gif(record, name)
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new("GIF89a"), filename: "legacy.gif", content_type: "image/gif"
+    )
+    ActiveStorage::Attachment.create!(record:, name:, blob:)
   end
 
   describe Person do
@@ -27,6 +40,27 @@ RSpec.describe "Attachment validation" do
       expect(person.errors[:icon]).to be_present
     end
 
+    it "rejects a GIF icon" do
+      person = create(:person)
+      person.icon.attach(upload("GIF89a", "image/gif", "animated.gif"))
+
+      expect(person).not_to be_valid
+    end
+
+    it "allows unrelated updates while a legacy GIF icon remains attached" do
+      person = create(:person)
+      attach_legacy_gif(person, "icon")
+
+      expect(person.update(display_name: "更新後")).to be(true)
+    end
+
+    it "rejects a malformed file declared as a PNG icon" do
+      person = create(:person)
+      person.icon.attach(upload("not an image", "image/png", "broken.png"))
+
+      expect(person).not_to be_valid
+    end
+
     it "rejects an image that is too large to be an icon" do
       person = create(:person)
       person.icon.attach(upload("x" * 6.megabytes, "image/png", "huge.png"))
@@ -39,6 +73,27 @@ RSpec.describe "Attachment validation" do
     it "rejects a jacket that is not an image" do
       scenario = create(:scenario)
       scenario.jacket.attach(upload("not an image", "text/plain", "evil.txt"))
+
+      expect(scenario).not_to be_valid
+    end
+
+    it "rejects a GIF jacket" do
+      scenario = create(:scenario)
+      scenario.jacket.attach(upload("GIF89a", "image/gif", "animated.gif"))
+
+      expect(scenario).not_to be_valid
+    end
+
+    it "allows unrelated updates while a legacy GIF jacket remains attached" do
+      scenario = create(:scenario)
+      attach_legacy_gif(scenario, "jacket")
+
+      expect(scenario.update(title: "更新後")).to be(true)
+    end
+
+    it "rejects a malformed file declared as a PNG jacket" do
+      scenario = create(:scenario)
+      scenario.jacket.attach(upload("not an image", "image/png", "broken.png"))
 
       expect(scenario).not_to be_valid
     end

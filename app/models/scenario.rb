@@ -61,7 +61,10 @@ class Scenario < ApplicationRecord
   def booth_purchase_url = purchase_links.find(&:booth?)&.url
 
   validates :title, presence: true
-  validates :jacket, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
+  validates :jacket,
+    content_type: { in: [ :png, :jpeg, :webp ], spoofing_protection: true },
+    size: { less_than: 10.megabytes },
+    if: -> { attachment_changes.key?("jacket") }
   validates :booth_image, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
   # TODO: 並び順は position に移った（issue #41）。切り戻す必要がなくなったら列ごと落とす。
   validates :recommendation, inclusion: { in: 1..5 }, allow_nil: true
