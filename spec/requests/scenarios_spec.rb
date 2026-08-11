@@ -54,6 +54,9 @@ RSpec.describe "Scenarios" do
       expect(page).to have_button("おすすめ配信を開く")
       expect(page).to have_button("おすすめ配信を閉じる", visible: :all)
       expect(page).to have_css('[data-video-disclosure-target="content"].bg-surface', visible: :all)
+      expect(page).to have_css('[data-controller="video-disclosure"]' \
+        '[data-action*="turbo:before-cache@document->video-disclosure#reset"]')
+      expect(page).to have_css('[data-video-disclosure-target="closeButton"]', visible: :all)
       expect(page).to have_no_link("YouTube配信", href: "https://youtu.be/dQw4w9WgXcQ", visible: :all)
       expect(response.body).not_to include("https://youtu.be/dQw4w9WgXcQ")
       expect(page).to have_link("別サイトの配信", href: "https://example.com/stream", visible: :all)
