@@ -7,4 +7,11 @@
     <span class="text-xs text-muted">取得済み</span>
   <% end %>
 </div>
+<% if @scenario.jacket.attached? %>
+  <div class="mt-4">
+    <%= button_to "ジャケット画像を削除", jacket_manage_scenario_path(@scenario), method: :delete,
+          form: { data: { turbo_confirm: "ジャケット画像を削除しますか" } },
+          class: "cursor-pointer border border-rule px-4 py-2 text-sm text-seal" %>
+  </div>
+<% end %>
 <%= render "form", scenario: @scenario %>

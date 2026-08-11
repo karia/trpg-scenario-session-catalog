@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       patch :reorder, on: :collection
       patch :move, on: :member
       post :refresh_booth_image, on: :member
+      delete :jacket, on: :member, action: :destroy_jacket
     end
     resources :game_systems, except: [ :show, :new ]
     resources :authors, except: [ :show, :new ]
