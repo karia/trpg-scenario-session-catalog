@@ -1,6 +1,6 @@
 module Manage
   class ScenariosController < BaseController
-    before_action :set_scenario, only: %i[edit update destroy]
+    before_action :set_scenario, only: %i[edit update destroy move]
 
     def index
       authorize Scenario, :manage?
@@ -9,8 +9,14 @@ module Manage
 
     def reorder
       authorize Scenario, :reorder?
-      Scenario.rearrange(Array(params[:scenario_ids]).map(&:to_i))
+      Scenario.rearrange(Array(params.permit(scenario_ids: [])[:scenario_ids]).map(&:to_i))
       head :no_content
+    end
+
+    def move
+      authorize @scenario, :reorder?
+      @scenario.move(params[:direction].to_s)
+      redirect_to manage_scenarios_path
     end
 
     def new

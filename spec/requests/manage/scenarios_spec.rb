@@ -63,6 +63,16 @@ RSpec.describe "Manage::Scenarios" do
       expect(response).to have_http_status(:not_found)
       expect(first.reload.position).to be < second.reload.position
     end
+
+    it "does not move a single row for anyone outside the editors" do
+      first = create(:scenario)
+      second = create(:scenario)
+
+      patch move_manage_scenario_path(second, direction: "up")
+
+      expect(response).to have_http_status(:not_found)
+      expect(first.reload.position).to be < second.reload.position
+    end
   end
 
   describe "as a GM" do
@@ -119,6 +129,36 @@ RSpec.describe "Manage::Scenarios" do
 
         expect(response).to have_http_status(:no_content)
         expect(Scenario.gm_ordered).to eq([ first, second ])
+      end
+
+      it "does not fall over when the identifiers arrive as a hash" do
+        first = create(:scenario)
+        second = create(:scenario)
+
+        patch reorder_manage_scenarios_path, params: { scenario_ids: { a: second.id } }
+
+        expect(response).to have_http_status(:no_content)
+        expect(Scenario.gm_ordered).to eq([ first, second ])
+      end
+
+      # ドラッグを使えない相手のための経路。ボタンだけで並べ替えられる。
+      it "moves one row up from a plain button" do
+        create(:scenario, title: "うえ")
+        bottom = create(:scenario, title: "した")
+
+        patch move_manage_scenario_path(bottom, direction: "up")
+
+        expect(response).to redirect_to(manage_scenarios_path)
+        expect(Scenario.gm_ordered.pluck(:title)).to eq([ "した", "うえ" ])
+      end
+
+      it "offers those buttons on every row" do
+        scenario = create(:scenario, title: "カタシロ")
+
+        authorized_get manage_scenarios_path
+
+        expect(Capybara.string(response.body))
+          .to have_css(%(form[action="#{move_manage_scenario_path(scenario, direction: 'up')}"] button))
       end
     end
 

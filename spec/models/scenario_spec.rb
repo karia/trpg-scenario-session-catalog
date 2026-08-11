@@ -77,6 +77,71 @@ RSpec.describe Scenario do
 
       expect(scenario.reload.position).to eq(2)
     end
+
+    it "leaves out a scenario the caller did not mention" do
+      listed = create(:scenario)
+      absent = create(:scenario, position: 50)
+
+      described_class.rearrange([ listed.id ])
+
+      expect(absent.reload.position).to eq(50)
+    end
+
+    it "keeps the last slot a duplicated identifier was given" do
+      first = create(:scenario)
+      second = create(:scenario)
+
+      described_class.rearrange([ first.id, second.id, first.id ])
+
+      expect(first.reload.position).to eq(3)
+    end
+  end
+
+  describe "#move" do
+    it "swaps with the row above" do
+      top = create(:scenario, title: "うえ")
+      bottom = create(:scenario, title: "した")
+
+      bottom.move("up")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "した", "うえ" ])
+    end
+
+    it "swaps with the row below" do
+      top = create(:scenario, title: "うえ")
+      create(:scenario, title: "した")
+
+      top.move("down")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "した", "うえ" ])
+    end
+
+    it "does nothing at the top" do
+      top = create(:scenario, title: "うえ")
+      create(:scenario, title: "した")
+
+      top.move("up")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "うえ", "した" ])
+    end
+
+    it "does nothing at the bottom" do
+      create(:scenario, title: "うえ")
+      bottom = create(:scenario, title: "した")
+
+      bottom.move("down")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "うえ", "した" ])
+    end
+
+    it "ignores a direction it does not know" do
+      top = create(:scenario, title: "うえ")
+      create(:scenario, title: "した")
+
+      top.move("sideways")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "うえ", "した" ])
+    end
   end
 
   describe "gm_experienced" do

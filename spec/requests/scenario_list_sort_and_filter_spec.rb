@@ -112,6 +112,14 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(Capybara.string(response.body)).to have_no_css("th a")
     end
 
+    # プルダウンは JS が送信する。無い相手には noscript のボタンだけが残る。
+    it "carries a submit button for a visitor without JavaScript" do
+      get root_path
+
+      expect(Capybara.string(response.body))
+        .to have_css('form noscript button[type="submit"]', text: "並べ替える", visible: :all)
+    end
+
     it "keeps the current filter when the order changes" do
       get root_path(game_system_id: emoklore.id)
 

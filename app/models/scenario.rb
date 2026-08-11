@@ -1,4 +1,6 @@
 class Scenario < ApplicationRecord
+  DIRECTIONS = { "up" => -1, "down" => 1 }.freeze
+
   # 「-」と空欄は列挙値ではなく NULL として扱う。
   enum :character_sheet_deadline, {
     day_before: 0,
@@ -38,6 +40,17 @@ class Scenario < ApplicationRecord
     transaction do
       ids.each_with_index { |id, index| where(id:).update_all(position: index + 1) }
     end
+  end
+
+  # ドラッグを使えない相手のための1つぶんの移動。並びは rearrange と同じ経路で確定させる。
+  def move(direction)
+    ids = self.class.gm_ordered.pluck(:id)
+    from = ids.index(id)
+    to = from + DIRECTIONS.fetch(direction) { return }
+    return unless to.between?(0, ids.size - 1)
+
+    ids[from], ids[to] = ids[to], ids[from]
+    self.class.rearrange(ids)
   end
 
   validates :title, presence: true

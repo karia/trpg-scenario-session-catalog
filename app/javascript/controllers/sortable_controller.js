@@ -1,12 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
-// 行を掴んで並べ替える。掴んだ手を離した時点で保存し、結果を toast:show の購読者に知らせる。
+// 行を掴んで並べ替える。落とした時点で保存し、結果を toast へ渡す。
 export default class extends Controller {
   static targets = ["row"]
-  static values = { url: String }
+  static values = { url: String, savedMessage: String, failedMessage: String }
 
   start(event) {
     this.dragged = event.currentTarget
+    this.dropped = false
+    // dragover のたびに DOM を動かすため、取り消されたときに戻せるよう掴む前の並びを控える。
+    this.snapshot = [...this.rowTargets]
     this.dragged.classList.add("opacity-40")
     event.dataTransfer.effectAllowed = "move"
     // Firefox はデータを載せないとドラッグを始めない。
@@ -25,6 +28,7 @@ export default class extends Controller {
 
   drop(event) {
     event.preventDefault()
+    this.dropped = true
   }
 
   finish() {
@@ -32,10 +36,14 @@ export default class extends Controller {
 
     this.dragged.classList.remove("opacity-40")
     this.dragged = null
-    this.save()
+
+    // Esc や表の外で離した場合は成立していない。動かした見た目だけ戻す。
+    if (!this.dropped) return this.restore(this.snapshot)
+
+    this.save(this.snapshot)
   }
 
-  async save() {
+  async save(snapshot) {
     const body = new FormData()
     this.rowTargets.forEach((row) => body.append("scenario_ids[]", row.dataset.sortableIdParam))
 
@@ -51,6 +59,13 @@ export default class extends Controller {
       saved = false
     }
 
-    this.dispatch("saved", { detail: { message: saved ? "保存しました" : "保存できませんでした" } })
+    // 保存できなかった並びを画面に残すと、サーバが持っていない順序を見せ続けることになる。
+    if (!saved) this.restore(snapshot)
+
+    this.dispatch("saved", { detail: { message: saved ? this.savedMessageValue : this.failedMessageValue } })
+  }
+
+  restore(rows) {
+    rows.forEach((row) => this.element.appendChild(row))
   }
 }
