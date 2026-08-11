@@ -1,0 +1,23 @@
+<% content_for :title, @record.name %>
+
+<article>
+  <div class="flex flex-wrap items-baseline justify-between gap-4">
+    <h1 class="font-display text-3xl"><%= @record.name %></h1>
+    <%= link_to "編集", edit_manage_group_path(@record), class: "text-sm text-seal" %>
+  </div>
+
+  <section class="mt-8">
+    <h2 class="font-display text-xl">メンバー</h2>
+    <% if @record.people.any? %>
+      <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
+        <% @record.people.order(:display_name).each do |person| %>
+          <li class="p-3"><%= link_to person.display_name, person_path(person), class: "text-seal" %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="mt-3 text-sm text-muted">まだいません。</p>
+    <% end %>
+  </section>
+
+  <p class="mt-8"><%= link_to "一覧に戻る", manage_groups_path, class: "text-sm text-muted" %></p>
+</article>

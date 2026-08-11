@@ -43,7 +43,7 @@ module Manage
       @scenario = authorize Scenario.new(scenario_params)
 
       if @scenario.save
-        redirect_to manage_scenarios_path, notice: "#{@scenario.title} を登録しました"
+        redirect_to scenario_path(@scenario), notice: "#{@scenario.title} を登録しました"
       else
         render :new, status: :unprocessable_content
       end
@@ -53,7 +53,7 @@ module Manage
       authorize @scenario
 
       if @scenario.update(scenario_params)
-        redirect_to manage_scenarios_path, notice: "#{@scenario.title} を更新しました"
+        redirect_to scenario_path(@scenario), notice: "#{@scenario.title} を更新しました"
       else
         render :edit, status: :unprocessable_content
       end

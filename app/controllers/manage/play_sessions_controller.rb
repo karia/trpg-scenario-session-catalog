@@ -16,7 +16,7 @@ module Manage
       @play_session = authorize PlaySession.new(play_session_params)
 
       if @play_session.save
-        redirect_to manage_play_sessions_path, notice: "セッションを登録しました"
+        redirect_to play_session_path(@play_session), notice: "セッションを登録しました"
       else
         @play_sessions = maintained_sessions
         render :index, status: :unprocessable_content
@@ -27,7 +27,7 @@ module Manage
       authorize @play_session
 
       if @play_session.update(play_session_params)
-        redirect_to manage_play_sessions_path, notice: "セッションを更新しました"
+        redirect_to play_session_path(@play_session), notice: "セッションを更新しました"
       else
         render :edit, status: :unprocessable_content
       end

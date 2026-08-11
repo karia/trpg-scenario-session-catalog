@@ -1,0 +1,19 @@
+<% content_for :title, "#{@record.name} の編集" %>
+
+<h1 class="font-display text-2xl"><%= @record.name %> の編集</h1>
+
+<%= form_with model: [ :manage, @record ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
+  <% if @record.errors.any? %>
+    <p class="text-sm text-seal"><%= @record.errors.full_messages.join("、") %></p>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "名前", class: "block text-xs text-muted" %>
+    <%= form.text_field :name, class: "mt-1 w-64 border border-rule bg-paper px-3 py-2 text-sm" %>
+  </div>
+
+  <div class="flex gap-4">
+    <%= form.submit "更新", class: "bg-ink px-5 py-2 text-sm text-paper" %>
+    <%= link_to "詳細に戻る", url_for(action: :show, id: @record), class: "self-center text-sm text-muted" %>
+  </div>
+<% end %>

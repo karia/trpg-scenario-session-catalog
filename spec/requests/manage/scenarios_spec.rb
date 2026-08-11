@@ -103,12 +103,13 @@ RSpec.describe "Manage::Scenarios" do
     end
 
     it "lists the scenarios" do
-      create(:scenario, title: "カタシロ")
+      scenario = create(:scenario, title: "カタシロ")
 
       authorized_get manage_scenarios_path
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("カタシロ")
+      expect(response.body).to include(scenario_path(scenario), edit_manage_scenario_path(scenario))
     end
 
     describe "rearranging the list" do
@@ -204,6 +205,7 @@ RSpec.describe "Manage::Scenarios" do
         }
 
       scenario = Scenario.sole
+      expect(response).to redirect_to(scenario_path(scenario))
       expect(scenario.title).to eq("変葬")
       expect(scenario.game_systems).to eq([ system ])
       expect(scenario.authors).to eq([ author ])
@@ -239,6 +241,7 @@ RSpec.describe "Manage::Scenarios" do
 
       patch manage_scenario_path(scenario), params: { scenario: { title: "新題" } }
 
+      expect(response).to redirect_to(scenario_path(scenario))
       expect(scenario.reload.title).to eq("新題")
     end
 

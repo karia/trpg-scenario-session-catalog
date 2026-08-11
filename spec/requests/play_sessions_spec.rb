@@ -34,6 +34,14 @@ RSpec.describe "PlaySessions" do
       expect(response.body).not_to include("見本シナリオ")
     end
 
+    it "does not expand a GM's public list to every editable session" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      get play_sessions_path
+
+      expect(response.body).not_to include("見本シナリオ")
+    end
+
     it "shows the session to someone in the same group" do
       sign_in_as create(:person, groups: [ group ])
 

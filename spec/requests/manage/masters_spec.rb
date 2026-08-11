@@ -23,12 +23,12 @@ RSpec.describe "Manage masters" do
       expect(response.body).to include("既存")
     end
 
-    it "creates a record" do
+    it "creates a record and opens its detail" do
       sign_in_as create(:person, roles: %w[gm])
       post public_send(index_path), headers: headers, params: { factory => { name: "新規" } }
 
-      expect(response).to redirect_to(public_send(index_path))
-      expect(factory.to_s.camelize.constantize.find_by(name: "新規")).to be_present
+      created = factory.to_s.camelize.constantize.find_by!(name: "新規")
+      expect(response).to redirect_to(public_send(member_path, created))
     end
 
     it "re-renders on a blank name" do
@@ -43,13 +43,32 @@ RSpec.describe "Manage masters" do
       get public_send(edit_path, record), headers: headers
 
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include(public_send(member_path, record), "詳細に戻る")
+    end
+
+    it "renders a detail with links to its edit screen and list" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      get public_send(member_path, record), headers: headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(public_send(edit_path, record), public_send(index_path))
+    end
+
+    it "links each list item to both detail and edit" do
+      sign_in_as create(:person, roles: %w[gm])
+      record
+
+      get public_send(index_path), headers: headers
+
+      expect(response.body).to include(public_send(member_path, record), public_send(edit_path, record))
     end
 
     it "updates through the member path rather than the collection" do
       sign_in_as create(:person, roles: %w[gm])
       patch public_send(member_path, record), headers: headers, params: { factory => { name: "改名" } }
 
-      expect(response).to redirect_to(public_send(index_path))
+      expect(response).to redirect_to(public_send(member_path, record))
       expect(record.reload.name).to eq("改名")
     end
 

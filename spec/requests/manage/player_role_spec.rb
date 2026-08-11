@@ -25,7 +25,7 @@ RSpec.describe "The player role on the manage screen" do
   it "does not fail when a submission still carries the player value" do
     patch manage_person_path(person), params: { person: { display_name: "本人", roles: [ "gm", "player" ] } }
 
-    expect(response).to redirect_to(manage_people_path)
+    expect(response).to redirect_to(person_path(person))
     expect(person.reload.roles).to eq([ "gm" ])
   end
 
