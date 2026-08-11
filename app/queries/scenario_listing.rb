@@ -22,38 +22,46 @@ class ScenarioListing
     [ "#{sort}_#{direction}", Arel.sql("#{SORTS.fetch(sort)} #{direction.upcase} NULLS LAST") ]
   }.freeze
 
-  attr_reader :view, :order, :author, :game_system, :player_count
+  attr_reader :view, :order, :authors, :game_systems, :player_count
 
   def initialize(scope, params)
     @scope = scope
     @view = params[:view].to_s.presence_in(VIEWS) || VIEWS.first
     @order = params[:order].to_s.presence_in(ORDERS.keys)
-    @author = Author.find_by(id: params[:author_id].to_s)
-    @game_system = GameSystem.find_by(id: params[:game_system_id].to_s)
+    author_ids = Array(params[:author_ids].presence || params[:author_id]).map(&:to_s)
+    added_author = Author.find_by(name: params[:author_name].to_s.strip)
+    author_ids << added_author.id.to_s if added_author
+    @authors = Author.where(id: author_ids).order(:name).to_a
+    game_system_ids = Array(params[:game_system_ids].presence || params[:game_system_id]).map(&:to_s)
+    @game_systems = GameSystem.where(id: game_system_ids).order(:name).to_a
     @player_count = params[:player_count].to_s.to_i.then { |count| count if count.positive? }
   end
 
   def scenarios = ordered(filtered)
 
-  def filtered? = author.present? || game_system.present? || player_count.present?
+  def filtered? = authors.any? || game_systems.any? || player_count.present?
 
-  def authors = Author.joins(:scenarios).merge(@scope).distinct
+  def author_options = Author.joins(:scenarios).merge(@scope).distinct.order(:name)
 
-  def game_systems = GameSystem.joins(:scenarios).merge(@scope).distinct
+  def game_system_options = GameSystem.joins(:scenarios).merge(@scope).distinct.order(:name)
 
   def params(overrides = {})
     {
       view: (view unless view == VIEWS.first),
-      author_id: author&.id, game_system_id: game_system&.id, player_count:, order:
+      author_ids: (authors.map(&:id) if authors.any?),
+      game_system_ids: (game_systems.map(&:id) if game_systems.any?),
+      player_count:, order:
     }.merge(overrides).compact
   end
 
   private
     def filtered
       relation = @scope
-      relation = relation.where(id: ScenarioAuthor.where(author_id: author.id).select(:scenario_id)) if author
-      if game_system
-        relation = relation.where(id: ScenarioGameSystem.where(game_system_id: game_system.id).select(:scenario_id))
+      if authors.any?
+        relation = relation.where(id: ScenarioAuthor.where(author_id: authors.map(&:id)).select(:scenario_id))
+      end
+      if game_systems.any?
+        relation = relation.where(id: ScenarioGameSystem.where(game_system_id: game_systems.map(&:id)).select(:scenario_id))
       end
       return relation unless player_count
 

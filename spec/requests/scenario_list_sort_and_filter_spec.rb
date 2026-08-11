@@ -121,10 +121,10 @@ RSpec.describe "Sorting and filtering the scenario list" do
     end
 
     it "keeps the current filter when the order changes" do
-      get root_path(game_system_id: emoklore.id)
+      get root_path(game_system_ids: [ emoklore.id ])
 
       expect(Capybara.string(response.body))
-        .to have_css(%(form input[type="hidden"][name="game_system_id"][value="#{emoklore.id}"]), visible: :all)
+        .to have_css(%(form input[type="hidden"][name="game_system_ids[]"][value="#{emoklore.id}"]), visible: :all)
     end
 
     it "keeps the jacket view when the order changes" do
@@ -143,18 +143,16 @@ RSpec.describe "Sorting and filtering the scenario list" do
   end
 
   describe "filtering" do
-    it "keeps only the scenarios of one author" do
-      get root_path(author_id: ma_author.id)
+    it "keeps the scenarios of any selected author" do
+      get root_path(author_ids: [ ma_author.id, a_author.id ])
 
-      expect(response.body).to include("なかほど", "最後の見本")
-      expect(response.body).not_to include("いちばん")
+      expect(response.body).to include("いちばん", "なかほど", "最後の見本")
     end
 
-    it "keeps only the scenarios of one system" do
-      get root_path(game_system_id: emoklore.id)
+    it "keeps the scenarios of any selected system" do
+      get root_path(game_system_ids: [ emoklore.id, coc.id ])
 
-      expect(response.body).to include("いちばん", "最後の見本")
-      expect(response.body).not_to include("なかほど")
+      expect(response.body).to include("いちばん", "なかほど", "最後の見本")
     end
 
     it "keeps the scenarios that a party of that size can play" do
@@ -172,48 +170,58 @@ RSpec.describe "Sorting and filtering the scenario list" do
     end
 
     it "applies two filters at once" do
-      get root_path(game_system_id: emoklore.id, player_count: 2)
+      get root_path(game_system_ids: [ emoklore.id ], player_count: 2)
 
       expect(response.body).to include("いちばん")
       expect(response.body).not_to include("なかほど", "最後の見本")
     end
 
     it "combines a filter with a sort" do
-      get root_path(author_id: ma_author.id, order: "title_desc")
+      get root_path(author_ids: [ ma_author.id ], order: "title_desc")
 
       expect_order("最後の見本", "なかほど")
     end
 
     it "ignores an author who does not exist" do
-      get root_path(author_id: 0)
+      get root_path(author_ids: [ 0 ])
 
       expect(response.body).to include("いちばん", "なかほど", "最後の見本")
     end
 
-    it "offers a way to clear the filters" do
-      get root_path(author_id: ma_author.id)
-
-      expect(response.body).to include("絞り込みを解除")
-    end
-
-    it "does not offer to clear anything when nothing is filtered" do
-      get root_path
-
-      expect(response.body).not_to include("絞り込みを解除")
-    end
-
-    it "offers author and system menus and a numeric party-size input" do
+    it "offers toggle buttons for party size and systems" do
       get root_path
 
       document = Capybara.string(response.body)
 
-      expect(document).to have_css('select[name="author_id"]')
-      expect(document).to have_css('select[name="game_system_id"]')
-      expect(document).to have_css('input[type="number"][name="player_count"][min="1"]')
+      expect(document).to have_css('[aria-label="人数"] a', count: 5)
+      expect(document).to have_link("1人")
+      expect(document).to have_link("5人以上")
+      expect(document).to have_css('[aria-label="システム"] a', count: 2)
+      expect(document).to have_no_css('select[name="game_system_id"]')
+      expect(document).to have_no_css('input[type="number"][name="player_count"]')
+    end
+
+    it "marks selected buttons and links them to deselect themselves" do
+      get root_path(player_count: 5, game_system_ids: [ emoklore.id ])
+
+      document = Capybara.string(response.body)
+      expect(document).to have_css('[aria-label="人数"] a[aria-pressed="true"]', text: "5人以上")
+      expect(document).to have_css('[aria-label="システム"] a[aria-pressed="true"]', text: "エモクロア")
+      expect(document.find('[aria-label="人数"] a', text: "5人以上")[:href]).not_to include("player_count")
+    end
+
+    it "offers author suggestions and removable selected author tags" do
+      get root_path(author_ids: [ ma_author.id ])
+
+      document = Capybara.string(response.body)
+      expect(document).to have_css('input[aria-label="作者を追加"][list="author-suggestions"]')
+      expect(document).to have_css('datalist#author-suggestions option[value="あ作者"]')
+      expect(document).to have_css('input[type="hidden"][name="author_ids[]"]', visible: :all)
+      expect(document).to have_css('a[aria-label="ま作者を解除"]')
     end
 
     it "filters the jacket view as well" do
-      get root_path(view: "gallery", game_system_id: emoklore.id)
+      get root_path(view: "gallery", game_system_ids: [ emoklore.id ])
 
       expect(response.body).not_to include("<table")
       expect(response.body).to include("いちばん")
@@ -221,7 +229,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
     end
 
     it "says so when nothing matches" do
-      get root_path(player_count: 5, game_system_id: emoklore.id)
+      get root_path(player_count: 5, game_system_ids: [ emoklore.id ])
 
       expect(response.body).to include("条件に合うシナリオがありません")
     end
@@ -229,7 +237,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
 
   describe "what the list gives away" do
     it "keeps the recommendation out of the response whatever the filter" do
-      get root_path(author_id: ma_author.id, order: "player_count_desc")
+      get root_path(author_ids: [ ma_author.id ], order: "player_count_desc")
 
       expect(response.body).not_to include("★", "おすすめ度")
       expect(response.body).not_to match(/recommendation/i)

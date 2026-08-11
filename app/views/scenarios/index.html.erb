@@ -13,52 +13,75 @@
   </nav>
 </div>
 
-<%= form_with url: root_path, method: :get, class: "mt-6 border border-rule bg-surface p-4" do |form| %>
-  <% if @listing.view != ScenarioListing::VIEWS.first %>
-    <%= hidden_field_tag :view, @listing.view %>
-  <% end %>
-  <% if @listing.order %>
-    <%= hidden_field_tag :order, @listing.order, id: nil %>
-  <% end %>
-
-  <div class="flex flex-wrap items-end gap-4">
-    <div>
-      <%= label_tag :author_id, "作者", class: "block text-xs text-muted" %>
-      <%= select_tag :author_id,
-            options_from_collection_for_select(@listing.authors, :id, :name, @listing.author&.id),
-            include_blank: "すべて", class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
+<div class="mt-6 space-y-4 border border-rule bg-surface p-4">
+  <fieldset>
+    <legend class="text-xs text-muted">人数</legend>
+    <div class="mt-2 flex flex-wrap gap-2" aria-label="人数">
+      <% [ [ 1, "1人" ], [ 2, "2人" ], [ 3, "3人" ], [ 4, "4人" ], [ 5, "5人以上" ] ].each do |count, label| %>
+        <% selected = @listing.player_count == count %>
+        <%= link_to label, root_path(@listing.params(player_count: (selected ? nil : count))),
+              aria: { pressed: selected },
+              class: "border px-3 py-1.5 text-sm no-underline #{selected ? 'border-ink bg-ink text-paper' : 'border-rule text-ink hover:border-ink'}" %>
+      <% end %>
     </div>
-    <div>
-      <%= label_tag :game_system_id, "システム", class: "block text-xs text-muted" %>
-      <%= select_tag :game_system_id,
-            options_from_collection_for_select(@listing.game_systems, :id, :name, @listing.game_system&.id),
-            include_blank: "すべて", class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
-    </div>
-    <div>
-      <%= label_tag :player_count, "人数", class: "block text-xs text-muted" %>
-      <%= number_field_tag :player_count, @listing.player_count, min: 1, autocomplete: "off", placeholder: "すべて",
-            class: "mt-1 w-24 border border-rule bg-paper px-3 py-2 text-sm" %>
-    </div>
+  </fieldset>
 
-    <%= form.button "絞り込む", name: nil, class: "bg-ink px-5 py-2 text-sm text-paper" %>
+  <fieldset>
+    <legend class="text-xs text-muted">システム</legend>
+    <div class="mt-2 flex flex-wrap gap-2" aria-label="システム">
+      <% @listing.game_system_options.each do |game_system| %>
+        <% selected = @listing.game_systems.include?(game_system) %>
+        <% ids = selected ? @listing.game_systems.without(game_system).map(&:id) : @listing.game_systems.map(&:id) + [ game_system.id ] %>
+        <%= link_to game_system.name, root_path(@listing.params(game_system_ids: ids.presence)),
+              aria: { pressed: selected },
+              class: "border px-3 py-1.5 text-sm no-underline #{selected ? 'border-ink bg-ink text-paper' : 'border-rule text-ink hover:border-ink'}" %>
+      <% end %>
+    </div>
+  </fieldset>
 
-    <% if @listing.filtered? %>
-      <%= link_to "絞り込みを解除", root_path(@listing.params(author_id: nil, game_system_id: nil, player_count: nil)),
-            class: "self-center text-sm text-seal" %>
+  <%= form_with url: root_path, method: :get, data: { controller: "author-filter" }, class: "space-y-2" do |form| %>
+    <% @listing.params(author_ids: nil).each do |key, value| %>
+      <% Array(value).each do |item| %>
+        <%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %>
+      <% end %>
     <% end %>
-  </div>
-<% end %>
+    <% @listing.authors.each do |author| %>
+      <%= hidden_field_tag "author_ids[]", author.id, id: nil %>
+    <% end %>
+
+    <label class="block text-xs text-muted" for="author_name">作者</label>
+    <div class="flex flex-wrap items-center gap-2">
+      <% @listing.authors.each do |author| %>
+        <span class="inline-flex items-center gap-1 border border-rule bg-paper px-2 py-1 text-sm">
+          <%= author.name %>
+          <%= link_to "×", root_path(@listing.params(author_ids: @listing.authors.without(author).map(&:id).presence)),
+                aria: { label: "#{author.name}を解除" }, class: "text-seal no-underline" %>
+        </span>
+      <% end %>
+      <%= text_field_tag :author_name, nil, list: "author-suggestions", autocomplete: "off", placeholder: "作者名を入力",
+            aria: { label: "作者を追加" }, data: { action: "change->author-filter#submit" },
+            class: "min-w-48 border border-rule bg-paper px-3 py-2 text-sm" %>
+      <datalist id="author-suggestions">
+        <% (@listing.author_options - @listing.authors).each do |author| %>
+          <option value="<%= author.name %>"></option>
+        <% end %>
+      </datalist>
+      <%= form.button "追加", name: nil, class: "border border-ink px-4 py-2 text-sm" %>
+    </div>
+  <% end %>
+</div>
 
 <% if @scenarios.any? %>
   <%= form_with url: root_path, method: :get, data: { controller: "auto-submit" },
         class: "mt-8 flex items-center justify-end gap-2" do |form| %>
     <% @listing.params(order: nil).each do |key, value| %>
-      <%= hidden_field_tag key, value, id: nil %>
+      <% Array(value).each do |item| %>
+        <%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %>
+      <% end %>
     <% end %>
 
     <%= label_tag :order, "並び順", class: "text-xs text-muted" %>
-    <%= select_tag :order, scenario_order_options(@listing),
-          data: { action: "change->auto-submit#submit" },
+    <%= select_tag :order, scenario_order_options(@listing), data: { action: "change->auto-submit#submit" },
           class: "border border-rule bg-paper px-3 py-2 text-sm" %>
     <noscript><%= form.button "並べ替える", name: nil, class: "bg-ink px-4 py-2 text-sm text-paper" %></noscript>
   <% end %>
