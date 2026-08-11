@@ -42,6 +42,7 @@
         <td class="p-3 text-xs text-muted"><%= scenario.game_systems.map(&:name).join("／") %></td>
         <td class="p-3 text-xs text-muted"><%= scenario.authors.map(&:name).join("、") %></td>
         <td class="p-3 text-right">
+          <%= link_to "詳細", scenario_path(scenario), class: "mr-3 text-seal" %>
           <%= link_to "編集", edit_manage_scenario_path(scenario), class: "text-seal" %>
         </td>
       </tr>

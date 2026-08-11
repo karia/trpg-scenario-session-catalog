@@ -47,5 +47,10 @@
     <% end %>
   </div>
 
-  <%= form.submit person.persisted? ? "更新" : "追加", class: "bg-ink px-5 py-2 text-sm text-paper" %>
+  <div class="flex gap-4">
+    <%= form.submit person.persisted? ? "更新" : "追加", class: "bg-ink px-5 py-2 text-sm text-paper" %>
+    <%= link_to person.persisted? ? "詳細に戻る" : "一覧に戻る",
+          person.persisted? ? person_path(person) : manage_people_path,
+          class: "self-center text-sm text-muted" %>
+  </div>
 <% end %>

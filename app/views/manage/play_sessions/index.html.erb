@@ -14,6 +14,7 @@
         </p>
       </div>
       <span class="flex shrink-0 gap-3 text-xs">
+        <%= link_to "詳細", play_session_path(session), class: "text-seal" %>
         <%= link_to "編集", edit_manage_play_session_path(session), class: "text-seal" %>
         <%= button_to "削除", manage_play_session_path(session), method: :delete,
               form: { data: { turbo_confirm: "このセッションを削除しますか" } }, class: "text-muted" %>

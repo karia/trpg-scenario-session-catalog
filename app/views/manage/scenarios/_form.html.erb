@@ -125,6 +125,8 @@
 
   <div class="flex gap-4">
     <%= form.submit "保存", class: "bg-ink px-6 py-2 text-sm text-paper" %>
-    <%= link_to "やめる", manage_scenarios_path, class: "self-center text-sm text-muted" %>
+    <%= link_to scenario.persisted? ? "詳細に戻る" : "一覧に戻る",
+          scenario.persisted? ? scenario_path(scenario) : manage_scenarios_path,
+          class: "self-center text-sm text-muted" %>
   </div>
 <% end %>

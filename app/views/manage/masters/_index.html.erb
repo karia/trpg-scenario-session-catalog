@@ -22,6 +22,7 @@
     <li class="flex items-center justify-between p-3">
       <span><%= item.name %></span>
       <span class="flex gap-3 text-xs">
+        <%= link_to "詳細", record_path.call(item), class: "text-seal" %>
         <%= link_to "編集", edit_path.call(item), class: "text-seal" %>
         <%= button_to "削除", record_path.call(item), method: :delete, form: { data: { turbo_confirm: "削除しますか" } },
               class: "text-muted" %>

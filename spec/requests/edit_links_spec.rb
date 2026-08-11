@@ -80,13 +80,13 @@ RSpec.describe "Edit links on detail screens" do
       expect(response.body).to include(edit_path)
     end
 
-    # 編集する権限は可視性を広げない。リンクを出すために Scope を迂回しない。
-    it "leaves the session hidden from a GM who shares no group with a participant" do
+    it "lets a GM open the detail for a session they can edit" do
       sign_in_as create(:person, roles: %w[gm])
 
       get play_session_path(play_session)
 
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(edit_path)
     end
   end
 

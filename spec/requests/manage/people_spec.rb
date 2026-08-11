@@ -45,6 +45,7 @@ RSpec.describe "Manage::People" do
       }
 
       person = Person.find_by(display_name: "新入り")
+      expect(response).to redirect_to(person_path(person))
       expect(person.roles).to eq([ "gm" ])
       expect(person).to be_player
       expect(person.groups).to eq([ group ])
@@ -62,6 +63,7 @@ RSpec.describe "Manage::People" do
 
       patch manage_user_path(user), params: { user: { person_id: person.id } }
 
+      expect(response).to redirect_to(manage_user_path(user))
       expect(user.reload.person).to eq(person)
     end
 
@@ -72,6 +74,41 @@ RSpec.describe "Manage::People" do
       patch manage_user_path(user), params: { user: { person_id: "" } }
 
       expect(user.reload.person).to be_nil
+    end
+
+    it "links people, groups and accounts to both detail and edit screens" do
+      person = create(:person)
+      group = create(:group)
+      user = create(:user, person: nil)
+
+      get manage_people_path
+      expect(response.body).to include(person_path(person), edit_manage_person_path(person))
+
+      get manage_groups_path
+      expect(response.body).to include(manage_group_path(group), edit_manage_group_path(group))
+
+      get manage_users_path
+      expect(response.body).to include(manage_user_path(user), edit_manage_user_path(user))
+    end
+
+    it "renders group detail and edit screens with reciprocal links" do
+      group = create(:group, people: [ create(:person, display_name: "メンバー") ])
+
+      get manage_group_path(group)
+      expect(response.body).to include("メンバー", edit_manage_group_path(group))
+
+      get edit_manage_group_path(group)
+      expect(response.body).to include("詳細に戻る", manage_group_path(group))
+    end
+
+    it "renders account detail and edit screens with reciprocal links" do
+      user = create(:user, person: create(:person, display_name: "紐づけ先"))
+
+      get manage_user_path(user)
+      expect(response.body).to include("紐づけ先", edit_manage_user_path(user))
+
+      get edit_manage_user_path(user)
+      expect(response.body).to include("詳細に戻る", manage_user_path(user))
     end
 
     it "refuses to link one person to two accounts" do

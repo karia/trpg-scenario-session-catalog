@@ -59,6 +59,7 @@ RSpec.describe "Manage::PlaySessions" do
       }
 
       session = PlaySession.sole
+      expect(response).to redirect_to(play_session_path(session))
       expect(session.scenario).to eq(scenario)
       expect(session.participations.map(&:role)).to contain_exactly("gm", "player")
       expect(session.cocofolia_url).to eq("https://ccfolia.com/rooms/example")
@@ -79,7 +80,7 @@ RSpec.describe "Manage::PlaySessions" do
 
       get manage_play_sessions_path
 
-      expect(response.body).to include(edit_manage_play_session_path(other))
+      expect(response.body).to include(play_session_path(other), edit_manage_play_session_path(other))
     end
 
     it "carries no explanation under the title" do
@@ -167,6 +168,7 @@ RSpec.describe "Manage::PlaySessions" do
 
       patch manage_play_session_path(session), params: { play_session: { status: "played" } }
 
+      expect(response).to redirect_to(play_session_path(session))
       expect(session.reload).to be_played
     end
   end

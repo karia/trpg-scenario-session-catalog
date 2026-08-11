@@ -1,0 +1,21 @@
+<% content_for :title, "Google アカウントの編集" %>
+
+<h1 class="font-display text-2xl">Google アカウントの編集</h1>
+<p class="mt-2 font-mono text-xs"><%= @user.email.presence || "メールアドレス不明" %></p>
+
+<%= form_with model: [ :manage, @user ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
+  <% if @user.errors.any? %>
+    <p class="text-sm text-seal"><%= @user.errors.full_messages.join("、") %></p>
+  <% end %>
+
+  <div>
+    <%= form.label :person_id, "紐づけ先", class: "block text-xs text-muted" %>
+    <%= form.collection_select :person_id, Person.order(:display_name), :id, :display_name,
+          { include_blank: "未紐づけ" }, class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
+  </div>
+
+  <div class="flex gap-4">
+    <%= form.submit "更新", class: "bg-ink px-5 py-2 text-sm text-paper" %>
+    <%= link_to "詳細に戻る", manage_user_path(@user), class: "self-center text-sm text-muted" %>
+  </div>
+<% end %>
