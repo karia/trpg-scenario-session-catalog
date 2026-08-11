@@ -115,6 +115,7 @@ RSpec.describe "PlaySessions" do
       expect(page).to have_css(
         'iframe[title="録画"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
       )
+      expect(page).to have_no_css("details iframe")
       expect(page).to have_no_link(href: "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
       expect(page).to have_no_text("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
     end

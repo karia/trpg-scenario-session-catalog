@@ -49,12 +49,14 @@ RSpec.describe "Scenarios" do
 
       page = Capybara.string(response.body)
       expect(page).to have_css(
-        'iframe[title="YouTube配信"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
+        'details:not([open]) > ul iframe[title="YouTube配信"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]',
+        visible: :all
       )
-      expect(page).to have_no_link("YouTube配信", href: "https://youtu.be/dQw4w9WgXcQ")
-      expect(page).to have_no_text("https://youtu.be/dQw4w9WgXcQ")
-      expect(page).to have_link("別サイトの配信", href: "https://example.com/stream")
-      expect(page).to have_text("https://example.com/stream")
+      expect(page).to have_css("details > summary", text: "おすすめ配信を開く")
+      expect(page).to have_no_link("YouTube配信", href: "https://youtu.be/dQw4w9WgXcQ", visible: :all)
+      expect(response.body).not_to include("https://youtu.be/dQw4w9WgXcQ")
+      expect(page).to have_link("別サイトの配信", href: "https://example.com/stream", visible: :all)
+      expect(response.body).to include("https://example.com/stream")
     end
 
     it "leaves a YouTube URL with a malformed query string clickable" do
@@ -65,7 +67,7 @@ RSpec.describe "Scenarios" do
 
       page = Capybara.string(response.body)
       expect(response).to have_http_status(:ok)
-      expect(page).to have_link("配信", href: url)
+      expect(page).to have_link("配信", href: url, visible: :all)
       expect(page).to have_no_css("iframe")
     end
 
