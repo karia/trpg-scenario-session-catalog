@@ -46,6 +46,19 @@ RSpec.describe "Manage masters" do
       expect(response.body).to include(public_send(member_path, record), "詳細に戻る")
     end
 
+    it "aligns name fields and chooses the display name from a select" do
+      record.aliases.create!(name: "別名")
+      sign_in_as create(:person, roles: %w[gm])
+
+      get public_send(edit_path, record), headers: headers
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("input.w-full", count: 2)
+      expect(page).to have_css("input[type=checkbox][disabled]", count: 2)
+      expect(page).to have_no_css("input[type=radio]")
+      expect(page).to have_select("#{factory}[display_alias_key]", options: [ "既存（現在の表示名）", "別名" ])
+    end
+
     it "renders a detail with links to its edit screen and list" do
       sign_in_as create(:person, roles: %w[gm])
 

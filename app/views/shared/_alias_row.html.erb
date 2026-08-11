@@ -1,9 +1,7 @@
-<div class="grid gap-2 sm:grid-cols-[auto_1fr_auto_auto]">
-  <% selection_key = row.object.id || row.index %>
-  <label class="inline-flex items-center gap-1 text-xs text-muted">
-    <%= form.radio_button :display_alias_key, selection_key %> 表示名
-  </label>
-  <%= row.text_field :name, placeholder: "別名", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+<div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+  <% selection_key = row.object.selection_key.presence || row.object.id || row.index %>
+  <%= row.text_field :name, placeholder: "別名", class: "w-full border border-rule bg-paper px-3 py-2 text-sm",
+        data: { nested_form_target: "aliasName", selection_key: selection_key } %>
   <label class="inline-flex items-center gap-1 text-xs text-muted">
     <%= row.check_box :visible %> 表示
   </label>
@@ -14,6 +12,6 @@
   <%= row.hidden_field :selection_key, value: selection_key %>
   <% if row.object.respond_to?(:context) %>
     <%= row.text_field :context, placeholder: "どこでの名前か",
-          class: "border border-rule bg-paper px-3 py-2 text-sm sm:col-start-2" %>
+          class: "w-full border border-rule bg-paper px-3 py-2 text-sm sm:col-start-1" %>
   <% end %>
 </div>
