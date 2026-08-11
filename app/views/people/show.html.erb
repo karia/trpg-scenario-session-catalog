@@ -31,11 +31,11 @@
     </div>
   </div>
 
-  <% if @person.person_aliases.any? %>
+  <% if @person.visible_aliases.any? %>
     <section class="mt-10">
       <h2 class="font-display text-xl">別名</h2>
       <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
-        <% @person.person_aliases.each do |person_alias| %>
+        <% @person.visible_aliases.each do |person_alias| %>
           <li class="flex items-baseline gap-4 p-3">
             <span class="font-display"><%= person_alias.name %></span>
             <span class="text-xs text-muted"><%= person_alias.context %></span>

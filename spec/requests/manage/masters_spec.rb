@@ -72,6 +72,21 @@ RSpec.describe "Manage masters" do
       expect(record.reload.name).to eq("改名")
     end
 
+    it "adds aliases and promotes a visible one to the display name" do
+      sign_in_as create(:person, roles: %w[gm])
+      patch public_send(member_path, record), params: {
+        factory => { aliases_attributes: [ { name: "別名", visible: "1" } ] }
+      }
+      selected = record.reload.aliases.sole
+
+      patch public_send(member_path, record), params: {
+        factory => { name: record.name, display_alias_id: selected.id }
+      }
+
+      expect(record.reload.name).to eq("別名")
+      expect(selected.reload.name).to eq("既存")
+    end
+
     it "destroys a record" do
       sign_in_as create(:person, roles: %w[gm])
       record

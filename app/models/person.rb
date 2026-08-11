@@ -1,11 +1,15 @@
 class Person < ApplicationRecord
+  DISPLAY_NAME_ATTRIBUTE = :display_name
   has_one_attached :icon do |attachable|
     attachable.variant :thumb, resize_to_fill: [ 160, 160 ], format: :webp, saver: { quality: 80 }
   end
 
   has_one :user, dependent: :nullify
   has_many :person_roles, dependent: :destroy
-  has_many :person_aliases, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :person
+  has_many :aliases, -> { order(:position, :id) }, class_name: "PersonAlias", dependent: :destroy,
+    inverse_of: :person
+  alias_method :person_aliases, :aliases
+  include HasAliases
   has_many :favorites, dependent: :destroy
   has_many :favorite_scenarios, through: :favorites, source: :scenario
   has_many :spoiler_reveals, dependent: :destroy
@@ -30,8 +34,7 @@ class Person < ApplicationRecord
   def player? = true
 
   # 既存行の名前を空にしたときは無視せず検証に落とす。新規の空行だけ捨てる。
-  accepts_nested_attributes_for :person_aliases, allow_destroy: true,
-    reject_if: ->(attrs) { attrs["id"].blank? && attrs["name"].blank? }
+  alias_method :person_aliases_attributes=, :aliases_attributes=
 
   # 未知の値が入った行は名前を引けない。表示側でロケール全体を出さないよう落とす。
   def roles = person_roles.map(&:name).compact

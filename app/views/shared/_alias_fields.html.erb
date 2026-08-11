@@ -1,0 +1,26 @@
+<fieldset class="border border-rule bg-surface p-5">
+  <legend class="px-2 font-display text-sm">名前</legend>
+  <p class="text-xs text-muted">表示名は一覧や詳細で使われ、常に公開されます。</p>
+
+  <div class="mt-3 grid gap-2 sm:grid-cols-[auto_1fr_auto_auto]">
+    <span class="self-center text-xs text-muted">表示名</span>
+    <%= form.text_field display_attribute, class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+    <span class="self-center text-xs text-muted">表示</span>
+    <span></span>
+  </div>
+
+  <div class="mt-3 space-y-3" data-controller="nested-form">
+    <template data-nested-form-target="template">
+      <%= form.fields_for :aliases, alias_class.new, child_index: "NEW_RECORD" do |row| %>
+        <%= render "shared/alias_row", form: form, row: row %>
+      <% end %>
+    </template>
+
+    <%= form.fields_for :aliases do |row| %>
+      <%= render "shared/alias_row", form: form, row: row %>
+    <% end %>
+
+    <div data-nested-form-target="anchor"></div>
+    <button type="button" data-action="nested-form#add" class="cursor-pointer text-sm text-seal">名前を足す</button>
+  </div>
+</fieldset>

@@ -13,8 +13,8 @@
         </span>
         <span>
           <span class="block font-display"><%= member.display_name %></span>
-          <% if member.person_aliases.any? %>
-            <span class="block text-xs text-muted"><%= member.person_aliases.map(&:name).join("、") %></span>
+          <% if member.visible_aliases.any? %>
+            <span class="block text-xs text-muted"><%= member.visible_aliases.map(&:name).join("、") %></span>
           <% end %>
         </span>
       <% end %>

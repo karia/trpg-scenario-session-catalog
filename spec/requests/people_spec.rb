@@ -36,6 +36,17 @@ RSpec.describe "People" do
 
       expect(response.body).to include("べつの名前", "とあるサーバ")
     end
+
+    it "does not expose hidden aliases" do
+      person.person_aliases.create!(name: "公開名", visible: true)
+      person.person_aliases.create!(name: "秘密名", visible: false)
+      sign_in_as other
+
+      get person_path(person)
+
+      expect(response.body).to include("公開名")
+      expect(response.body).not_to include("秘密名")
+    end
   end
 
   describe "editing" do
@@ -116,6 +127,18 @@ RSpec.describe "People" do
       }
 
       expect(person.reload.person_aliases.map(&:name)).to eq([ "A" ])
+    end
+
+    it "lets the person choose a visible alias as their display name" do
+      selected = person.person_aliases.create!(name: "新しい名前", visible: true)
+      sign_in_as person
+
+      patch person_path(person), params: {
+        person: { display_name: "本人", display_alias_id: selected.id }
+      }
+
+      expect(person.reload.display_name).to eq("新しい名前")
+      expect(selected.reload.name).to eq("本人")
     end
   end
 

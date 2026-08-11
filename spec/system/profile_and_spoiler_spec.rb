@@ -18,7 +18,7 @@ RSpec.describe "A member's own pages" do
     fill_in "person[x_account]", with: "karia"
     # 既存の別名の行が出ていること自体も確かめる。
     expect(page).to have_field(with: "古い別名")
-    fill_in "person[person_aliases_attributes][0][name]", with: "べつの名前"
+    fill_in "person[aliases_attributes][0][name]", with: "べつの名前"
     click_button "保存"
 
     expect(page).to have_content("@karia")
