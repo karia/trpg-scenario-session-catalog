@@ -42,5 +42,12 @@ RSpec.describe "Attachment validation" do
 
       expect(scenario).not_to be_valid
     end
+
+    it "rejects an imported BOOTH file that is not an image" do
+      scenario = create(:scenario)
+      scenario.booth_image.attach(upload("not an image", "text/plain", "evil.txt"))
+
+      expect(scenario).not_to be_valid
+    end
   end
 end

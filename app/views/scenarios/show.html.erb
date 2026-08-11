@@ -13,6 +13,9 @@
       <% if @scenario.jacket.attached? %>
         <%= image_tag @scenario.jacket.variant(:cover), alt: "#{@scenario.title} のジャケット画像",
               class: "h-full w-full object-cover" %>
+      <% elsif @scenario.booth_image.attached? %>
+        <%= image_tag @scenario.booth_image.variant(:cover), alt: "#{@scenario.title} のBOOTH商品画像",
+              class: "h-full w-full object-cover" %>
       <% else %>
         <span class="flex h-full items-center justify-center font-display text-sm text-muted">画像なし</span>
       <% end %>

@@ -76,6 +76,30 @@ RSpec.describe "The scenario list" do
       expect(response.body).to include("aspect-3/4")
     end
 
+    it "uses the imported BOOTH image when no jacket is attached" do
+      scenario.booth_image.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "booth-fallback.png", content_type: "image/png"
+      )
+
+      get root_path(view: "gallery")
+
+      expect(response.body).to include("booth-fallback.png")
+    end
+
+    it "prefers the uploaded jacket to the imported BOOTH image" do
+      scenario.jacket.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "uploaded-jacket.png", content_type: "image/png"
+      )
+      scenario.booth_image.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "booth-fallback.png", content_type: "image/png"
+      )
+
+      get root_path(view: "gallery")
+
+      expect(response.body).to include("uploaded-jacket.png")
+      expect(response.body).not_to include("booth-fallback.png")
+    end
+
     it "offers a link back to the table" do
       get root_path(view: "gallery")
 
