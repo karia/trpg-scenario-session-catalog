@@ -22,15 +22,18 @@ class ScenarioListing
     [ "#{sort}_#{direction}", Arel.sql("#{SORTS.fetch(sort)} #{direction.upcase} NULLS LAST") ]
   }.freeze
 
-  attr_reader :view, :order, :authors, :game_systems, :player_count
+  attr_reader :view, :order, :authors, :game_systems, :player_count, :author_name
 
   def initialize(scope, params)
     @scope = scope
     @view = params[:view].to_s.presence_in(VIEWS) || VIEWS.first
     @order = params[:order].to_s.presence_in(ORDERS.keys)
     author_ids = Array(params[:author_ids].presence || params[:author_id]).map(&:to_s)
-    added_author = Author.find_by(name: params[:author_name].to_s.strip)
+    @author_name = params[:author_name].to_s.strip
+    added_author = Author.find_by(name: author_name)
+    added_author ||= AuthorAlias.find_by(name: author_name, visible: true)&.author
     author_ids << added_author.id.to_s if added_author
+    @author_name_error = author_name.present? && added_author.nil?
     @authors = Author.where(id: author_ids).order(:name).to_a
     game_system_ids = Array(params[:game_system_ids].presence || params[:game_system_id]).map(&:to_s)
     @game_systems = GameSystem.where(id: game_system_ids).order(:name).to_a
@@ -42,6 +45,15 @@ class ScenarioListing
   def filtered? = authors.any? || game_systems.any? || player_count.present?
 
   def author_options = Author.joins(:scenarios).merge(@scope).distinct.order(:name)
+
+  def author_suggestions
+    option_ids = author_options.unscope(:order).pluck(:id)
+    names = Author.where(id: option_ids).pluck(:name)
+    aliases = AuthorAlias.where(author_id: option_ids, visible: true).pluck(:name)
+    (names + aliases).uniq.sort
+  end
+
+  def author_name_error? = @author_name_error
 
   def game_system_options = GameSystem.joins(:scenarios).merge(@scope).distinct.order(:name)
 

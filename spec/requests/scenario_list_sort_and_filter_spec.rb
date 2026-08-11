@@ -112,12 +112,11 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(Capybara.string(response.body)).to have_no_css("th a")
     end
 
-    # プルダウンは JS が送信する。無い相手には noscript のボタンだけが残る。
-    it "carries a submit button for a visitor without JavaScript" do
+    it "uses an explicit submit button so changing the menu does not navigate unexpectedly" do
       get root_path
 
       expect(Capybara.string(response.body))
-        .to have_css('form noscript button[type="submit"]', text: "並べ替える", visible: :all)
+        .to have_css('form button[type="submit"]', text: "並べ替える")
     end
 
     it "keeps the current filter when the order changes" do
@@ -199,11 +198,15 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path
 
       document = Capybara.string(response.body)
+      party_size = document.all("fieldset")[0]
+      systems = document.all("fieldset")[1]
 
-      expect(document).to have_css('[aria-label="人数"] button', count: 5)
-      expect(document).to have_button("1人")
-      expect(document).to have_button("5人以上")
-      expect(document).to have_css('[aria-label="システム"] button', count: 2)
+      expect(party_size).to have_css("legend", text: "人数")
+      expect(party_size).to have_button("1人")
+      expect(party_size).to have_button("5人以上")
+      expect(party_size).to have_css("button", count: 5)
+      expect(systems).to have_css("legend", text: "システム")
+      expect(systems).to have_css("button", count: 2)
       expect(document).to have_no_css('select[name="game_system_id"]')
       expect(document).to have_no_css('input[type="number"][name="player_count"]')
     end
@@ -212,9 +215,9 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(player_count: 5, game_system_ids: [ emoklore.id ])
 
       document = Capybara.string(response.body)
-      expect(document).to have_css('[aria-label="人数"] button[aria-pressed="true"]', text: "5人以上")
-      expect(document).to have_css('[aria-label="システム"] button[aria-pressed="true"]', text: "エモクロア")
-      selected_form = document.find('[aria-label="人数"] button', text: "5人以上").ancestor("form")
+      expect(document).to have_css('button[aria-pressed="true"]', text: "5人以上")
+      expect(document).to have_css('button[aria-pressed="true"]', text: "エモクロア")
+      selected_form = document.find("button", text: "5人以上").ancestor("form")
       expect(selected_form).to have_no_css('input[name="player_count"]', visible: :all)
     end
 
@@ -226,6 +229,23 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(document).to have_css('datalist#author-suggestions option[value="あ作者"]')
       expect(document).to have_css('input[type="hidden"][name="author_ids[]"]', visible: :all)
       expect(document).to have_css('a[aria-label="ま作者を解除"]')
+    end
+
+    it "accepts an author alias from the suggestions" do
+      AuthorAlias.create!(author: ma_author, name: "ま先生")
+
+      get root_path(author_name: "ま先生")
+
+      expect(response.body).to include("なかほど", "最後の見本")
+      expect(response.body).not_to include("いちばん")
+    end
+
+    it "identifies a name that was not selected from the author suggestions" do
+      get root_path(author_name: "知らない作者")
+
+      document = Capybara.string(response.body)
+      expect(document).to have_css('[role="alert"]', text: "候補から作者を選択してください")
+      expect(document).to have_css('input[name="author_name"][aria-invalid="true"]')
     end
 
     it "filters the jacket view as well" do

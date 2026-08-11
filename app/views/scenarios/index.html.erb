@@ -2,7 +2,7 @@
 
 <div class="flex flex-wrap items-baseline justify-between gap-4">
   <h1 class="font-display text-3xl tracking-wide">
-    シナリオ一覧<span class="ml-2 text-base text-muted">（全<%= @scenarios.size %>件）</span>
+    シナリオ一覧<span class="ml-2 text-base text-muted" role="status">（全<%= @scenarios.size %>件）</span>
   </h1>
 
   <nav class="flex items-center gap-3 text-xs" aria-label="表示の切り替え">
@@ -16,7 +16,7 @@
 <div class="mt-6 space-y-4 border border-rule bg-surface p-4">
   <fieldset>
     <legend class="text-xs text-muted">人数</legend>
-    <div class="mt-2 flex flex-wrap gap-2" aria-label="人数">
+    <div class="mt-2 flex flex-wrap gap-2">
       <% [ [ 1, "1人" ], [ 2, "2人" ], [ 3, "3人" ], [ 4, "4人" ], [ 5, "5人以上" ] ].each do |count, label| %>
         <% selected = @listing.player_count == count %>
         <%= button_to label, root_path, method: :get,
@@ -29,7 +29,7 @@
 
   <fieldset>
     <legend class="text-xs text-muted">システム</legend>
-    <div class="mt-2 flex flex-wrap gap-2" aria-label="システム">
+    <div class="mt-2 flex flex-wrap gap-2">
       <% @listing.game_system_options.each do |game_system| %>
         <% selected = @listing.game_systems.include?(game_system) %>
         <% ids = selected ? @listing.game_systems.without(game_system).map(&:id) : @listing.game_systems.map(&:id) + [ game_system.id ] %>
@@ -57,25 +57,32 @@
         <span class="inline-flex items-center gap-1 border border-rule bg-paper px-2 py-1 text-sm">
           <%= author.name %>
           <%= link_to "×", root_path(@listing.params(author_ids: @listing.authors.without(author).map(&:id).presence)),
-                aria: { label: "#{author.name}を解除" }, class: "text-seal no-underline" %>
+                aria: { label: "#{author.name}を解除" },
+                class: "inline-flex min-h-6 min-w-6 items-center justify-center text-seal no-underline" %>
         </span>
       <% end %>
-      <%= text_field_tag :author_name, nil, list: "author-suggestions", autocomplete: "off", placeholder: "作者名を入力",
-            aria: { label: "作者を追加" }, data: { action: "change->author-filter#submit" },
+      <%= text_field_tag :author_name, (@listing.author_name if @listing.author_name_error?),
+            list: "author-suggestions", autocomplete: "off", placeholder: "作者名を入力",
+            aria: { label: "作者を追加", describedby: "author-help#{' author-error' if @listing.author_name_error?}",
+                    invalid: ("true" if @listing.author_name_error?) },
+            data: { action: "change->author-filter#submit" },
             class: "min-w-48 border border-rule bg-paper px-3 py-2 text-sm" %>
       <datalist id="author-suggestions">
-        <% (@listing.author_options - @listing.authors).each do |author| %>
-          <option value="<%= author.name %>"></option>
+        <% @listing.author_suggestions.each do |name| %>
+          <option value="<%= name %>"></option>
         <% end %>
       </datalist>
       <%= form.button "追加", name: nil, class: "border border-ink px-4 py-2 text-sm" %>
     </div>
+    <p id="author-help" class="text-xs text-muted">候補から選択して追加します。作者は複数選択できます。</p>
+    <% if @listing.author_name_error? %>
+      <p id="author-error" role="alert" class="text-sm text-seal">候補から作者を選択してください。</p>
+    <% end %>
   <% end %>
 </div>
 
 <% if @scenarios.any? %>
-  <%= form_with url: root_path, method: :get, data: { controller: "auto-submit" },
-        class: "mt-8 flex items-center justify-end gap-2" do |form| %>
+  <%= form_with url: root_path, method: :get, class: "mt-8 flex items-center justify-end gap-2" do |form| %>
     <% @listing.params(order: nil).each do |key, value| %>
       <% Array(value).each do |item| %>
         <%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %>
@@ -83,9 +90,8 @@
     <% end %>
 
     <%= label_tag :order, "並び順", class: "text-xs text-muted" %>
-    <%= select_tag :order, scenario_order_options(@listing), data: { action: "change->auto-submit#submit" },
-          class: "border border-rule bg-paper px-3 py-2 text-sm" %>
-    <noscript><%= form.button "並べ替える", name: nil, class: "bg-ink px-4 py-2 text-sm text-paper" %></noscript>
+    <%= select_tag :order, scenario_order_options(@listing), class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+    <%= form.button "並べ替える", name: nil, class: "bg-ink px-4 py-2 text-sm text-paper" %>
   <% end %>
 
   <%= render "scenarios/#{@listing.view}", scenarios: @scenarios %>
