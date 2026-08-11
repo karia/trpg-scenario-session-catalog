@@ -5,13 +5,18 @@ class PlaySessionsController < ApplicationController
   end
 
   def show
-    # 詳細も Scope から引く。同じ条件を 2 箇所に書かない。
-    @play_session = visible_sessions.find(params[:id])
+    @play_session = sessions_for_detail.find(params[:id])
     authorize @play_session
   end
 
   private
     def visible_sessions
       policy_scope(PlaySession).includes(:scenario, participations: :person)
+    end
+
+    # 編集者は管理一覧と編集画面ですべての回を扱えるため、詳細も同じ範囲を許可する。
+    # 公開一覧は引き続き visible_sessions を使い、表示範囲を広げない。
+    def sessions_for_detail
+      policy(PlaySession).manage? ? PlaySession.all.includes(:scenario, participations: :person) : visible_sessions
     end
 end

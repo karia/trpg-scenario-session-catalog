@@ -1,7 +1,7 @@
 module Manage
   # GameSystem と Author は名前だけの一覧なので、同じ振る舞いを共有する。
   class MastersController < BaseController
-    before_action :set_record, only: %i[edit update destroy]
+    before_action :set_record, only: %i[show edit update destroy]
 
     def index
       authorize model_class
@@ -9,17 +9,19 @@ module Manage
       @record = model_class.new
     end
 
+    def show
+      authorize @record
+    end
+
     def edit
       authorize @record
-      @records = policy_scope(model_class)
-      render :index
     end
 
     def create
       @record = authorize model_class.new(record_params)
 
       if @record.save
-        redirect_to url_for(action: :index), notice: "#{@record.name} を登録しました"
+        redirect_to url_for(action: :show, id: @record), notice: "#{@record.name} を登録しました"
       else
         @records = policy_scope(model_class)
         render :index, status: :unprocessable_content
@@ -30,10 +32,9 @@ module Manage
       authorize @record
 
       if @record.update(record_params)
-        redirect_to url_for(action: :index), notice: "#{@record.name} を更新しました"
+        redirect_to url_for(action: :show, id: @record), notice: "#{@record.name} を更新しました"
       else
-        @records = policy_scope(model_class)
-        render :index, status: :unprocessable_content
+        render :edit, status: :unprocessable_content
       end
     end
 

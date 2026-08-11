@@ -1,5 +1,6 @@
 class UserPolicy < ApplicationPolicy
   def index? = admin?
+  def show? = admin?
   def update? = admin?
 
   class Scope < ApplicationPolicy::Scope

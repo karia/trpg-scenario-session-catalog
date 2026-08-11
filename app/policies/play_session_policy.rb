@@ -1,6 +1,6 @@
 class PlaySessionPolicy < ApplicationPolicy
   def index? = person.present?
-  def show? = Scope.new(person, PlaySession).resolve.exists?(record.id)
+  def show? = editor? || Scope.new(person, PlaySession).resolve.exists?(record.id)
 
   # シナリオと同じく、編集できるのは管理者と GM。
   # 管理画面は公開側の index? とは別の判断。編集者だけが入る。

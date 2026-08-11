@@ -1,5 +1,6 @@
 class GameSystemPolicy < ApplicationPolicy
   def index? = editor?
+  def show? = editor?
   def create? = editor?
   def update? = editor?
   def destroy? = editor?

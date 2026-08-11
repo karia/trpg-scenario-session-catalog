@@ -16,7 +16,7 @@ module Manage
       @person = authorize Person.new(person_params), :manage?
 
       if @person.save
-        redirect_to manage_people_path, notice: "#{@person.display_name} を登録しました"
+        redirect_to person_path(@person), notice: "#{@person.display_name} を登録しました"
       else
         @people = people_for_index
         render :index, status: :unprocessable_content
@@ -27,7 +27,7 @@ module Manage
       authorize @person, :manage?
 
       if @person.update(person_params)
-        redirect_to manage_people_path, notice: "#{@person.display_name} を更新しました"
+        redirect_to person_path(@person), notice: "#{@person.display_name} を更新しました"
       else
         render :edit, status: :unprocessable_content
       end

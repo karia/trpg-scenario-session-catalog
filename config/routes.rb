@@ -27,11 +27,11 @@ Rails.application.routes.draw do
       post :refresh_booth_image, on: :member
       delete :jacket, on: :member, action: :destroy_jacket
     end
-    resources :game_systems, except: [ :show, :new ]
-    resources :authors, except: [ :show, :new ]
+    resources :game_systems, except: [ :new ]
+    resources :authors, except: [ :new ]
     resources :people, except: [ :show, :new ]
-    resources :groups, except: [ :show, :new ]
-    resources :users, only: [ :index, :update ]
+    resources :groups, except: [ :new ]
+    resources :users, only: [ :index, :show, :edit, :update ]
     resources :play_sessions, except: [ :show, :new ]
   end
 
