@@ -9,7 +9,8 @@ RSpec.describe "Manage navigation" do
       "作者" => "/manage/authors",
       "メンバー" => "/manage/people",
       "グループ" => "/manage/groups",
-      "アカウント" => "/manage/users"
+      "アカウント" => "/manage/users",
+      "サイト全体設定" => "/manage/site_setting"
     }
   end
 
@@ -55,6 +56,7 @@ RSpec.describe "Manage navigation" do
       expect(response.body).not_to include("/manage/people")
       expect(response.body).not_to include("/manage/groups")
       expect(response.body).not_to include("/manage/users")
+      expect(response.body).not_to include("/manage/site_setting")
     end
   end
 

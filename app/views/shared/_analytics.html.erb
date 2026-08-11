@@ -1,9 +1,9 @@
 <% if show_analytics? %>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=<%= ENV["GA_MEASUREMENT_ID"] %>"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<%= analytics_measurement_id %>"></script>
   <script nonce="<%= content_security_policy_nonce %>">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', <%= ENV["GA_MEASUREMENT_ID"].to_json %>);
+    gtag('config', <%= analytics_measurement_id.to_json %>);
   </script>
 <% end %>

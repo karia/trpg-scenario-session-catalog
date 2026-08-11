@@ -123,6 +123,15 @@ RSpec.describe "Authorization matrix" do
     end
   end
 
+  describe SiteSettingPolicy do
+    it "is admin only" do
+      expect(allows?(gm, described_class, SiteSetting.new, :show?)).to be_falsey
+      expect(allows?(admin, described_class, SiteSetting.new, :show?)).to be(true)
+      expect(allows?(gm, described_class, SiteSetting.new, :update?)).to be_falsey
+      expect(allows?(admin, described_class, SiteSetting.new, :update?)).to be(true)
+    end
+  end
+
   describe "scopes" do
     it "returns nothing about groups or accounts to a GM" do
       create(:group)

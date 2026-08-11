@@ -1,0 +1,29 @@
+<% content_for :title, "サイト全体設定" %>
+
+<h1 class="font-display text-2xl">サイト全体設定</h1>
+
+<%= form_with model: @site_setting, url: manage_site_setting_path, method: :patch, class: "mt-6 space-y-6" do |form| %>
+  <% if @site_setting.errors.any? %>
+    <div class="border border-seal bg-surface px-4 py-3 text-sm text-seal" role="alert">
+      <ul class="list-disc pl-5">
+        <% @site_setting.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :google_analytics_measurement_id, "Google Analytics 測定 ID", class: "block text-sm font-bold" %>
+    <%= form.text_field :google_analytics_measurement_id,
+          placeholder: "G-XXXXXXXXXX",
+          autocomplete: "off",
+          class: "mt-2 w-full max-w-md border border-rule bg-paper px-3 py-2" %>
+    <p class="mt-2 text-sm text-muted">未入力にすると Google Analytics を無効にします。</p>
+  </div>
+
+  <div class="flex gap-4">
+    <%= form.submit "更新", class: "cursor-pointer border border-ink bg-ink px-4 py-2 text-paper" %>
+    <%= link_to "詳細に戻る", manage_site_setting_path, class: "self-center text-sm text-muted" %>
+  </div>
+<% end %>
