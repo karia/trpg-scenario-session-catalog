@@ -132,6 +132,43 @@ RSpec.describe "The scenario list" do
     end
   end
 
+  describe "GM experience" do
+    it "marks only experienced scenarios in the table" do
+      inexperienced = create(:scenario, title: "未経験シナリオ", gm_experienced: false)
+
+      get root_path
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("th", text: "GM経験")
+      expect(page.find("tr", text: scenario.title)).to have_text("☑")
+      expect(page.find("tr", text: inexperienced.title)).to have_no_text("☑")
+    end
+
+    it "says the GM has experience on an experienced scenario page" do
+      get scenario_path(scenario)
+
+      expect(response.body).to include("☑GM経験あり")
+    end
+
+    it "says the GM has no experience on an inexperienced scenario page" do
+      scenario.update!(gm_experienced: false)
+
+      get scenario_path(scenario)
+
+      expect(response.body).to include("GM経験なし")
+      expect(response.body).not_to include("☑GM経験あり")
+    end
+
+    it "uses the new label on the edit screen" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      get edit_manage_scenario_path(scenario)
+
+      expect(response.body).to include("GM経験あり")
+      expect(response.body).not_to include("回したことがある")
+    end
+  end
+
   describe "the order the GM arranged" do
     # 作成順と期待順をずらす。並べ替えを外すと落ちるようにする。
     it "is what the list opens with" do
