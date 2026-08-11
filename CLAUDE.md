@@ -109,3 +109,5 @@ TDD、commit の分け方、pre-commit の扱いは [README の「変更を出�
 ### コードを書くとき
 
 - ソースに複数行コメントを書かない。書くのは、コードから読み取れない背景や理由に限る
+- 画面の部品を自前で書く前に、既存のライブラリを探す（ADR-0001 の「自前実装は避ける」）。importmap でも `./bin/importmap pin <名前> --download` で npm のパッケージが入る。CSP が `script_src :self` のため CDN からは読めず、`vendor/javascript/` へ落とす形になる
+- 部分更新は Turbo Frame と Turbo Stream で書く。素の `fetch` を足す前に、`favorites_controller.rb` の `turbo_stream.replace` を見る
