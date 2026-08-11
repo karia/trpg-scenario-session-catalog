@@ -33,6 +33,7 @@ Rails.application.routes.draw do
     resources :groups, except: [ :new ]
     resources :users, only: [ :index, :show, :edit, :update ]
     resources :play_sessions, except: [ :show, :new ]
+    resource :site_setting, only: [ :show, :edit, :update ]
   end
 
   # sitemap_generator の出力を tmp から配信する。

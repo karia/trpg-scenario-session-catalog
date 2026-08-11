@@ -1,0 +1,13 @@
+<% content_for :title, "サイト全体設定" %>
+
+<article>
+  <div class="flex flex-wrap items-baseline justify-between gap-4">
+    <h1 class="font-display text-2xl">サイト全体設定</h1>
+    <%= link_to "編集", edit_manage_site_setting_path, class: "text-sm text-seal" %>
+  </div>
+
+  <dl class="mt-6 grid grid-cols-[12rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 text-sm">
+    <dt class="text-muted">Google Analytics 測定 ID</dt>
+    <dd><%= @site_setting.google_analytics_measurement_id.presence || "無効" %></dd>
+  </dl>
+</article>
