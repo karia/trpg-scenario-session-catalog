@@ -48,11 +48,12 @@ RSpec.describe "Scenarios" do
       get scenario_path(scenario)
 
       page = Capybara.string(response.body)
-      expect(page).to have_css(
-        'details:not([open]) > ul iframe[title="YouTube配信"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]',
-        visible: :all
-      )
-      expect(page).to have_css("details > summary", text: "おすすめ配信を開く")
+      hidden_embed = '[data-controller="video-disclosure"] [data-video-disclosure-target="content"][hidden] ' \
+        'iframe[title="YouTube配信"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
+      expect(page).to have_css(hidden_embed, visible: :all)
+      expect(page).to have_button("おすすめ配信を開く")
+      expect(page).to have_button("おすすめ配信を閉じる", visible: :all)
+      expect(page).to have_css('[data-video-disclosure-target="content"].bg-surface', visible: :all)
       expect(page).to have_no_link("YouTube配信", href: "https://youtu.be/dQw4w9WgXcQ", visible: :all)
       expect(response.body).not_to include("https://youtu.be/dQw4w9WgXcQ")
       expect(page).to have_link("別サイトの配信", href: "https://example.com/stream", visible: :all)
