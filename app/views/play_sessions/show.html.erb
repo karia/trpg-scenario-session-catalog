@@ -22,8 +22,9 @@
     <dd class="font-sans"><%= play_session_status_label(@play_session) %></dd>
     <% if @play_session.recording_url.present? %>
       <dt class="text-muted">録画</dt>
-      <dd class="font-sans">
-        <%= link_to @play_session.recording_url, @play_session.recording_url, rel: "noopener", class: "text-seal" %>
+      <dd class="space-y-2 font-sans">
+        <%= render "shared/video_link", title: "録画", url: @play_session.recording_url,
+              link_text: @play_session.recording_url, rel: "noopener", show_url: false %>
       </dd>
     <% end %>
   </dl>

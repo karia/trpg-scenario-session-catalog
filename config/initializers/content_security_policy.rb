@@ -23,7 +23,7 @@ Rails.application.configure do
     policy.script_src  :self, *GOOGLE_TAG_ORIGINS
     policy.style_src   :self
     policy.connect_src :self, *GOOGLE_MEASUREMENT_ORIGINS, *GOOGLE_TAG_ORIGINS
-    policy.frame_src   :self, *GOOGLE_TAG_ORIGINS
+    policy.frame_src   :self, *GOOGLE_TAG_ORIGINS, "https://www.youtube.com"
     policy.frame_ancestors :none
     policy.base_uri    :self
     # Chrome は form-action をリダイレクト先にも適用する。ログインの POST は Google へ 302 する。

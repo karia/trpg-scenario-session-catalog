@@ -78,6 +78,40 @@ RSpec.describe "Scenarios" do
       expect(response.body.index("GMからのオススメポイント")).to be < response.body.index("GMからの補足情報")
     end
 
+    it "embeds YouTube stream links and leaves other stream links clickable" do
+      scenario.stream_links.create!(label: "YouTube配信", url: "https://youtu.be/dQw4w9WgXcQ")
+      scenario.stream_links.create!(label: "別サイトの配信", url: "https://example.com/stream")
+
+      get scenario_path(scenario)
+
+      page = Capybara.string(response.body)
+      hidden_embed = '[data-controller="video-disclosure"] [data-video-disclosure-target="content"][hidden] ' \
+        'iframe[title="YouTube配信"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
+      expect(page).to have_css(hidden_embed, visible: :all)
+      expect(page).to have_button("おすすめ配信を開く")
+      expect(page).to have_button("おすすめ配信を閉じる", visible: :all)
+      expect(page).to have_css('[data-video-disclosure-target="content"].bg-surface', visible: :all)
+      expect(page).to have_css('[data-controller="video-disclosure"]' \
+        '[data-action*="turbo:before-cache@document->video-disclosure#reset"]')
+      expect(page).to have_css('[data-video-disclosure-target="closeButton"]', visible: :all)
+      expect(page).to have_no_link("YouTube配信", href: "https://youtu.be/dQw4w9WgXcQ", visible: :all)
+      expect(response.body).not_to include("https://youtu.be/dQw4w9WgXcQ")
+      expect(page).to have_link("別サイトの配信", href: "https://example.com/stream", visible: :all)
+      expect(response.body).to include("https://example.com/stream")
+    end
+
+    it "leaves a YouTube URL with a malformed query string clickable" do
+      url = "https://youtube.com/watch?v=dQw4w9WgXcQ&x=%"
+      scenario.stream_links.create!(label: "配信", url:)
+
+      get scenario_path(scenario)
+
+      page = Capybara.string(response.body)
+      expect(response).to have_http_status(:ok)
+      expect(page).to have_link("配信", href: url, visible: :all)
+      expect(page).to have_no_css("iframe")
+    end
+
     it "keeps the preparation note out of the response entirely" do
       get scenario_path(scenario)
 
