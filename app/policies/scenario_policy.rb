@@ -22,6 +22,7 @@ class ScenarioPolicy < ApplicationPolicy
 
   # GM の私見であり、公開エリアの一部ではあっても外部の閲覧者には見せない。
   def show_recommendation_note? = person.present?
+  def show_gm_supplementary_info? = person.present?
 
   class Scope < ApplicationPolicy::Scope
     def resolve
