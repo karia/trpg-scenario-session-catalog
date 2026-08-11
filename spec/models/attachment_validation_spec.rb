@@ -17,6 +17,13 @@ RSpec.describe "Attachment validation" do
     Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/dot.png"), "image/png")
   end
 
+  def attach_legacy_gif(record, name)
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new("GIF89a"), filename: "legacy.gif", content_type: "image/gif"
+    )
+    ActiveStorage::Attachment.create!(record:, name:, blob:)
+  end
+
   describe Person do
     it "accepts a PNG icon" do
       person = create(:person)
@@ -38,6 +45,13 @@ RSpec.describe "Attachment validation" do
       person.icon.attach(upload("GIF89a", "image/gif", "animated.gif"))
 
       expect(person).not_to be_valid
+    end
+
+    it "allows unrelated updates while a legacy GIF icon remains attached" do
+      person = create(:person)
+      attach_legacy_gif(person, "icon")
+
+      expect(person.update(display_name: "更新後")).to be(true)
     end
 
     it "rejects a malformed file declared as a PNG icon" do
@@ -68,6 +82,13 @@ RSpec.describe "Attachment validation" do
       scenario.jacket.attach(upload("GIF89a", "image/gif", "animated.gif"))
 
       expect(scenario).not_to be_valid
+    end
+
+    it "allows unrelated updates while a legacy GIF jacket remains attached" do
+      scenario = create(:scenario)
+      attach_legacy_gif(scenario, "jacket")
+
+      expect(scenario.update(title: "更新後")).to be(true)
     end
 
     it "rejects a malformed file declared as a PNG jacket" do

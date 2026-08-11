@@ -15,7 +15,8 @@ class Person < ApplicationRecord
   validates :display_name, presence: true
   validates :icon,
     content_type: { in: [ :png, :jpeg, :webp ], spoofing_protection: true },
-    size: { less_than: 5.megabytes }
+    size: { less_than: 5.megabytes },
+    if: -> { attachment_changes.key?("icon") }
   validate :keeps_at_least_one_admin
   validate :roles_are_known
 
