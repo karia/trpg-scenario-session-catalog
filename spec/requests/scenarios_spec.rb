@@ -50,6 +50,16 @@ RSpec.describe "Scenarios" do
       expect(response.body).to include("この情報はGMが独自判断で記載しており、シナリオ公式の案内と異なる場合があります")
     end
 
+    it "uses the imported BOOTH image when no jacket is attached" do
+      scenario.booth_image.attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "booth-detail.png", content_type: "image/png"
+      )
+
+      get scenario_path(scenario)
+
+      expect(response.body).to include("booth-detail.png")
+    end
+
     it "keeps the GM supplementary information out of the response for a visitor" do
       get scenario_path(scenario)
 

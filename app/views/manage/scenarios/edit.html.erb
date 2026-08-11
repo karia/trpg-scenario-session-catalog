@@ -1,3 +1,10 @@
 <% content_for :title, "#{@scenario.title} の編集" %>
 <h1 class="font-display text-2xl"><%= @scenario.title %> の編集</h1>
+<div class="mt-4 flex items-center gap-4">
+  <%= button_to "BOOTH画像を更新", refresh_booth_image_manage_scenario_path(@scenario),
+        class: "cursor-pointer border border-rule px-4 py-2 text-sm text-seal" %>
+  <% if @scenario.booth_image.attached? %>
+    <span class="text-xs text-muted">取得済み</span>
+  <% end %>
+</div>
 <%= render "form", scenario: @scenario %>

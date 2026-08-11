@@ -1,6 +1,17 @@
 require "rails_helper"
 
 RSpec.describe Scenario do
+  describe "BOOTH image source" do
+    it "uses the first BOOTH purchase URL" do
+      scenario = create(:scenario)
+      scenario.purchase_links.create!(label: "別サイト", url: "https://example.com/item", position: 1)
+      scenario.purchase_links.create!(label: "後のBOOTH", url: "https://booth.pm/ja/items/2", position: 3)
+      scenario.purchase_links.create!(label: "先のBOOTH", url: "https://shop.booth.pm/items/1", position: 2)
+
+      expect(scenario.booth_purchase_url).to eq("https://shop.booth.pm/items/1")
+    end
+  end
+
   it "requires a title" do
     expect(described_class.new(title: "")).not_to be_valid
   end

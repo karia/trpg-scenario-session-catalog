@@ -1,6 +1,6 @@
 module Manage
   class ScenariosController < BaseController
-    before_action :set_scenario, only: %i[edit update destroy move]
+    before_action :set_scenario, only: %i[edit update destroy move refresh_booth_image]
 
     def index
       authorize Scenario, :manage?
@@ -17,6 +17,12 @@ module Manage
       authorize @scenario, :reorder?
       @scenario.move(params[:direction].to_s)
       redirect_to manage_scenarios_path
+    end
+
+    def refresh_booth_image
+      authorize @scenario, :update?
+      result = BoothImageImporter.new(@scenario).call(force: true)
+      redirect_to edit_manage_scenario_path(@scenario), (result.success? ? { notice: result.message } : { alert: result.message })
     end
 
     def new

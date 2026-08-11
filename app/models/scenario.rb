@@ -15,6 +15,11 @@ class Scenario < ApplicationRecord
     attachable.variant :cover, resize_to_limit: [ 800, 1200 ], format: :webp, saver: { quality: 85 }
   end
 
+  has_one_attached :booth_image do |attachable|
+    attachable.variant :thumb, resize_to_fill: [ 480, 640 ], format: :webp, saver: { quality: 80 }
+    attachable.variant :cover, resize_to_limit: [ 800, 1200 ], format: :webp, saver: { quality: 85 }
+  end
+
   has_many :scenario_game_systems, dependent: :destroy
   has_many :game_systems, through: :scenario_game_systems
   has_many :scenario_authors, dependent: :destroy
@@ -53,8 +58,11 @@ class Scenario < ApplicationRecord
     self.class.rearrange(ids)
   end
 
+  def booth_purchase_url = purchase_links.find(&:booth?)&.url
+
   validates :title, presence: true
   validates :jacket, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
+  validates :booth_image, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
   # TODO: 並び順は position に移った（issue #41）。切り戻す必要がなくなったら列ごと落とす。
   validates :recommendation, inclusion: { in: 1..5 }, allow_nil: true
   # 人数での絞り込みが下限を軸にするため、下限だけは必ず要る（issue #28）。

@@ -73,6 +73,14 @@ RSpec.describe "Manage::Scenarios" do
       expect(response).to have_http_status(:not_found)
       expect(first.reload.position).to be < second.reload.position
     end
+
+    it "does not refresh a BOOTH image for anyone outside the editors" do
+      scenario = create(:scenario)
+
+      post refresh_booth_image_manage_scenario_path(scenario)
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   describe "as a GM" do
@@ -220,6 +228,37 @@ RSpec.describe "Manage::Scenarios" do
       patch manage_scenario_path(scenario), params: { scenario: { title: "新題" } }
 
       expect(scenario.reload.title).to eq("新題")
+    end
+
+    it "offers a manual BOOTH image refresh on the edit screen" do
+      scenario = create(:scenario)
+
+      get edit_manage_scenario_path(scenario)
+
+      expect(response.body).to include("BOOTH画像を更新")
+    end
+
+    it "refreshes the BOOTH image and reports success" do
+      scenario = create(:scenario)
+      result = BoothImageImporter::Result.new(success: true, message: "BOOTH画像を更新しました")
+      importer = instance_double(BoothImageImporter, call: result)
+      allow(BoothImageImporter).to receive(:new).with(scenario).and_return(importer)
+
+      post refresh_booth_image_manage_scenario_path(scenario)
+
+      expect(importer).to have_received(:call).with(force: true)
+      expect(response).to redirect_to(edit_manage_scenario_path(scenario))
+      expect(flash[:notice]).to eq("BOOTH画像を更新しました")
+    end
+
+    it "reports a manual refresh failure without treating it as success" do
+      scenario = create(:scenario)
+      result = BoothImageImporter::Result.new(success: false, message: "BOOTH画像を取得できませんでした")
+      allow(BoothImageImporter).to receive(:new).and_return(instance_double(BoothImageImporter, call: result))
+
+      post refresh_booth_image_manage_scenario_path(scenario)
+
+      expect(flash[:alert]).to eq("BOOTH画像を取得できませんでした")
     end
   end
 end
