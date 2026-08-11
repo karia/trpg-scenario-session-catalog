@@ -47,13 +47,14 @@ RSpec.describe "Manage::PlaySessions" do
           scenario_id: scenario.id,
           session_schedules_attributes: [
             {
-              started_at: "2026-05-01T20:00",
+              scheduled_on: "2026-05-01",
+              started_at: "20:00",
               recording_links_attributes: [
                 { url: "https://youtu.be/abc" },
                 { url: "https://youtu.be/def" }
               ]
             },
-            { started_at: "2026-05-03T20:00" }
+            { scheduled_on: "2026-05-03", started_at: "20:00" }
           ],
           cocofolia_url: "https://ccfolia.com/rooms/example",
           participations_attributes: [
@@ -67,11 +68,14 @@ RSpec.describe "Manage::PlaySessions" do
       session = PlaySession.sole
       expect(response).to redirect_to(play_session_path(session))
       expect(session.scenario).to eq(scenario)
-      expect(session.session_schedules.map(&:started_at)).to eq([
-        Time.zone.local(2026, 5, 1, 20), Time.zone.local(2026, 5, 3, 20)
+      expect(session.session_schedules.map(&:scheduled_on)).to eq([
+        Date.new(2026, 5, 1), Date.new(2026, 5, 3)
       ])
       expect(session.session_schedules.first.recording_links.map(&:url)).to eq(
         %w[https://youtu.be/abc https://youtu.be/def]
+      )
+      expect(session).to have_attributes(
+        played_on: Date.new(2026, 5, 1), recording_url: "https://youtu.be/abc"
       )
       expect(session.participations.map(&:role)).to contain_exactly("gm", "player")
       expect(session.cocofolia_url).to eq("https://ccfolia.com/rooms/example")

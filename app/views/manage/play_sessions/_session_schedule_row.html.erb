@@ -1,8 +1,13 @@
 <div class="border border-rule bg-paper p-3">
   <div class="flex flex-wrap items-end gap-3">
     <div class="grow">
-      <%= schedule_form.label :started_at, "開始日時", class: "block text-xs text-muted" %>
-      <%= schedule_form.datetime_local_field :started_at,
+      <%= schedule_form.label :scheduled_on, "開催日", class: "block text-xs text-muted" %>
+      <%= schedule_form.date_field :scheduled_on,
+            class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %>
+    </div>
+    <div class="grow">
+      <%= schedule_form.label :started_at, "開始時刻（未定なら空欄）", class: "block text-xs text-muted" %>
+      <%= schedule_form.time_field :started_at,
             class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %>
     </div>
     <% if schedule_form.object.persisted? %>

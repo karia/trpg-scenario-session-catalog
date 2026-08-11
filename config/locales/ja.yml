@@ -26,7 +26,6 @@ ja:
   time:
     formats:
       short: "%Y-%m-%d %H:%M"
-      session_schedule: "%Y年%-m月%-d日（%a） %H:%M"
   play_sessions:
     statuses:
       scheduled: 開催予定
@@ -39,3 +38,4 @@ ja:
   date:
     formats:
       long: "%Y年%-m月%-d日"
+      with_weekday: "%Y年%-m月%-d日（%a）"

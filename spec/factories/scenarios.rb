@@ -47,7 +47,8 @@ FactoryBot.define do
 
   factory :session_schedule do
     play_session
-    started_at { Time.zone.local(2026, 5, 1, 20) }
+    scheduled_on { Date.new(2026, 5, 1) }
+    started_at { "20:00" }
   end
 
   factory :recording_link do

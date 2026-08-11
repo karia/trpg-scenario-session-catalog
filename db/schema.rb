@@ -201,9 +201,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_170106) do
     t.datetime "created_at", null: false
     t.bigint "play_session_id", null: false
     t.integer "position", default: 0, null: false
-    t.datetime "started_at"
+    t.date "scheduled_on"
+    t.time "started_at"
     t.datetime "updated_at", null: false
-    t.index ["play_session_id", "started_at"], name: "index_session_schedules_on_play_session_id_and_started_at"
+    t.index ["play_session_id", "scheduled_on", "started_at"], name: "idx_on_play_session_id_scheduled_on_started_at_3d7aa28832"
     t.index ["play_session_id"], name: "index_session_schedules_on_play_session_id"
   end
 

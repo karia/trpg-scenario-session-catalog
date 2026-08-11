@@ -8,8 +8,8 @@ RSpec.describe PlaySession do
   describe "schedules" do
     it "keeps multiple starts in chronological order" do
       session = create(:play_session)
-      later = create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 3, 20))
-      earlier = create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
+      later = create(:session_schedule, play_session: session, scheduled_on: Date.new(2026, 5, 3))
+      earlier = create(:session_schedule, play_session: session, scheduled_on: Date.new(2026, 5, 1))
 
       expect(session.session_schedules.reload).to eq([ earlier, later ])
     end
@@ -27,22 +27,31 @@ RSpec.describe PlaySession do
   describe "status" do
     it "is scheduled before the first start" do
       session = create(:play_session)
-      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
+      create(:session_schedule, play_session: session, scheduled_on: Date.new(2026, 5, 1))
 
       expect(session.derived_status(Time.zone.local(2026, 5, 1, 19, 59))).to eq(:scheduled)
     end
 
     it "is in progress from the first start until the last start" do
       session = create(:play_session)
-      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
-      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 3, 20))
+      create(:session_schedule, play_session: session, scheduled_on: Date.new(2026, 5, 1))
+      create(:session_schedule, play_session: session, scheduled_on: Date.new(2026, 5, 3))
+
+      expect(session.derived_status(Time.zone.local(2026, 5, 2, 20))).to eq(:in_progress)
+    end
+
+    it "uses chronological boundaries even when nested schedules arrive in reverse order" do
+      session = build(:play_session, session_schedules_attributes: [
+        { scheduled_on: "2026-05-03", started_at: "20:00" },
+        { scheduled_on: "2026-05-01", started_at: "20:00" }
+      ])
 
       expect(session.derived_status(Time.zone.local(2026, 5, 2, 20))).to eq(:in_progress)
     end
 
     it "is completed from the last start" do
       session = create(:play_session)
-      create(:session_schedule, play_session: session, started_at: Time.zone.local(2026, 5, 1, 20))
+      create(:session_schedule, play_session: session, scheduled_on: Date.new(2026, 5, 1))
 
       expect(session.derived_status(Time.zone.local(2026, 5, 1, 20))).to eq(:completed)
     end
@@ -61,8 +70,8 @@ RSpec.describe PlaySession do
       undated = create(:play_session)
       older = create(:play_session)
       newer = create(:play_session)
-      create(:session_schedule, play_session: older, started_at: Time.zone.local(2026, 1, 1, 20))
-      create(:session_schedule, play_session: newer, started_at: Time.zone.local(2026, 6, 1, 20))
+      create(:session_schedule, play_session: older, scheduled_on: Date.new(2026, 1, 1))
+      create(:session_schedule, play_session: newer, scheduled_on: Date.new(2026, 6, 1))
 
       expect(described_class.newest_first.to_a).to eq([ newer, older, undated ])
     end

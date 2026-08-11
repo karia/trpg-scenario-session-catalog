@@ -6,7 +6,7 @@ RSpec.describe "PlaySessions" do
   let(:scenario) { create(:scenario, title: "見本シナリオ") }
   let(:session) do
     create(:play_session, scenario:).tap do |play_session|
-      create(:session_schedule, play_session:, started_at: Time.zone.local(2026, 5, 1, 20))
+      create(:session_schedule, play_session:, scheduled_on: Date.new(2026, 5, 1))
     end
   end
 
@@ -135,7 +135,7 @@ RSpec.describe "PlaySessions" do
 
     it "shows every recording under its schedule" do
       second_schedule = create(:session_schedule, play_session: session,
-        started_at: Time.zone.local(2026, 5, 3, 20))
+        scheduled_on: Date.new(2026, 5, 3))
       create(:recording_link, session_schedule: session.session_schedules.first,
         url: "https://videos.example/first")
       create(:recording_link, session_schedule: second_schedule,
@@ -145,8 +145,14 @@ RSpec.describe "PlaySessions" do
       get play_session_path(session)
 
       expect(response.body).to include("https://videos.example/first", "https://videos.example/second")
-      expect(response.body).to include("2026年5月1日（金） 20:00、2026年5月3日（日） 20:00")
       expect(response.body).not_to include(">状態<")
+      page = Capybara.string(response.body)
+      schedule_sections = page.all("[data-session-schedule]")
+      expect(schedule_sections.first).to have_text("2026年5月1日（金） 20:00")
+        .and have_text("https://videos.example/first")
+        .and have_no_text("https://videos.example/second")
+      expect(schedule_sections[1]).to have_text("2026年5月3日（日） 20:00")
+        .and have_text("https://videos.example/second")
     end
 
     it "shows the start time without the placeholder date a time column carries" do

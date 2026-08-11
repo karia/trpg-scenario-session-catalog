@@ -54,7 +54,7 @@ module Manage
           play_session: [
             :scenario_id, :cocofolia_url, :note,
             { session_schedules_attributes: [
-              [ :id, :started_at, :position, :_destroy,
+              [ :id, :scheduled_on, :started_at, :position, :_destroy,
                 { recording_links_attributes: [ [ :id, :url, :position, :_destroy ] ] } ]
             ] },
             { participations_attributes: [ [ :id, :person_id, :role, :character_name, :character_sheet_url, :position, :_destroy ] ] }
