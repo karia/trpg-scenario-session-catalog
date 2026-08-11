@@ -4,5 +4,9 @@
           allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
           allowfullscreen: true %>
   </div>
+<% else %>
+  <%= link_to link_text, url, rel:, class: "text-seal" %>
+  <% if show_url %>
+    <span class="font-mono text-xs text-muted"><%= url %></span>
+  <% end %>
 <% end %>
-<%= link_to title, url, rel:, class: "text-seal" %>

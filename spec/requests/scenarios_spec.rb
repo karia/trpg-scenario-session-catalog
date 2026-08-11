@@ -51,7 +51,10 @@ RSpec.describe "Scenarios" do
       expect(page).to have_css(
         'iframe[title="YouTube配信"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
       )
+      expect(page).to have_no_link("YouTube配信", href: "https://youtu.be/dQw4w9WgXcQ")
+      expect(page).to have_no_text("https://youtu.be/dQw4w9WgXcQ")
       expect(page).to have_link("別サイトの配信", href: "https://example.com/stream")
+      expect(page).to have_text("https://example.com/stream")
     end
 
     it "leaves a YouTube URL with a malformed query string clickable" do

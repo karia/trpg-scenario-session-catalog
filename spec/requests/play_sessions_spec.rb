@@ -115,6 +115,8 @@ RSpec.describe "PlaySessions" do
       expect(page).to have_css(
         'iframe[title="録画"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
       )
+      expect(page).to have_no_link(href: "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+      expect(page).to have_no_text("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
     end
 
     it "shows the start time without the placeholder date a time column carries" do

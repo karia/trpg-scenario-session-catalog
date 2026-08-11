@@ -87,8 +87,7 @@
         <% @scenario.stream_links.each do |link| %>
           <li class="space-y-2">
             <%= render "shared/video_link", title: link.label.presence || link.url, url: link.url,
-                  rel: "noopener nofollow" %>
-            <span class="font-mono text-xs text-muted"><%= link.url %></span>
+                  link_text: link.label.presence || link.url, rel: "noopener nofollow", show_url: true %>
           </li>
         <% end %>
       </ul>
