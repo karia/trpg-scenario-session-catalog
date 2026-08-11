@@ -36,6 +36,10 @@ RSpec.describe PlaySession do
     expect(build(:play_session, recording_url: "javascript:alert(1)")).not_to be_valid
   end
 
+  it "rejects a Cocofolia URL that is not an http URL" do
+    expect(build(:play_session, cocofolia_url: "javascript:alert(1)")).not_to be_valid
+  end
+
   describe "ordering" do
     it "puts a session with no start time after one with a time on the same day" do
       timed = create(:play_session, played_on: Date.new(2026, 5, 1), started_at: "20:00")
