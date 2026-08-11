@@ -170,4 +170,28 @@ RSpec.describe "Manage::PlaySessions" do
       expect(session.reload).to be_played
     end
   end
+
+  describe "as an admin who is not a GM" do
+    let(:session) do
+      create(:play_session, scenario:, cocofolia_url: "https://ccfolia.com/rooms/participant-only")
+    end
+
+    before { sign_in_as create(:person, roles: %w[admin]) }
+
+    it "keeps the Cocofolia URL out of the edit form" do
+      get edit_manage_play_session_path(session)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include("ココフォリアリンク", "play_session[cocofolia_url]",
+        "https://ccfolia.com/rooms/participant-only")
+    end
+
+    it "does not update the Cocofolia URL from a crafted request" do
+      patch manage_play_session_path(session), params: {
+        play_session: { cocofolia_url: "https://ccfolia.com/rooms/changed-by-admin" }
+      }
+
+      expect(session.reload.cocofolia_url).to eq("https://ccfolia.com/rooms/participant-only")
+    end
+  end
 end

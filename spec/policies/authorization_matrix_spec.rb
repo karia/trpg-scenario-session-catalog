@@ -90,6 +90,10 @@ RSpec.describe "Authorization matrix" do
       expect(allows?(no_role, described_class, session, :show_cocofolia_url?)).to be(true)
       expect(allows?(gm, described_class, session, :show_cocofolia_url?)).to be(false)
       expect(allows?(admin, described_class, session, :show_cocofolia_url?)).to be(false)
+
+      expect(allows?(gm, described_class, session, :update_cocofolia_url?)).to be(true)
+      expect(allows?(admin, described_class, session, :update_cocofolia_url?)).to be(false)
+      expect(allows?(no_role, described_class, session, :update_cocofolia_url?)).to be(false)
     end
   end
 

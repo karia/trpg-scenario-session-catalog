@@ -104,5 +104,12 @@ RSpec.describe PlaySessionPolicy do
       expect(described_class.new(gm, session).show_cocofolia_url?).to be(false)
       expect(described_class.new(nil, session).show_cocofolia_url?).to be(false)
     end
+
+    it "lets only GMs edit the Cocofolia URL" do
+      expect(described_class.new(create(:person, roles: %w[gm]), session).update_cocofolia_url?).to be(true)
+      expect(described_class.new(create(:person, roles: %w[admin]), session).update_cocofolia_url?).to be(false)
+      expect(described_class.new(create(:person), session).update_cocofolia_url?).to be(false)
+      expect(described_class.new(nil, session).update_cocofolia_url?).to be(false)
+    end
   end
 end

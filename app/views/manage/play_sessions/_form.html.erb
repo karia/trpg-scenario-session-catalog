@@ -31,11 +31,13 @@
         <%= form.label :recording_url, "録画リンク", class: "block text-xs text-muted" %>
         <%= form.url_field :recording_url, placeholder: "https://", class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
       </div>
-      <div>
-        <%= form.label :cocofolia_url, "ココフォリアリンク", class: "block text-xs text-muted" %>
-        <%= form.url_field :cocofolia_url, placeholder: "https://ccfolia.com/rooms/",
-              class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
-      </div>
+      <% if policy(play_session).update_cocofolia_url? %>
+        <div>
+          <%= form.label :cocofolia_url, "ココフォリアリンク", class: "block text-xs text-muted" %>
+          <%= form.url_field :cocofolia_url, placeholder: "https://ccfolia.com/rooms/",
+                class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+        </div>
+      <% end %>
       <div class="sm:col-span-2">
         <%= form.label :note, "メモ", class: "block text-xs text-muted" %>
         <%= form.text_area :note, rows: 3, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>

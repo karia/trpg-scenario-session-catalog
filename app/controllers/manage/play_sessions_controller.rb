@@ -50,12 +50,14 @@ module Manage
       end
 
       def play_session_params
-        params.expect(
+        permitted = params.expect(
           play_session: [
             :scenario_id, :played_on, :started_at, :status, :recording_url, :cocofolia_url, :note,
             { participations_attributes: [ [ :id, :person_id, :role, :character_name, :character_sheet_url, :position, :_destroy ] ] }
           ]
         )
+        permitted.delete(:cocofolia_url) unless policy(PlaySession).update_cocofolia_url?
+        permitted
       end
   end
 end
