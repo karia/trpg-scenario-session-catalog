@@ -49,7 +49,7 @@ RSpec.describe "Scenarios" do
 
       page = Capybara.string(response.body)
       expect(page).to have_css(
-        'iframe[title="YouTube配信"][src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"]'
+        'iframe[title="YouTube配信"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
       )
       expect(page).to have_link("別サイトの配信", href: "https://example.com/stream")
     end

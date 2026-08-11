@@ -5,7 +5,7 @@ module ApplicationHelper
     uri = URI.parse(url)
     video_id = youtube_video_id(uri)
 
-    "https://www.youtube-nocookie.com/embed/#{video_id}" if video_id&.match?(YOUTUBE_VIDEO_ID)
+    "https://www.youtube.com/embed/#{video_id}" if video_id&.match?(YOUTUBE_VIDEO_ID)
   rescue URI::InvalidURIError, Rack::QueryParser::InvalidParameterError
     nil
   end

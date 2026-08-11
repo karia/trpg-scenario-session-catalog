@@ -113,7 +113,7 @@ RSpec.describe "PlaySessions" do
 
       page = Capybara.string(response.body)
       expect(page).to have_css(
-        'iframe[title="録画"][src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"]'
+        'iframe[title="録画"][src="https://www.youtube.com/embed/dQw4w9WgXcQ"]'
       )
     end
 
