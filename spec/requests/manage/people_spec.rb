@@ -142,6 +142,26 @@ RSpec.describe "Manage::People" do
       expect(response).to have_http_status(:not_found)
       expect(user.reload.person).to be_nil
     end
+
+    it "hides account detail and edit screens from a GM" do
+      sign_in_as create(:person, roles: %w[gm])
+      user = create(:user, person: nil)
+
+      [ manage_user_path(user), edit_manage_user_path(user) ].each do |path|
+        get path
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    it "hides group detail and edit screens from a GM" do
+      sign_in_as create(:person, roles: %w[gm])
+      group = create(:group)
+
+      [ manage_group_path(group), edit_manage_group_path(group) ].each do |path|
+        get path
+        expect(response).to have_http_status(:not_found)
+      end
+    end
   end
 
   describe "keeping an administrator" do
