@@ -176,7 +176,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_020000) do
     t.boolean "gm_experienced", default: true, null: false
     t.integer "player_count_max"
     t.integer "player_count_min", null: false
-    t.integer "position", null: false
+    t.integer "position"
     t.text "preparation_note"
     t.integer "recommendation"
     t.text "recommendation_note"

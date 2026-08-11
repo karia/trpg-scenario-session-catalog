@@ -28,6 +28,7 @@ class Scenario < ApplicationRecord
   accepts_nested_attributes_for :stream_links, allow_destroy: true, reject_if: :all_blank
 
   # 並べ替えの途中は position が重複しうるため、一意制約を置かず id で決着させる。
+  # 入れ替え中の旧 Pod が書いた行は position を持たない。PostgreSQL の昇順は NULL を最後に置くため末尾に並ぶ。
   scope :gm_ordered, -> { order(:position, :id) }
 
   before_create :append_to_gm_order

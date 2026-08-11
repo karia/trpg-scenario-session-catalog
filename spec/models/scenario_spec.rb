@@ -48,6 +48,15 @@ RSpec.describe Scenario do
 
       expect(described_class.gm_ordered).to eq([ older, newer ])
     end
+
+    # 入れ替えの途中は旧 Pod が position を知らないまま書き込む。
+    it "puts a row with no position at the end" do
+      placed = create(:scenario, position: 9)
+      unplaced = create(:scenario)
+      unplaced.update_column(:position, nil)
+
+      expect(described_class.gm_ordered).to eq([ placed, unplaced ])
+    end
   end
 
   describe ".rearrange" do

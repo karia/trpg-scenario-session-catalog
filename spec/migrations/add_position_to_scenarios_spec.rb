@@ -51,9 +51,13 @@ RSpec.describe AddPositionToScenarios do
     expect(Scenario.pluck(:position).uniq.size).to eq(3)
   end
 
-  it "stops the database taking a row without a position" do
-    migrate(:up)
+  # 入れ替えの途中は旧 Pod が position を知らないまま書き込む。落とさず末尾に置く。
+  it "still takes a row from a pod that does not know about the position" do
+    insert_legacy("先にあった行", recommendation: 5)
 
-    expect { insert_legacy("位置なし") }.to raise_error(ActiveRecord::NotNullViolation)
+    migrate(:up)
+    insert_legacy("旧 Pod が書いた行")
+
+    expect(Scenario.order(:position).pluck(:title)).to eq([ "先にあった行", "旧 Pod が書いた行" ])
   end
 end

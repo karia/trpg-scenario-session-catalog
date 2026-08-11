@@ -9,7 +9,6 @@ class AddPositionToScenarios < ActiveRecord::Migration[8.0]
       ) AS ranked
       WHERE scenarios.id = ranked.id
     SQL
-    change_column_null :scenarios, :position, false
     add_index :scenarios, :position
   end
 
