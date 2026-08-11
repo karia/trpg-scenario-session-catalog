@@ -134,11 +134,25 @@ RSpec.describe "People" do
       sign_in_as person
 
       patch person_path(person), params: {
-        person: { display_name: "本人", display_alias_id: selected.id }
+        person: { display_name: "本人", display_alias_key: selected.id }
       }
 
       expect(person.reload.display_name).to eq("新しい名前")
       expect(selected.reload.name).to eq("本人")
+    end
+
+    it "keeps the context field available while editing aliases" do
+      person.person_aliases.create!(name: "別名", context: "古いサーバ")
+      sign_in_as person
+
+      patch person_path(person), params: {
+        person: {
+          display_name: "本人",
+          aliases_attributes: [ { id: person.person_aliases.sole.id, name: "別名", context: "新しいサーバ" } ]
+        }
+      }
+
+      expect(person.reload.person_aliases.sole.context).to eq("新しいサーバ")
     end
   end
 

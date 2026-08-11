@@ -15,7 +15,7 @@ RSpec.describe "Aliases" do
       former_name = record.public_send(display_attribute)
       selected = record.aliases.create!(name: "新しい表示名", visible: true)
 
-      expect(record.update(display_alias_id: selected.id)).to be(true)
+      expect(record.update(display_alias_key: selected.id)).to be(true)
       expect(record.reload.public_send(display_attribute)).to eq("新しい表示名")
       expect(selected.reload.attributes.slice("name", "visible")).to eq("name" => former_name, "visible" => true)
     end
@@ -23,8 +23,17 @@ RSpec.describe "Aliases" do
     it "does not promote a hidden alias" do
       selected = record.aliases.create!(name: "非公開名", visible: false)
 
-      expect(record.update(display_alias_id: selected.id)).to be(false)
-      expect(record.errors[:display_alias_id]).to be_present
+      expect(record.update(display_alias_key: selected.id)).to be(false)
+      expect(record.errors[:display_alias_key]).to be_present
+    end
+
+    it "restores the names when another validation rejects the promotion" do
+      selected = record.aliases.create!(name: "新しい表示名", visible: true)
+      record.public_send("#{display_attribute}=", "")
+
+      expect(record.update(display_alias_key: selected.id)).to be(false)
+      expect(record.public_send(display_attribute)).to eq("")
+      expect(selected.name).to eq("新しい表示名")
     end
 
     it "removes aliases with the parent" do

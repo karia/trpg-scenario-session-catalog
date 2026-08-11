@@ -31,8 +31,8 @@ class PeopleController < ApplicationController
 
     # グループ所属はここでは受け取らない。管理画面（管理者のみ）で扱う。
     def person_params
-      params.expect(person: [ :display_name, :display_alias_id, :x_account, :icon,
-        { aliases_attributes: [ [ :id, :name, :context, :visible, :position, :_destroy ] ],
+      params.expect(person: [ :display_name, :display_alias_key, :x_account, :icon,
+        { aliases_attributes: [ [ :id, :name, :context, :visible, :position, :selection_key, :_destroy ] ],
           person_aliases_attributes: [ [ :id, :name, :context, :visible, :position, :_destroy ] ] } ])
     end
 end
