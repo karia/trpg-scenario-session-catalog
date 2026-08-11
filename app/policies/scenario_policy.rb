@@ -10,6 +10,9 @@ class ScenarioPolicy < ApplicationPolicy
   def update? = editor?
   def destroy? = editor?
 
+  # 並び順は公開側の既定の見え方を決めるため、編集と同じ権限で守る。
+  def reorder? = editor?
+
   # お気に入りとネタバレ防止ボタンは Person に紐づくため、紐づいた人だけが押せる。
   def favourite? = person.present?
   def reveal_preparation_note? = person.present?

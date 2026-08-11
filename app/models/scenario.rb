@@ -1,4 +1,6 @@
 class Scenario < ApplicationRecord
+  DIRECTIONS = { "up" => -1, "down" => 1 }.freeze
+
   # 「-」と空欄は列挙値ではなく NULL として扱う。
   enum :character_sheet_deadline, {
     day_before: 0,
@@ -27,13 +29,33 @@ class Scenario < ApplicationRecord
   accepts_nested_attributes_for :purchase_links, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :stream_links, allow_destroy: true, reject_if: :all_blank
 
-  # おすすめ度は画面に出さない。並び順を決めるためだけに持つ（issue #18）。
-  scope :recommended_first, -> {
-    order(Arel.sql("recommendation DESC NULLS LAST"), :title)
-  }
+  # 並べ替えの途中は position が重複しうるため、一意制約を置かず id で決着させる。
+  # 入れ替え中の旧 Pod が書いた行は position を持たない。PostgreSQL の昇順は NULL を最後に置くため末尾に並ぶ。
+  scope :gm_ordered, -> { order(:position, :id) }
+
+  before_create :append_to_gm_order
+
+  # 与えられた並びに合わせて振り直す。渡されなかった行の position は動かさない。
+  def self.rearrange(ids)
+    transaction do
+      ids.each_with_index { |id, index| where(id:).update_all(position: index + 1) }
+    end
+  end
+
+  # ドラッグを使えない相手のための1つぶんの移動。並びは rearrange と同じ経路で確定させる。
+  def move(direction)
+    ids = self.class.gm_ordered.pluck(:id)
+    from = ids.index(id)
+    to = from + DIRECTIONS.fetch(direction) { return }
+    return unless to.between?(0, ids.size - 1)
+
+    ids[from], ids[to] = ids[to], ids[from]
+    self.class.rearrange(ids)
+  end
 
   validates :title, presence: true
   validates :jacket, content_type: [ :png, :jpeg, :gif, :webp ], size: { less_than: 10.megabytes }
+  # TODO: 並び順は position に移った（issue #41）。切り戻す必要がなくなったら列ごと落とす。
   validates :recommendation, inclusion: { in: 1..5 }, allow_nil: true
   # 人数での絞り込みが下限を軸にするため、下限だけは必ず要る（issue #28）。
   validates :player_count_min, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
@@ -45,6 +67,10 @@ class Scenario < ApplicationRecord
   validate :durations_are_half_hours
 
   private
+    def append_to_gm_order
+      self.position ||= (self.class.maximum(:position) || 0) + 1
+    end
+
     def player_count_range_is_ordered
       return if player_count_min.blank? || player_count_max.blank?
       return if player_count_min <= player_count_max

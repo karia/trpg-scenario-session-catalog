@@ -112,32 +112,42 @@ RSpec.describe "The scenario list" do
       expect(response.body).not_to match(/recommendation/i)
     end
 
-    # 作成順と期待順をずらす。並べ替えを外すと落ちるようにする。
-    it "still orders the list, best first" do
+    # 並び順は position が持つようになった（issue #41）。入力欄も残さない。
+    it "no longer orders the list" do
       create(:scenario, title: "未評価", recommendation: nil)
-      create(:scenario, title: "低評価", recommendation: 1)
+      create(:scenario, title: "高評価", recommendation: 5)
 
       body = (get(root_path) && response.body)
 
-      expect(body.index("見本シナリオ")).to be < body.index("低評価")
-      expect(body.index("低評価")).to be < body.index("未評価")
+      expect(body.index("未評価")).to be < body.index("高評価")
     end
 
-    it "breaks a tie on the title" do
-      create(:scenario, title: "い", recommendation: 5)
-      create(:scenario, title: "あ", recommendation: 5)
-
-      body = (get(root_path) && response.body)
-
-      expect(body.index("あ")).to be < body.index("い")
-    end
-
-    it "remains editable on the edit screen" do
+    it "is absent from the edit screen" do
       sign_in_as create(:person, roles: %w[gm])
 
       get edit_manage_scenario_path(scenario)
 
-      expect(response.body).to include("おすすめ度")
+      expect(response.body).not_to include("おすすめ度")
+      expect(Capybara.string(response.body)).to have_no_css('select[name="scenario[recommendation]"]')
+    end
+  end
+
+  describe "the order the GM arranged" do
+    # 作成順と期待順をずらす。並べ替えを外すと落ちるようにする。
+    it "is what the list opens with" do
+      create(:scenario, title: "あとで作った先頭", position: 0)
+
+      body = (get(root_path) && response.body)
+
+      expect(body.index("あとで作った先頭")).to be < body.index("見本シナリオ")
+    end
+
+    it "is what the jacket view opens with too" do
+      create(:scenario, title: "あとで作った先頭", position: 0)
+
+      body = (get(root_path(view: "gallery")) && response.body)
+
+      expect(body.index("あとで作った先頭")).to be < body.index("見本シナリオ")
     end
   end
 end

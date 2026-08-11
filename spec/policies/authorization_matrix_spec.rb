@@ -28,6 +28,14 @@ RSpec.describe "Authorization matrix" do
       expect(allows?(admin, described_class, Scenario.new, :update?)).to be(true)
     end
 
+    it "lets only editors rearrange the list" do
+      expect(allows?(anonymous, described_class, Scenario.new, :reorder?)).to be_falsey
+      expect(allows?(unlinked, described_class, Scenario.new, :reorder?)).to be_falsey
+      expect(allows?(no_role, described_class, Scenario.new, :reorder?)).to be_falsey
+      expect(allows?(gm, described_class, Scenario.new, :reorder?)).to be(true)
+      expect(allows?(admin, described_class, Scenario.new, :reorder?)).to be(true)
+    end
+
     it "hides the preparation note from everyone until Phase 4" do
       [ anonymous, unlinked, no_role, gm, admin ].each do |person|
         expect(allows?(person, described_class, Scenario.new, :show_preparation_note?)).to be(false)

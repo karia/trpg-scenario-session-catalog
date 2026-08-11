@@ -8,15 +8,15 @@ RSpec.describe "Sorting and filtering the scenario list" do
 
   # 作成順と期待順をずらす。並べ替えを外すと落ちるようにする。
   let!(:middle) do
-    create(:scenario, title: "なかほど", recommendation: 5, player_count_min: 3, player_count_max: 4,
+    create(:scenario, title: "なかほど", position: 2, player_count_min: 3, player_count_max: 4,
       duration_min_hours: 4, game_systems: [ coc ], authors: [ ma_author ])
   end
   let!(:first) do
-    create(:scenario, title: "いちばん", recommendation: 1, player_count_min: 1, player_count_max: 2,
+    create(:scenario, title: "いちばん", position: 1, player_count_min: 1, player_count_max: 2,
       duration_min_hours: 0.5, game_systems: [ emoklore ], authors: [ a_author ])
   end
   let!(:last) do
-    create(:scenario, title: "最後の見本", recommendation: 3, player_count_min: 6, player_count_max: nil,
+    create(:scenario, title: "最後の見本", position: 3, player_count_min: 6, player_count_max: nil,
       duration_min_hours: nil, game_systems: [ coc, emoklore ], authors: [ a_author, ma_author ])
   end
 
@@ -26,98 +26,119 @@ RSpec.describe "Sorting and filtering the scenario list" do
     expect(positions).to eq(positions.compact.sort)
   end
 
-  def link_queries
-    Capybara.string(response.body).all("a", visible: :all).filter_map do |link|
-      query = URI(link[:href]).query
-      Rack::Utils.parse_query(query) if query
-    end
+  def order_menu
+    Capybara.string(response.body).find('select[name="order"]')
   end
 
   describe "sorting" do
+    it "opens on the order the GM arranged" do
+      get root_path
+
+      expect_order("いちばん", "なかほど", "最後の見本")
+    end
+
     it "orders by title" do
-      get root_path(sort: "title", direction: "asc")
+      get root_path(order: "title_asc")
 
       expect_order("いちばん", "なかほど", "最後の見本")
     end
 
     it "reverses the title order when asked" do
-      get root_path(sort: "title", direction: "desc")
+      get root_path(order: "title_desc")
 
       expect_order("最後の見本", "なかほど", "いちばん")
     end
 
     it "orders by the first author" do
-      get root_path(sort: "author", direction: "asc")
+      get root_path(order: "author_asc")
 
       expect_order("いちばん", "なかほど")
     end
 
     it "orders by the first game system" do
-      get root_path(sort: "game_system", direction: "asc")
+      get root_path(order: "game_system_asc")
 
       expect_order("いちばん", "なかほど")
     end
 
     it "orders by the smallest party the scenario takes" do
-      get root_path(sort: "player_count", direction: "asc")
+      get root_path(order: "player_count_asc")
 
       expect_order("いちばん", "なかほど", "最後の見本")
     end
 
     it "orders by the shortest session the scenario takes" do
-      get root_path(sort: "duration", direction: "asc")
+      get root_path(order: "duration_asc")
 
       expect_order("いちばん", "なかほど")
     end
 
     it "keeps a scenario with no duration at the bottom in both directions" do
-      get root_path(sort: "duration", direction: "desc")
+      get root_path(order: "duration_desc")
 
       expect_order("なかほど", "いちばん", "最後の見本")
     end
 
     it "lists a scenario with two authors once" do
-      get root_path(sort: "author", direction: "asc")
+      get root_path(order: "author_asc")
 
       expect(response.body.scan("最後の見本").size).to eq(1)
     end
 
-    it "falls back to the recommended order for a sort it does not know" do
-      get root_path(sort: "recommendation) --", direction: "asc")
+    it "falls back to the GM order for an order it does not know" do
+      get root_path(order: "title ASC) --")
 
       expect(response).to have_http_status(:ok)
-      expect_order("なかほど", "最後の見本", "いちばん")
-    end
-
-    it "falls back to ascending for a direction it does not know" do
-      get root_path(sort: "title", direction: "sideways")
-
       expect_order("いちばん", "なかほど", "最後の見本")
     end
 
-    it "offers the ascending order on a heading that is not sorted yet" do
+    it "offers the GM order and every key in one menu" do
       get root_path
 
-      expect(link_queries).to include("sort" => "title", "direction" => "asc")
+      expect(order_menu).to have_css("option", text: "GMのおすすめ順")
+      expect(order_menu.all("option").map { |option| option[:value] })
+        .to contain_exactly("", *ScenarioListing::ORDERS.keys)
     end
 
-    it "offers the opposite order on the heading that is sorted" do
-      get root_path(sort: "title", direction: "asc")
+    it "marks the current order as selected" do
+      get root_path(order: "player_count_desc")
 
-      expect(link_queries).to include("sort" => "title", "direction" => "desc")
+      expect(order_menu.find("option[selected]")[:value]).to eq("player_count_desc")
     end
 
-    it "keeps the current filter when the heading is clicked" do
+    it "no longer sorts from the headings" do
+      get root_path
+
+      expect(Capybara.string(response.body)).to have_no_css("th a")
+    end
+
+    # プルダウンは JS が送信する。無い相手には noscript のボタンだけが残る。
+    it "carries a submit button for a visitor without JavaScript" do
+      get root_path
+
+      expect(Capybara.string(response.body))
+        .to have_css('form noscript button[type="submit"]', text: "並べ替える", visible: :all)
+    end
+
+    it "keeps the current filter when the order changes" do
       get root_path(game_system_id: emoklore.id)
 
-      expect(link_queries)
-        .to include("game_system_id" => emoklore.id.to_s, "sort" => "title", "direction" => "asc")
+      expect(Capybara.string(response.body))
+        .to have_css(%(form input[type="hidden"][name="game_system_id"][value="#{emoklore.id}"]), visible: :all)
     end
 
-    it "keeps the jacket view when the heading is clicked" do
-      get root_path(view: "gallery", sort: "title", direction: "asc")
+    it "keeps the jacket view when the order changes" do
+      get root_path(view: "gallery")
 
-      expect(link_queries).to include(hash_including("view" => "gallery", "sort" => "title"))
+      expect(Capybara.string(response.body))
+        .to have_css('form input[type="hidden"][name="view"][value="gallery"]', visible: :all)
+    end
+
+    it "keeps the current order when the filter is submitted" do
+      get root_path(order: "title_desc")
+
+      expect(Capybara.string(response.body))
+        .to have_css('form input[type="hidden"][name="order"][value="title_desc"]', visible: :all)
     end
   end
 
@@ -158,7 +179,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
     end
 
     it "combines a filter with a sort" do
-      get root_path(author_id: ma_author.id, sort: "title", direction: "desc")
+      get root_path(author_id: ma_author.id, order: "title_desc")
 
       expect_order("最後の見本", "なかほど")
     end
@@ -208,7 +229,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
 
   describe "what the list gives away" do
     it "keeps the recommendation out of the response whatever the filter" do
-      get root_path(author_id: ma_author.id, sort: "player_count", direction: "desc")
+      get root_path(author_id: ma_author.id, order: "player_count_desc")
 
       expect(response.body).not_to include("★", "おすすめ度")
       expect(response.body).not_to match(/recommendation/i)
@@ -217,7 +238,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
     it "keeps the preparation note out of the response for an anonymous visitor" do
       middle.update!(preparation_note: "ネタバレ")
 
-      get root_path(sort: "title", direction: "asc")
+      get root_path(order: "title_asc")
 
       expect(response.body).not_to include("ネタバレ")
     end

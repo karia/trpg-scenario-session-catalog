@@ -1,6 +1,29 @@
 require "rails_helper"
 
 RSpec.describe ScenariosHelper do
+  describe "#scenario_order_options" do
+    def options_of(listing) = Capybara.string("<select>#{helper.scenario_order_options(listing)}</select>").all("option")
+
+    it "puts the GM order first, on the empty value" do
+      options = options_of(ScenarioListing.new(Scenario.all, {}))
+
+      expect(options.first).to have_text("GMのおすすめ順")
+      expect(options.first[:value]).to eq("")
+    end
+
+    it "names both directions of every key" do
+      labels = options_of(ScenarioListing.new(Scenario.all, {})).map(&:text)
+
+      expect(labels).to include("シナリオ名（昇順）", "人数（少ない順）", "人数（多い順）", "目安時間（長い順）")
+    end
+
+    it "selects nothing but the GM order when no order is asked for" do
+      selected = options_of(ScenarioListing.new(Scenario.all, {})).select { |option| option[:selected] }
+
+      expect(selected.map { |option| option[:value] }).to eq([ "" ])
+    end
+  end
+
   describe "#player_count_label" do
     it "shows a single figure when both ends match" do
       expect(helper.player_count_label(build(:scenario, player_count_min: 3, player_count_max: 3))).to eq("3人")

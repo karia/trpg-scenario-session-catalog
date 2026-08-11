@@ -19,6 +19,131 @@ RSpec.describe Scenario do
     end
   end
 
+  describe "position" do
+    it "puts a new scenario at the end of the list the GM has arranged" do
+      first = create(:scenario)
+      last = create(:scenario)
+
+      expect(last.position).to be > first.position
+    end
+
+    it "starts from the first slot when there is nothing else" do
+      expect(create(:scenario).position).to eq(1)
+    end
+
+    it "keeps a position that the caller has already decided" do
+      expect(create(:scenario, position: 42).position).to eq(42)
+    end
+
+    it "orders by the arrangement the GM made" do
+      tail = create(:scenario, title: "あ", position: 2)
+      head = create(:scenario, title: "ま", position: 1)
+
+      expect(described_class.gm_ordered).to eq([ head, tail ])
+    end
+
+    it "falls back to the identifier when two rows share a position" do
+      older = create(:scenario, position: 1)
+      newer = create(:scenario, position: 1)
+
+      expect(described_class.gm_ordered).to eq([ older, newer ])
+    end
+
+    # 入れ替えの途中は旧 Pod が position を知らないまま書き込む。
+    it "puts a row with no position at the end" do
+      placed = create(:scenario, position: 9)
+      unplaced = create(:scenario)
+      unplaced.update_column(:position, nil)
+
+      expect(described_class.gm_ordered).to eq([ placed, unplaced ])
+    end
+  end
+
+  describe ".rearrange" do
+    it "renumbers the scenarios into the order it is given" do
+      first = create(:scenario)
+      second = create(:scenario)
+      third = create(:scenario)
+
+      described_class.rearrange([ third.id, first.id, second.id ])
+
+      expect(described_class.gm_ordered).to eq([ third, first, second ])
+    end
+
+    it "ignores an identifier that belongs to nothing" do
+      scenario = create(:scenario)
+
+      described_class.rearrange([ 0, scenario.id ])
+
+      expect(scenario.reload.position).to eq(2)
+    end
+
+    it "leaves out a scenario the caller did not mention" do
+      listed = create(:scenario)
+      absent = create(:scenario, position: 50)
+
+      described_class.rearrange([ listed.id ])
+
+      expect(absent.reload.position).to eq(50)
+    end
+
+    it "keeps the last slot a duplicated identifier was given" do
+      first = create(:scenario)
+      second = create(:scenario)
+
+      described_class.rearrange([ first.id, second.id, first.id ])
+
+      expect(first.reload.position).to eq(3)
+    end
+  end
+
+  describe "#move" do
+    it "swaps with the row above" do
+      top = create(:scenario, title: "うえ")
+      bottom = create(:scenario, title: "した")
+
+      bottom.move("up")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "した", "うえ" ])
+    end
+
+    it "swaps with the row below" do
+      top = create(:scenario, title: "うえ")
+      create(:scenario, title: "した")
+
+      top.move("down")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "した", "うえ" ])
+    end
+
+    it "does nothing at the top" do
+      top = create(:scenario, title: "うえ")
+      create(:scenario, title: "した")
+
+      top.move("up")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "うえ", "した" ])
+    end
+
+    it "does nothing at the bottom" do
+      create(:scenario, title: "うえ")
+      bottom = create(:scenario, title: "した")
+
+      bottom.move("down")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "うえ", "した" ])
+    end
+
+    it "ignores a direction it does not know" do
+      top = create(:scenario, title: "うえ")
+      create(:scenario, title: "した")
+
+      top.move("sideways")
+
+      expect(described_class.gm_ordered.pluck(:title)).to eq([ "うえ", "した" ])
+    end
+  end
+
   describe "gm_experienced" do
     it "defaults to true" do
       expect(described_class.new.gm_experienced).to be(true)

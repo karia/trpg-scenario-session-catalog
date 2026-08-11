@@ -1,5 +1,17 @@
 ja:
   scenarios:
+    orders:
+      gm: GMのおすすめ順
+      title_asc: シナリオ名（昇順）
+      title_desc: シナリオ名（降順）
+      author_asc: 作者（昇順）
+      author_desc: 作者（降順）
+      game_system_asc: システム（昇順）
+      game_system_desc: システム（降順）
+      player_count_asc: 人数（少ない順）
+      player_count_desc: 人数（多い順）
+      duration_asc: 目安時間（短い順）
+      duration_desc: 目安時間（長い順）
     character_sheet_deadlines:
       day_before: セッション前日
       two_days_before: セッション前々日
