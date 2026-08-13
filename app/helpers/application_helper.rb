@@ -6,9 +6,10 @@ module ApplicationHelper
     cursor = 0
     fragments = text.to_s.to_enum(:scan, HTTP_URL).map do
       match = Regexp.last_match
+      url, suffix = split_url_suffix(match[0])
       preceding_text = ERB::Util.html_escape(text[cursor...match.begin(0)])
       cursor = match.end(0)
-      safe_join([ preceding_text, link_to(match[0], match[0], target: "_blank", rel: "noopener") ])
+      safe_join([ preceding_text, link_to(url, url, target: "_blank", rel: "noopener"), suffix ])
     end
 
     safe_join([ *fragments, ERB::Util.html_escape(text.to_s[cursor..]) ])
@@ -24,6 +25,14 @@ module ApplicationHelper
   end
 
   private
+    def split_url_suffix(url)
+      suffix = url.slice!(/[,.!?;:、。]+\z/) || ""
+      while url.end_with?(")") && url.count("(") < url.count(")")
+        suffix.prepend(url.slice!(-1))
+      end
+      [ url, suffix ]
+    end
+
     def youtube_video_id(uri)
       host = uri.host&.downcase
 

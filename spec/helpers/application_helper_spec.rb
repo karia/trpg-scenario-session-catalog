@@ -21,6 +21,23 @@ RSpec.describe ApplicationHelper do
 
       expect(Capybara.string(html)).to have_no_link
     end
+
+    it "keeps sentence punctuation and unmatched closing parentheses outside links" do
+      html = helper.auto_link_urls(
+        "参照（https://example.com/path）、次は https://example.net/docs, 完了。"
+      )
+
+      page = Capybara.string(html)
+      expect(page).to have_link("https://example.com/path", href: "https://example.com/path")
+      expect(page).to have_link("https://example.net/docs", href: "https://example.net/docs")
+      expect(html).to include("</a>）、次は", "</a>, 完了。")
+    end
+
+    it "keeps balanced parentheses in a URL" do
+      url = "https://en.wikipedia.org/wiki/Role-playing_game_(disambiguation)"
+
+      expect(Capybara.string(helper.auto_link_urls(url))).to have_link(url, href: url)
+    end
   end
 
   describe "#youtube_embed_url" do
