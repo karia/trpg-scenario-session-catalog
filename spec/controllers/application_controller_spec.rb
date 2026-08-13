@@ -8,11 +8,8 @@ RSpec.describe ApplicationController do
   end
 
   it "answers 404 rather than 403 when authorization fails" do
-    controller = described_class.new
-    allow(controller).to receive(:head)
+    handler = described_class.rescue_handlers.to_h.fetch("Pundit::NotAuthorizedError")
 
-    controller.rescue_with_handler(Pundit::NotAuthorizedError.new)
-
-    expect(controller).to have_received(:head).with(:not_found)
+    expect(handler).to eq(:render_not_found)
   end
 end

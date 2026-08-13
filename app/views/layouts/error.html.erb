@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title><%= content_for(:title) %> | TRPGカタログ</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  </head>
+  <body class="min-h-dvh flex flex-col">
+    <header class="border-b border-rule bg-surface">
+      <div class="mx-auto max-w-5xl px-5 py-5">
+        <%= link_to "TRPGカタログ", root_path, class: "font-display text-xl tracking-wide no-underline text-ink" %>
+      </div>
+    </header>
+    <main class="mx-auto w-full max-w-5xl grow px-5 py-10">
+      <%= yield %>
+    </main>
+  </body>
+</html>
