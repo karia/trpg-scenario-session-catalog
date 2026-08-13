@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
   private
 
   def render_not_found
-    render "errors/show", status: :not_found,
+    render "errors/show", status: :not_found, formats: [ :html ],
       locals: { message: "ページが見つかりませんでした" }, layout: "error"
   end
 end
