@@ -1,4 +1,4 @@
-<% content_for :title, "セッションの編集" %>
-<h1 class="font-display text-2xl">セッションの編集</h1>
+<% content_for :title, "#{PlaySession.model_name.human}の編集" %>
+<h1 class="font-display text-2xl"><%= PlaySession.model_name.human %>の編集</h1>
 <%= render "manage/play_sessions/form", play_session: @play_session %>
 <p class="mt-6"><%= link_to "詳細に戻る", play_session_path(@play_session), class: "text-sm text-muted" %></p>

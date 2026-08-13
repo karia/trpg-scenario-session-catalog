@@ -17,7 +17,7 @@
         </p>
       <% end %>
       <p class="mt-2 text-xs text-muted">
-        グループ: <%= @person.groups.map(&:name).join("、").presence || "なし" %>
+        <%= Group.model_name.human %>: <%= @person.groups.map(&:name).join("、").presence || "なし" %>
       </p>
     </div>
 
@@ -43,7 +43,7 @@
   <% end %>
 
   <section class="mt-10">
-    <h2 class="font-display text-xl">お気に入りシナリオ</h2>
+    <h2 class="font-display text-xl">お気に入り<%= Scenario.model_name.human %></h2>
     <% favorites = @person.favorite_scenarios.order(:title) %>
     <% if favorites.any? %>
       <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">

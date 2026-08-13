@@ -43,7 +43,7 @@
                         class="cursor-pointer border border-ink px-3 py-1.5 text-ink hover:bg-ink hover:text-paper">
                   メニュー
                 </button>
-                <nav id="account-menu" hidden aria-label="アカウントメニュー" data-dropdown-target="menu"
+                <nav id="account-menu" hidden aria-label="<%= User.model_name.human %>メニュー" data-dropdown-target="menu"
                      class="absolute top-full right-0 z-40 mt-2 grid min-w-48 gap-2 border border-rule bg-surface p-4 shadow-lg">
                   <%= link_to Scenario.model_name.human, scenarios_path, class: "text-seal underline" %>
                   <%= link_to PlaySession.model_name.human, play_sessions_path, class: "text-seal underline" %>
@@ -76,7 +76,7 @@
     <% if signed_in? && current_person.nil? %>
       <div class="mx-auto w-full max-w-5xl px-5 pt-6">
         <p class="border border-seal bg-surface px-4 py-3 text-sm text-seal" role="status">
-          全機能を利用するには管理者の許可が必要です。管理者に連絡して、メンバー登録を依頼してください。
+          全機能を利用するには管理者の許可が必要です。管理者に連絡して、<%= Person.model_name.human %>登録を依頼してください。
         </p>
       </div>
     <% end %>
@@ -97,7 +97,7 @@
 
     <footer class="border-t border-rule bg-surface">
       <div class="mx-auto max-w-5xl px-5 py-6 text-xs text-muted">
-        シナリオの権利はそれぞれの作者に帰属します。
+        <%= Scenario.model_name.human %>の権利はそれぞれの<%= Author.model_name.human %>に帰属します。
       </div>
     </footer>
 

@@ -1,4 +1,4 @@
-<% content_for :title, @user.email.presence || "Google アカウント" %>
+<% content_for :title, @user.email.presence || "Google #{User.model_name.human}" %>
 
 <article>
   <div class="flex flex-wrap items-baseline justify-between gap-4">

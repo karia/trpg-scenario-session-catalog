@@ -7,7 +7,7 @@
   </div>
 
   <section class="mt-8">
-    <h2 class="font-display text-xl">メンバー</h2>
+    <h2 class="font-display text-xl"><%= Person.model_name.human %></h2>
     <% if @record.people.any? %>
       <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
         <% @record.people.order(:display_name).each do |person| %>

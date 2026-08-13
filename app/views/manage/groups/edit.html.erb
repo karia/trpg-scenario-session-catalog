@@ -11,7 +11,7 @@
   </div>
 
   <div>
-    <span class="block text-xs text-muted">メンバー</span>
+    <span class="block text-xs text-muted"><%= Person.model_name.human %></span>
     <%= form.collection_check_boxes :person_ids, Person.order(:display_name), :id, :display_name do |b| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= b.check_box %> <%= b.text %></label>
     <% end %>

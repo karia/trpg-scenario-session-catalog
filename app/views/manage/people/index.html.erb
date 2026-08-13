@@ -1,5 +1,5 @@
-<% content_for :title, "メンバーの管理" %>
-<h1 class="font-display text-2xl">メンバーの管理</h1>
+<% content_for :title, "#{Person.model_name.human}の管理" %>
+<h1 class="font-display text-2xl"><%= Person.model_name.human %>の管理</h1>
 
 <%= render "form", person: @person %>
 
@@ -10,8 +10,8 @@
         <p class="font-display"><%= item.display_name %></p>
         <p class="text-xs text-muted">
           権限: <%= person_role_labels(item).join("、") %>
-          ／ グループ: <%= item.groups.map(&:name).join("、").presence || "なし" %>
-          ／ アカウント: <%= item.user&.email || "未紐づけ" %>
+          ／ <%= Group.model_name.human %>: <%= item.groups.map(&:name).join("、").presence || "なし" %>
+          ／ <%= User.model_name.human %>: <%= item.user&.email || "未紐づけ" %>
         </p>
       </div>
       <span class="flex shrink-0 gap-1 text-xs">

@@ -6,12 +6,12 @@
 
     <div class="space-y-4">
       <div>
-        <%= form.label :title, "シナリオ名", class: "block text-xs text-muted" %>
+        <%= form.label :title, "#{Scenario.model_name.human}名", class: "block text-xs text-muted" %>
         <%= form.text_field :title, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
 
       <div>
-        <%= form.label :game_system_ids, "システム", class: "block text-xs text-muted" %>
+        <%= form.label :game_system_ids, GameSystem.model_name.human, class: "block text-xs text-muted" %>
         <%= form.collection_check_boxes :game_system_ids, GameSystem.all, :id, :name do |b| %>
           <label class="mr-4 inline-flex items-center gap-1 text-sm">
             <%= b.check_box %> <%= b.text %>
@@ -20,7 +20,7 @@
       </div>
 
       <div>
-        <%= form.label :author_ids, "作者", class: "block text-xs text-muted" %>
+        <%= form.label :author_ids, Author.model_name.human, class: "block text-xs text-muted" %>
         <%= form.collection_check_boxes :author_ids, Author.all, :id, :name do |b| %>
           <label class="mr-4 inline-flex items-center gap-1 text-sm">
             <%= b.check_box %> <%= b.text %>
@@ -88,7 +88,7 @@
       </div>
 
       <p class="text-xs text-muted">
-        並び順は<%= link_to "シナリオの並び順", scenario_order_index_path, class: "text-seal" %>で決めます。
+        並び順は<%= link_to "#{Scenario.model_name.human}の並び順", scenario_order_index_path, class: "text-seal" %>で決めます。
       </p>
 
       <div>
@@ -98,12 +98,12 @@
 
       <div>
         <%= form.label :recommendation_note, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}からのオススメポイント", class: "block text-xs text-muted" %>
-        <p class="text-xs text-muted">メンバーにだけ見せる。未登録のログインユーザーと未ログインには出さない。</p>
+        <p class="text-xs text-muted"><%= Person.model_name.human %>にだけ見せる。未登録のログインユーザーと未ログインには出さない。</p>
         <%= form.text_area :recommendation_note, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>
 
       <div>
-        <%= form.label :preparation_note, "シナリオ準備情報", class: "block text-xs text-muted" %>
+        <%= form.label :preparation_note, "#{Scenario.model_name.human}準備情報", class: "block text-xs text-muted" %>
         <p class="text-xs text-muted">ネタバレを含む。公開エリアには出さない。</p>
         <%= form.text_area :preparation_note, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
       </div>

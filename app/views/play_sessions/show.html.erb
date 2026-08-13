@@ -1,8 +1,8 @@
-<% content_for :title, "#{@play_session.scenario.title} のセッション" %>
+<% content_for :title, "#{@play_session.scenario.title}の#{PlaySession.model_name.human}" %>
 
 <article>
   <nav class="text-xs text-muted">
-    <%= link_to "セッション一覧", play_sessions_path, class: "text-muted" %> ／
+    <%= link_to "#{PlaySession.model_name.human}一覧", play_sessions_path, class: "text-muted" %> ／
     <%= @play_session.scenario.title %>
   </nav>
 

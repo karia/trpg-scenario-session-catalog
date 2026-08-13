@@ -1,6 +1,6 @@
-<% content_for :title, "サイト全体設定" %>
+<% content_for :title, SiteSetting.model_name.human %>
 
-<h1 class="font-display text-2xl">サイト全体設定</h1>
+<h1 class="font-display text-2xl"><%= SiteSetting.model_name.human %></h1>
 
 <%= form_with model: @site_setting, url: manage_site_setting_path, method: :patch, class: "mt-6 space-y-6" do |form| %>
   <%= accessible_error_summary(@site_setting) %>

@@ -1,7 +1,7 @@
-<% content_for :title, "セッション一覧" %>
+<% content_for :title, "#{PlaySession.model_name.human}一覧" %>
 
 <h1 class="font-display text-3xl tracking-wide">
-  セッション一覧<span class="ml-2 text-base text-muted">（全<%= @play_sessions.size %>件）</span>
+  <%= PlaySession.model_name.human %>一覧<span class="ml-2 text-base text-muted">（全<%= @play_sessions.size %>件）</span>
 </h1>
 <% if policy(PlaySession).create? %><p class="mt-4"><%= link_to "新規登録", new_play_session_path, class: "text-sm text-seal" %></p><% end %>
 
@@ -22,6 +22,6 @@
 
 <% if @play_sessions.empty? %>
   <p class="mt-8 border border-rule bg-surface p-8 text-center text-sm text-muted">
-    見られるセッションがまだありません。
+    見られる<%= PlaySession.model_name.human %>がまだありません。
   </p>
 <% end %>

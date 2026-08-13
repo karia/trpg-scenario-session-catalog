@@ -18,7 +18,7 @@
 
   <% if @record.respond_to?(:scenarios) %>
     <section class="mt-8">
-      <h2 class="font-display text-xl">シナリオ</h2>
+      <h2 class="font-display text-xl"><%= Scenario.model_name.human %></h2>
       <% if @record.scenarios.any? %>
         <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
           <% @record.scenarios.order(:title).each do |scenario| %>

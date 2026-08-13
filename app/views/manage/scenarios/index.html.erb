@@ -1,7 +1,7 @@
-<% content_for :title, "シナリオの管理" %>
+<% content_for :title, "#{Scenario.model_name.human}の管理" %>
 
 <div class="flex items-baseline justify-between">
-  <h1 class="font-display text-2xl">シナリオの管理</h1>
+  <h1 class="font-display text-2xl"><%= Scenario.model_name.human %>の管理</h1>
   <%= link_to "新規登録", new_manage_scenario_path, class: "text-sm text-seal" %>
 </div>
 
@@ -9,14 +9,14 @@
   <%= @scenarios.size %>本 ／ 行をドラッグするか ↑↓ を押すと並び順が変わり、その場で保存されます。この並びが一覧の「GMのおすすめ順」になります。
 </p>
 
-<div class="mt-6 overflow-x-auto" role="region" aria-label="シナリオの並び順と操作" tabindex="0">
+<div class="mt-6 overflow-x-auto" role="region" aria-label="<%= Scenario.model_name.human %>の並び順と操作" tabindex="0">
 <table class="w-full min-w-3xl border border-rule bg-surface text-sm">
   <thead class="border-b border-rule text-left text-xs text-muted">
     <tr>
       <th scope="col" class="p-3"><span class="sr-only">並び順</span></th>
       <th scope="col" class="p-3">タイトル</th>
-      <th scope="col" class="p-3">システム</th>
-      <th scope="col" class="p-3">作者</th>
+      <th scope="col" class="p-3"><%= GameSystem.model_name.human %></th>
+      <th scope="col" class="p-3"><%= Author.model_name.human %></th>
       <th scope="col" class="p-3 text-right">操作</th>
     </tr>
   </thead>

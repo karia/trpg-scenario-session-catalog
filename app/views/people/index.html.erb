@@ -1,6 +1,6 @@
-<% content_for :title, "メンバー" %>
+<% content_for :title, Person.model_name.human %>
 
-<h1 class="font-display text-3xl tracking-wide">メンバー</h1>
+<h1 class="font-display text-3xl tracking-wide"><%= Person.model_name.human %></h1>
 <% if policy(Person).create? %><p class="mt-4"><%= link_to "新規登録", new_person_path, class: "text-sm text-seal" %></p><% end %>
 
 <ul class="mt-8 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
@@ -19,8 +19,8 @@
           <% end %>
           <% if current_person.admin? %>
             <span class="mt-1 block text-xs text-muted">権限: <%= person_role_labels(member).join("、") %></span>
-            <span class="block text-xs text-muted">グループ: <%= member.groups.map(&:name).join("、").presence || "なし" %></span>
-            <span class="block text-xs text-muted">アカウント: <%= member.user&.email || "未紐づけ" %></span>
+            <span class="block text-xs text-muted"><%= Group.model_name.human %>: <%= member.groups.map(&:name).join("、").presence || "なし" %></span>
+            <span class="block text-xs text-muted"><%= User.model_name.human %>: <%= member.user&.email || "未紐づけ" %></span>
           <% end %>
         </span>
       <% end %>

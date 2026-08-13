@@ -1,11 +1,11 @@
 <div class="mt-3 overflow-x-auto border border-rule bg-surface">
   <table class="w-full min-w-3xl text-sm">
-    <caption class="sr-only">絞り込み条件に一致したシナリオ</caption>
+    <caption class="sr-only">絞り込み条件に一致した<%= Scenario.model_name.human %></caption>
     <thead class="border-b border-rule text-left text-xs text-muted">
       <tr>
-        <th scope="col" class="p-3">シナリオ名</th>
-        <th scope="col" class="p-3">作者</th>
-        <th scope="col" class="p-3">システム</th>
+        <th scope="col" class="p-3"><%= Scenario.model_name.human %>名</th>
+        <th scope="col" class="p-3"><%= Author.model_name.human %></th>
+        <th scope="col" class="p-3"><%= GameSystem.model_name.human %></th>
         <th scope="col" class="p-3">人数</th>
         <th scope="col" class="p-3">目安時間</th>
         <th scope="col" class="p-3"><%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>経験</th>

@@ -7,11 +7,11 @@
   <%= accessible_error_summary(play_session) %>
 
   <fieldset class="border border-rule bg-surface p-5">
-    <legend class="px-2 font-display text-sm">セッション</legend>
+    <legend class="px-2 font-display text-sm"><%= PlaySession.model_name.human %></legend>
 
     <div class="grid gap-4 sm:grid-cols-2">
       <div class="sm:col-span-2">
-        <%= form.label :scenario_id, "シナリオ", class: "block text-xs text-muted" %>
+        <%= form.label :scenario_id, Scenario.model_name.human, class: "block text-xs text-muted" %>
         <%= form.collection_select :scenario_id, Scenario.order(:title), :id, :title,
               { include_blank: "選択してください" },
               class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm",
