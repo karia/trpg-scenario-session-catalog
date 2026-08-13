@@ -47,6 +47,9 @@ RSpec.describe "Editor navigation" do
 
     visit play_session_path(play_session)
     expect(page).to have_link("編集", href: edit_play_session_path(play_session))
+    click_link "編集"
+    expect(page).to have_css("h1", text: "セッションの編集")
+    expect(page).to have_button("更新")
 
     visit authors_path
     expect(page).to have_link("新規登録", href: new_author_path)
