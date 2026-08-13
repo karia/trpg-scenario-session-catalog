@@ -31,6 +31,19 @@ RSpec.describe "Signed-in interface contract" do
             "h1", text: "#{model.model_name.human}の新規登録"
           )
         end
+
+        get root_path
+        menu = Capybara.string(response.body).find("nav#account-menu", visible: :all)
+        resources.each do |model, index_path, _new_path|
+          expect(menu).to have_link(model.model_name.human, href: index_path, visible: :all)
+        end
+        [
+          [ Group, manage_groups_path ],
+          [ User, manage_users_path ],
+          [ SiteSetting, manage_site_setting_path ]
+        ].each do |model, path|
+          expect(menu).to have_link(model.model_name.human, href: path, visible: :all)
+        end
       end
     ensure
       I18n.available_locales = original_locales
