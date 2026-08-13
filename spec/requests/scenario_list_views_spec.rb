@@ -155,7 +155,7 @@ RSpec.describe "The scenario list" do
     it "is absent from the edit screen" do
       sign_in_as create(:person, roles: %w[gm])
 
-      get edit_manage_scenario_path(scenario)
+      get edit_scenario_path(scenario)
 
       expect(response.body).not_to include("おすすめ度")
       expect(Capybara.string(response.body)).to have_no_css('select[name="scenario[recommendation]"]')
@@ -200,7 +200,7 @@ RSpec.describe "The scenario list" do
     it "uses the new label on the edit screen" do
       sign_in_as create(:person, roles: %w[gm])
 
-      get edit_manage_scenario_path(scenario)
+      get edit_scenario_path(scenario)
 
       expect(response.body).to include("GM経験あり")
       expect(response.body).not_to include("回したことがある")

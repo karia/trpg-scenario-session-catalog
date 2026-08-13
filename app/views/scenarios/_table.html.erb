@@ -10,6 +10,7 @@
         <th scope="col" class="p-3">目安時間</th>
         <th scope="col" class="p-3"><%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>経験</th>
         <th scope="col" class="p-3">入手先</th>
+        <% if policy(Scenario).update? %><th scope="col" class="p-3">操作</th><% end %>
       </tr>
     </thead>
     <tbody>
@@ -32,6 +33,7 @@
               <% end %>
             <% end %>
           </td>
+          <% if policy(scenario).update? %><td class="p-3 text-xs"><%= link_to "編集", edit_scenario_path(scenario), data: { turbo_frame: "_top" }, class: "text-seal" %></td><% end %>
         </tr>
       <% end %>
     </tbody>

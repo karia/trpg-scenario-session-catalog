@@ -21,11 +21,10 @@ RSpec.describe "Accessibility" do
     sign_in_as create(:person, roles: %w[gm])
     create(:scenario)
 
-    get manage_scenarios_path
+    get scenario_order_index_path
 
     page = Capybara.string(response.body)
     expect(page).to have_css('[role="region"][aria-label="シナリオの並び順と操作"][tabindex="0"] table')
-    expect(page).to have_css('nav[aria-label="編集"] [aria-current="page"]', text: "シナリオ")
     expect(page).to have_css('th[scope="col"]', text: "操作")
   end
 
@@ -36,7 +35,7 @@ RSpec.describe "Accessibility" do
     schedule = create(:session_schedule, play_session:)
     create(:recording_link, session_schedule: schedule)
 
-    get edit_manage_play_session_path(play_session)
+    get edit_play_session_path(play_session)
 
     page = Capybara.string(response.body)
     expect(page).to have_css("fieldset legend", text: "参加者")
@@ -47,7 +46,7 @@ RSpec.describe "Accessibility" do
   it "links an error summary to the invalid field and describes that field" do
     sign_in_as create(:person, roles: %w[gm])
 
-    post manage_scenarios_path, params: { scenario: { title: "" } }
+    post scenarios_path, params: { scenario: { title: "" } }
 
     page = Capybara.string(response.body)
     expect(page).to have_css('[data-controller="error-summary"][tabindex="-1"] a[data-error-attribute="title"]')
@@ -58,7 +57,7 @@ RSpec.describe "Accessibility" do
   it "exposes the rendered nested field ID to the error summary controller" do
     sign_in_as create(:person, roles: %w[gm])
 
-    post manage_scenarios_path,
+    post scenarios_path,
       params: { scenario: { title: "シナリオ", purchase_links_attributes: [ { label: "購入", url: "invalid" } ] } }
 
     page = Capybara.string(response.body)

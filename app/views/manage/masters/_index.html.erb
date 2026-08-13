@@ -1,19 +1,6 @@
 <% content_for :title, title %>
 <h1 class="font-display text-2xl"><%= title %></h1>
-
-<%= form_with model: record, url: record.persisted? ? record_path.call(record) : index_path,
-      class: "mt-6 flex items-end gap-2" do |form| %>
-  <div>
-    <%= form.label :name, "名前", class: "block text-xs text-muted" %>
-    <%= form.text_field :name, class: "mt-1 w-64 border border-rule bg-paper px-3 py-2 text-sm" %>
-  </div>
-  <%= form.submit record.persisted? ? "更新" : "追加", class: "bg-ink px-5 py-2 text-sm text-paper" %>
-  <% if record.persisted? %>
-    <%= link_to "やめる", index_path, class: "self-center text-sm text-muted" %>
-  <% end %>
-<% end %>
-
-<div class="mt-2"><%= accessible_error_summary(record) %></div>
+<% if local_assigns[:new_path] && policy(records.model).create? %><p class="mt-4"><%= link_to "新規登録", new_path, class: "text-sm text-seal" %></p><% end %>
 
 <ul class="mt-6 divide-y divide-rule border border-rule bg-surface text-sm">
   <% records.each do |item| %>
@@ -21,10 +8,10 @@
       <span><%= item.name %></span>
       <span class="flex gap-1 text-xs">
         <%= link_to "詳細", record_path.call(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
-        <%= link_to "編集", edit_path.call(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
-        <%= button_to "削除", record_path.call(item), method: :delete,
+        <% if policy(item).update? %><%= link_to "編集", edit_path.call(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %><% end %>
+        <% if policy(item).destroy? %><%= button_to "削除", record_path.call(item), method: :delete,
               form: { data: { turbo_confirm: "#{item.name} を削除しますか" } },
-              class: "min-h-6 px-1 text-muted" %>
+              class: "min-h-6 px-1 text-muted" %><% end %>
       </span>
     </li>
   <% end %>

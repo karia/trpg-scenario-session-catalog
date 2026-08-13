@@ -1,6 +1,7 @@
 <% content_for :title, "メンバー" %>
 
 <h1 class="font-display text-3xl tracking-wide">メンバー</h1>
+<% if policy(Person).create? %><p class="mt-4"><%= link_to "新規登録", new_person_path, class: "text-sm text-seal" %></p><% end %>
 
 <ul class="mt-8 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
   <% @people.each do |member| %>
@@ -16,8 +17,14 @@
           <% if member.visible_aliases.any? %>
             <span class="block text-xs text-muted"><%= member.visible_aliases.map(&:name).join("、") %></span>
           <% end %>
+          <% if current_person.admin? %>
+            <span class="mt-1 block text-xs text-muted">権限: <%= person_role_labels(member).join("、") %></span>
+            <span class="block text-xs text-muted">グループ: <%= member.groups.map(&:name).join("、").presence || "なし" %></span>
+            <span class="block text-xs text-muted">アカウント: <%= member.user&.email || "未紐づけ" %></span>
+          <% end %>
         </span>
       <% end %>
+      <% if policy(member).update? %><p class="px-4 pb-4 text-xs"><%= link_to "編集", edit_person_path(member), class: "text-seal" %></p><% end %>
     </li>
   <% end %>
 </ul>

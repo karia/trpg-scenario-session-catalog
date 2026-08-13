@@ -1,17 +1,8 @@
-<nav class="border-b border-rule bg-surface" aria-label="編集">
+<nav class="border-b border-rule bg-surface" aria-label="管理">
   <div class="mx-auto flex max-w-5xl flex-wrap gap-x-5 gap-y-2 px-5 py-3 text-xs">
-    <span class="font-display text-muted">編集</span>
-    <%= link_to "シナリオ", manage_scenarios_path, class: manage_nav_class(manage_scenarios_path), aria: { current: ("page" if request.path.start_with?(manage_scenarios_path)) } %>
-    <%= link_to "セッション", manage_play_sessions_path, class: manage_nav_class(manage_play_sessions_path), aria: { current: ("page" if request.path.start_with?(manage_play_sessions_path)) } %>
-    <%= link_to "システム", manage_game_systems_path, class: manage_nav_class(manage_game_systems_path), aria: { current: ("page" if request.path.start_with?(manage_game_systems_path)) } %>
-    <%= link_to "作者", manage_authors_path, class: manage_nav_class(manage_authors_path), aria: { current: ("page" if request.path.start_with?(manage_authors_path)) } %>
-
-    <% if current_person&.admin? %>
-      <span class="ml-auto font-display text-muted">管理</span>
-      <%= link_to "メンバー", manage_people_path, class: manage_nav_class(manage_people_path) %>
-      <%= link_to "グループ", manage_groups_path, class: manage_nav_class(manage_groups_path) %>
-      <%= link_to "アカウント", manage_users_path, class: manage_nav_class(manage_users_path) %>
-      <%= link_to "サイト全体設定", manage_site_setting_path, class: manage_nav_class(manage_site_setting_path) %>
-    <% end %>
+    <span class="font-display text-muted">管理</span>
+    <%= link_to "グループ", manage_groups_path, class: manage_nav_class(manage_groups_path) %>
+    <%= link_to "アカウント", manage_users_path, class: manage_nav_class(manage_users_path) %>
+    <%= link_to "サイト全体設定", manage_site_setting_path, class: manage_nav_class(manage_site_setting_path) %>
   </div>
 </nav>

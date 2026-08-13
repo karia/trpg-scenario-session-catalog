@@ -1,0 +1,4 @@
+<% content_for :title, "セッションの新規登録" %>
+<h1 class="font-display text-2xl">セッションの新規登録</h1>
+<%= render "manage/play_sessions/form", play_session: @play_session %>
+<p class="mt-6"><%= link_to "一覧に戻る", play_sessions_path, class: "text-sm text-muted" %></p>

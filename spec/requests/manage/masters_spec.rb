@@ -127,15 +127,15 @@ RSpec.describe "Manage masters" do
   describe "game systems" do
     it_behaves_like "a master resource",
       factory: :game_system,
-      index_path: :manage_game_systems_path,
-      member_path: :manage_game_system_path,
-      edit_path: :edit_manage_game_system_path
+      index_path: :game_systems_path,
+      member_path: :game_system_path,
+      edit_path: :edit_game_system_path
 
     it "updates the game master label" do
       system = create(:game_system, name: "エモクロアTRPG")
       sign_in_as create(:person, roles: %w[gm])
 
-      patch manage_game_system_path(system), params: {
+      patch game_system_path(system), params: {
         game_system: { name: system.name, game_master_label: "DL" }
       }
 
@@ -146,8 +146,8 @@ RSpec.describe "Manage masters" do
   describe "authors" do
     it_behaves_like "a master resource",
       factory: :author,
-      index_path: :manage_authors_path,
-      member_path: :manage_author_path,
-      edit_path: :edit_manage_author_path
+      index_path: :authors_path,
+      member_path: :author_path,
+      edit_path: :edit_author_path
   end
 end

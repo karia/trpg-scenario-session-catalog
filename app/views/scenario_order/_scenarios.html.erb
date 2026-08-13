@@ -1,0 +1,9 @@
+<tbody id="scenario_order" data-controller="sortable" data-sortable-url-value="<%= reorder_scenario_order_index_path %>" data-sortable-saved-message-value="保存しました" data-sortable-failed-message-value="保存できませんでした">
+  <% scenarios.each do |scenario| %>
+    <tr class="border-b border-rule last:border-b-0" draggable="true" data-sortable-target="row" data-sortable-id-param="<%= scenario.id %>" data-action="dragstart->sortable#start dragover->sortable#over drop->sortable#drop dragend->sortable#finish">
+      <td class="p-3"><span class="cursor-move text-muted" aria-hidden="true">⠿</span> <%= button_to "↑", move_scenario_order_path(scenario, direction: "up"), method: :patch, form: { class: "inline" }, aria: { label: "#{scenario.title}を1つ上へ" } %> <%= button_to "↓", move_scenario_order_path(scenario, direction: "down"), method: :patch, form: { class: "inline" }, aria: { label: "#{scenario.title}を1つ下へ" } %></td>
+      <td class="p-3 font-display"><%= link_to scenario.title, scenario_path(scenario), class: "text-seal" %></td>
+      <td class="p-3 text-right text-xs"><%= link_to "編集", edit_scenario_path(scenario), class: "text-seal" %></td>
+    </tr>
+  <% end %>
+</tbody>

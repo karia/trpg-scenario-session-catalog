@@ -1,5 +1,4 @@
 module Manage
-  # GameSystem と Author は名前だけの一覧なので、同じ振る舞いを共有する。
   class MastersController < BaseController
     before_action :set_record, only: %i[show edit update destroy]
 
@@ -9,33 +8,20 @@ module Manage
       @record = model_class.new
     end
 
-    def show
-      authorize @record
-    end
-
-    def edit
-      authorize @record
-    end
+    def show = authorize(@record)
+    def edit = authorize(@record)
 
     def create
       @record = authorize model_class.new(record_params)
-
-      if @record.save
-        redirect_to url_for(action: :show, id: @record), notice: "#{@record.name} を登録しました"
-      else
-        @records = policy_scope(model_class)
-        render :index, status: :unprocessable_content
-      end
+      return redirect_to(url_for(action: :show, id: @record), notice: "#{@record.name} を登録しました") if @record.save
+      @records = policy_scope(model_class)
+      render :index, status: :unprocessable_content
     end
 
     def update
       authorize @record
-
-      if @record.update(record_params)
-        redirect_to url_for(action: :show, id: @record), notice: "#{@record.name} を更新しました"
-      else
-        render :edit, status: :unprocessable_content
-      end
+      return redirect_to(url_for(action: :show, id: @record), notice: "#{@record.name} を更新しました") if @record.update(record_params)
+      render :edit, status: :unprocessable_content
     end
 
     def destroy
@@ -46,14 +32,6 @@ module Manage
 
     private
       def model_class = raise NotImplementedError
-
-      def set_record
-        @record = model_class.find(params[:id])
-      end
-
-      def record_params
-        params.expect(model_class.model_name.param_key.to_sym => [ :name, :game_master_label, :display_alias_key,
-          { aliases_attributes: [ [ :id, :name, :visible, :position, :selection_key, :_destroy ] ] } ])
-      end
+      def set_record = @record = model_class.find(params[:id])
   end
 end

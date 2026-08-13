@@ -30,11 +30,22 @@
         <nav class="ml-auto flex flex-wrap items-center justify-end gap-2 text-sm" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
-              <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
-              <%= link_to "メンバー", people_path, class: "text-seal underline" %>
-            <% end %>
-            <% if policy(Scenario).manage? %>
-              <%= link_to "編集", manage_scenarios_path, class: "text-seal underline" %>
+              <details class="relative">
+                <summary class="cursor-pointer text-seal underline">メニュー</summary>
+                <div class="absolute right-0 z-40 mt-2 grid min-w-48 gap-2 border border-rule bg-surface p-4 shadow-lg">
+                  <%= link_to "シナリオ", scenarios_path, class: "text-seal underline" %>
+                  <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
+                  <%= link_to "メンバー", people_path, class: "text-seal underline" %>
+                  <%= link_to "システム", game_systems_path, class: "text-seal underline" %>
+                  <%= link_to "作者", authors_path, class: "text-seal underline" %>
+                  <% if policy(Scenario).reorder? %><%= link_to "シナリオの並び順", scenario_order_index_path, class: "text-seal underline" %><% end %>
+                  <% if current_person.admin? %>
+                    <%= link_to "グループ", manage_groups_path, class: "text-seal underline" %>
+                    <%= link_to "アカウント", manage_users_path, class: "text-seal underline" %>
+                    <%= link_to "サイト全体設定", manage_site_setting_path, class: "text-seal underline" %>
+                  <% end %>
+                </div>
+              </details>
             <% end %>
             <% if current_person %>
               <%= link_to current_person.display_name, person_path(current_person), class: "text-muted" %>

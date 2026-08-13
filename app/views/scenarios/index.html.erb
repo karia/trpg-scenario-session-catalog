@@ -6,6 +6,8 @@
     シナリオ一覧<span class="ml-2 text-base text-muted" role="status">（全<%= @scenarios.size %>件）</span>
   </h1>
 
+  <% if policy(Scenario).create? %><%= link_to "新規登録", new_scenario_path, class: "text-sm text-seal" %><% end %>
+
   <nav class="flex items-center gap-3 text-xs" aria-label="表示の切り替え">
     <%= link_to "表形式", root_path(@listing.params(view: "table")), class: list_view_class("table", @listing.view),
           aria: { current: ("page" if @listing.view == "table") } %>

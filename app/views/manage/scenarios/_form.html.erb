@@ -1,4 +1,4 @@
-<%= form_with model: [ :manage, scenario ], class: "mt-6 space-y-8" do |form| %>
+<%= form_with model: scenario, class: "mt-6 space-y-8" do |form| %>
   <%= accessible_error_summary(scenario) %>
 
   <fieldset class="border border-rule bg-surface p-5">
@@ -88,7 +88,7 @@
       </div>
 
       <p class="text-xs text-muted">
-        並び順は<%= link_to "シナリオの管理", manage_scenarios_path, class: "text-seal" %>の一覧で行をドラッグして決めます。
+        並び順は<%= link_to "シナリオの並び順", scenario_order_index_path, class: "text-seal" %>で決めます。
       </p>
 
       <div>
@@ -110,15 +110,15 @@
     </div>
   </fieldset>
 
-  <%= render "link_fields", form: form, association: :purchase_links, legend: "入手先",
+  <%= render "manage/scenarios/link_fields", form: form, association: :purchase_links, legend: "入手先",
         hint: "URL は空でもよい。書籍付属など購入方法を書く場合に使う。" %>
-  <%= render "link_fields", form: form, association: :stream_links, legend: "おすすめの配信",
+  <%= render "manage/scenarios/link_fields", form: form, association: :stream_links, legend: "おすすめの配信",
         hint: "URL は必須。" %>
 
   <div class="flex gap-4">
     <%= form.submit "保存", class: "bg-ink px-6 py-2 text-sm text-paper" %>
     <%= link_to scenario.persisted? ? "詳細に戻る" : "一覧に戻る",
-          scenario.persisted? ? scenario_path(scenario) : manage_scenarios_path,
+          scenario.persisted? ? scenario_path(scenario) : scenarios_path,
           class: "self-center text-sm text-muted" %>
   </div>
 <% end %>

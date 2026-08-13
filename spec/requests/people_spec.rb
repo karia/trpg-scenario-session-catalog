@@ -104,7 +104,7 @@ RSpec.describe "People" do
       group = create(:group)
       sign_in_as create(:person, roles: %w[admin])
 
-      patch manage_person_path(person), params: { person: { display_name: "本人", group_ids: [ group.id ] } }
+      patch person_path(person), params: { person: { display_name: "本人", group_ids: [ group.id ] } }
 
       expect(person.reload.groups).to eq([ group ])
     end

@@ -11,7 +11,7 @@
       <%= link_to @play_session.scenario.title, scenario_path(@play_session.scenario), class: "text-ink" %>
     </h1>
     <% if policy(@play_session).update? %>
-      <%= link_to "編集", edit_manage_play_session_path(@play_session), class: "text-sm text-seal" %>
+      <%= link_to "編集", edit_play_session_path(@play_session), class: "text-sm text-seal" %>
     <% end %>
   </div>
 

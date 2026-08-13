@@ -32,6 +32,7 @@
           <dd><%= duration_value(scenario) %></dd>
         </dl>
       <% end %>
+      <% if policy(scenario).update? %><p class="px-4 pb-4 text-xs"><%= link_to "編集", edit_scenario_path(scenario), data: { turbo_frame: "_top" }, class: "text-seal" %></p><% end %>
     </li>
   <% end %>
 </ul>

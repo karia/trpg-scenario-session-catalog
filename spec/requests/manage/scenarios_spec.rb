@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Manage::Scenarios" do
   describe "without a signed-in editor" do
     it "answers 404 to an anonymous visitor" do
-      get manage_scenarios_path
+      get scenario_order_index_path
 
       expect(response).to have_http_status(:not_found)
     end
@@ -11,7 +11,7 @@ RSpec.describe "Manage::Scenarios" do
     it "answers 404 to a user who is not linked to a person" do
       sign_in_as create(:user, person: nil)
 
-      get manage_scenarios_path
+      get scenario_order_index_path
 
       expect(response).to have_http_status(:not_found)
     end
@@ -19,13 +19,13 @@ RSpec.describe "Manage::Scenarios" do
     it "answers 404 to a person with no role" do
       sign_in_as create(:person)
 
-      get manage_scenarios_path
+      get scenario_order_index_path
 
       expect(response).to have_http_status(:not_found)
     end
 
     it "does not create a scenario for an anonymous visitor" do
-      post manage_scenarios_path, params: { scenario: { title: "侵入" } }
+      post scenarios_path, params: { scenario: { title: "侵入" } }
 
       expect(response).to have_http_status(:not_found)
       expect(Scenario.count).to eq(0)
@@ -36,7 +36,7 @@ RSpec.describe "Manage::Scenarios" do
       first = create(:scenario)
       second = create(:scenario)
 
-      patch reorder_manage_scenarios_path, params: { scenario_ids: [ second.id, first.id ] }
+      patch reorder_scenario_order_index_path, params: { scenario_ids: [ second.id, first.id ] }
 
       expect(response).to have_http_status(:not_found)
       expect(first.reload.position).to be < second.reload.position
@@ -47,7 +47,7 @@ RSpec.describe "Manage::Scenarios" do
       second = create(:scenario)
       sign_in_as create(:user, person: nil)
 
-      patch reorder_manage_scenarios_path, params: { scenario_ids: [ second.id, first.id ] }
+      patch reorder_scenario_order_index_path, params: { scenario_ids: [ second.id, first.id ] }
 
       expect(response).to have_http_status(:not_found)
       expect(first.reload.position).to be < second.reload.position
@@ -58,7 +58,7 @@ RSpec.describe "Manage::Scenarios" do
       second = create(:scenario)
       sign_in_as create(:person)
 
-      patch reorder_manage_scenarios_path, params: { scenario_ids: [ second.id, first.id ] }
+      patch reorder_scenario_order_index_path, params: { scenario_ids: [ second.id, first.id ] }
 
       expect(response).to have_http_status(:not_found)
       expect(first.reload.position).to be < second.reload.position
@@ -68,7 +68,7 @@ RSpec.describe "Manage::Scenarios" do
       first = create(:scenario)
       second = create(:scenario)
 
-      patch move_manage_scenario_path(second, direction: "up")
+      patch move_scenario_order_path(second, direction: "up")
 
       expect(response).to have_http_status(:not_found)
       expect(first.reload.position).to be < second.reload.position
@@ -77,7 +77,7 @@ RSpec.describe "Manage::Scenarios" do
     it "does not refresh a BOOTH image for anyone outside the editors" do
       scenario = create(:scenario)
 
-      post refresh_booth_image_manage_scenario_path(scenario)
+      post refresh_booth_image_scenario_path(scenario)
 
       expect(response).to have_http_status(:not_found)
     end
@@ -88,7 +88,7 @@ RSpec.describe "Manage::Scenarios" do
         io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "jacket.png", content_type: "image/png"
       )
 
-      delete jacket_manage_scenario_path(scenario)
+      delete jacket_scenario_path(scenario)
 
       expect(response).to have_http_status(:not_found)
       expect(scenario.reload.jacket).to be_attached
@@ -105,11 +105,11 @@ RSpec.describe "Manage::Scenarios" do
     it "lists the scenarios" do
       scenario = create(:scenario, title: "カタシロ")
 
-      authorized_get manage_scenarios_path
+      authorized_get scenario_order_index_path
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("カタシロ")
-      expect(response.body).to include(scenario_path(scenario), edit_manage_scenario_path(scenario))
+      expect(response.body).to include(scenario_path(scenario), edit_scenario_path(scenario))
     end
 
     describe "rearranging the list" do
@@ -117,7 +117,7 @@ RSpec.describe "Manage::Scenarios" do
         create(:scenario, title: "あ", position: 2)
         create(:scenario, title: "ま", position: 1)
 
-        authorized_get manage_scenarios_path
+        authorized_get scenario_order_index_path
 
         expect(response.body.index("ま")).to be < response.body.index("あ")
       end
@@ -125,7 +125,7 @@ RSpec.describe "Manage::Scenarios" do
       it "hands each row to the browser with its identifier" do
         scenario = create(:scenario)
 
-        authorized_get manage_scenarios_path
+        authorized_get scenario_order_index_path
 
         expect(Capybara.string(response.body))
           .to have_css(%(tr[draggable="true"][data-sortable-id-param="#{scenario.id}"]))
@@ -136,7 +136,7 @@ RSpec.describe "Manage::Scenarios" do
         second = create(:scenario, title: "に")
         third = create(:scenario, title: "さん")
 
-        patch reorder_manage_scenarios_path, params: { scenario_ids: [ third.id, first.id, second.id ] }
+        patch reorder_scenario_order_index_path, params: { scenario_ids: [ third.id, first.id, second.id ] }
 
         expect(response).to have_http_status(:no_content)
         expect(Scenario.gm_ordered.pluck(:title)).to eq([ "さん", "いち", "に" ])
@@ -146,7 +146,7 @@ RSpec.describe "Manage::Scenarios" do
         first = create(:scenario)
         second = create(:scenario)
 
-        patch reorder_manage_scenarios_path
+        patch reorder_scenario_order_index_path
 
         expect(response).to have_http_status(:no_content)
         expect(Scenario.gm_ordered).to eq([ first, second ])
@@ -156,7 +156,7 @@ RSpec.describe "Manage::Scenarios" do
         first = create(:scenario)
         second = create(:scenario)
 
-        patch reorder_manage_scenarios_path, params: { scenario_ids: { a: second.id } }
+        patch reorder_scenario_order_index_path, params: { scenario_ids: { a: second.id } }
 
         expect(response).to have_http_status(:no_content)
         expect(Scenario.gm_ordered).to eq([ first, second ])
@@ -167,9 +167,9 @@ RSpec.describe "Manage::Scenarios" do
         create(:scenario, title: "うえ")
         bottom = create(:scenario, title: "した")
 
-        patch move_manage_scenario_path(bottom, direction: "up")
+        patch move_scenario_order_path(bottom, direction: "up")
 
-        expect(response).to redirect_to(manage_scenarios_path)
+        expect(response).to redirect_to(scenario_order_index_path)
         expect(Scenario.gm_ordered.pluck(:title)).to eq([ "した", "うえ" ])
       end
 
@@ -177,22 +177,22 @@ RSpec.describe "Manage::Scenarios" do
         create(:scenario, title: "うえ")
         bottom = create(:scenario, title: "した")
 
-        patch move_manage_scenario_path(bottom, direction: "up"),
+        patch move_scenario_order_path(bottom, direction: "up"),
           headers: { "Accept" => "text/vnd.turbo-stream.html" }
 
         expect(response.media_type).to eq("text/vnd.turbo-stream.html")
         document = Capybara.string(response.body)
-        expect(document).to have_css('turbo-stream[action="replace"][target="manage_scenarios"]')
+        expect(document).to have_css('turbo-stream[action="replace"][target="scenario_order"]')
         expect(response.body.index("した")).to be < response.body.index("うえ")
       end
 
       it "offers those buttons on every row" do
         scenario = create(:scenario, title: "カタシロ")
 
-        authorized_get manage_scenarios_path
+        authorized_get scenario_order_index_path
 
         expect(Capybara.string(response.body))
-          .to have_css(%(form[action="#{move_manage_scenario_path(scenario, direction: 'up')}"] button))
+          .to have_css(%(form[action="#{move_scenario_order_path(scenario, direction: 'up')}"] button))
       end
     end
 
@@ -200,7 +200,7 @@ RSpec.describe "Manage::Scenarios" do
       system = create(:game_system, name: "エモクロアTRPG")
       author = create(:author, name: "ディズム")
 
-      post manage_scenarios_path,
+      post scenarios_path,
         params: {
           scenario: {
             title: "変葬",
@@ -227,7 +227,7 @@ RSpec.describe "Manage::Scenarios" do
     end
 
     it "re-renders the form when the title is missing" do
-      post manage_scenarios_path,
+      post scenarios_path,
         params: { scenario: { title: "" } }
 
       expect(response).to have_http_status(:unprocessable_content)
@@ -239,20 +239,20 @@ RSpec.describe "Manage::Scenarios" do
       scenario = create(:scenario)
       create(:play_session, scenario: scenario)
 
-      expect { delete manage_scenario_path(scenario) }.not_to change(Scenario, :count)
+      expect { delete scenario_path(scenario) }.not_to change(Scenario, :count)
       expect(PlaySession.count).to eq(1)
     end
 
     it "deletes a scenario that has no sessions" do
       scenario = create(:scenario)
 
-      expect { delete manage_scenario_path(scenario) }.to change(Scenario, :count).by(-1)
+      expect { delete scenario_path(scenario) }.to change(Scenario, :count).by(-1)
     end
 
     it "updates a scenario" do
       scenario = create(:scenario, title: "旧題")
 
-      patch manage_scenario_path(scenario), params: { scenario: { title: "新題" } }
+      patch scenario_path(scenario), params: { scenario: { title: "新題" } }
 
       expect(response).to redirect_to(scenario_path(scenario))
       expect(scenario.reload.title).to eq("新題")
@@ -261,7 +261,7 @@ RSpec.describe "Manage::Scenarios" do
     it "offers a manual BOOTH image refresh on the edit screen" do
       scenario = create(:scenario)
 
-      get edit_manage_scenario_path(scenario)
+      get edit_scenario_path(scenario)
 
       expect(response.body).to include("BOOTH画像を更新")
     end
@@ -269,16 +269,16 @@ RSpec.describe "Manage::Scenarios" do
     it "offers jacket deletion only when a jacket is attached" do
       scenario = create(:scenario)
 
-      get edit_manage_scenario_path(scenario)
+      get edit_scenario_path(scenario)
       expect(response.body).not_to include("ジャケット画像を削除")
 
       scenario.jacket.attach(
         io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "jacket.png", content_type: "image/png"
       )
 
-      get edit_manage_scenario_path(scenario)
+      get edit_scenario_path(scenario)
       expect(Capybara.string(response.body))
-        .to have_css(%(form[action="#{jacket_manage_scenario_path(scenario)}"] button), text: "ジャケット画像を削除")
+        .to have_css(%(form[action="#{jacket_scenario_path(scenario)}"] button), text: "ジャケット画像を削除")
     end
 
     it "deletes an uploaded jacket and exposes the BOOTH image fallback" do
@@ -290,9 +290,9 @@ RSpec.describe "Manage::Scenarios" do
         io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "booth-fallback.png", content_type: "image/png"
       )
 
-      delete jacket_manage_scenario_path(scenario)
+      delete jacket_scenario_path(scenario)
 
-      expect(response).to redirect_to(edit_manage_scenario_path(scenario))
+      expect(response).to redirect_to(edit_scenario_path(scenario))
       expect(flash[:notice]).to eq("ジャケット画像を削除しました")
       expect(scenario.reload.jacket).not_to be_attached
 
@@ -303,7 +303,7 @@ RSpec.describe "Manage::Scenarios" do
     it "limits the jacket picker to supported image formats" do
       scenario = create(:scenario)
 
-      get edit_manage_scenario_path(scenario)
+      get edit_scenario_path(scenario)
 
       expect(Capybara.string(response.body))
         .to have_css('input[name="scenario[jacket]"][accept="image/png,image/jpeg,image/webp"]')
@@ -315,10 +315,10 @@ RSpec.describe "Manage::Scenarios" do
       importer = instance_double(BoothImageImporter, call: result)
       allow(BoothImageImporter).to receive(:new).with(scenario).and_return(importer)
 
-      post refresh_booth_image_manage_scenario_path(scenario)
+      post refresh_booth_image_scenario_path(scenario)
 
       expect(importer).to have_received(:call).with(force: true)
-      expect(response).to redirect_to(edit_manage_scenario_path(scenario))
+      expect(response).to redirect_to(edit_scenario_path(scenario))
       expect(flash[:notice]).to eq("BOOTH画像を更新しました")
     end
 
@@ -327,7 +327,7 @@ RSpec.describe "Manage::Scenarios" do
       result = BoothImageImporter::Result.new(success: false, message: "BOOTH画像を取得できませんでした")
       allow(BoothImageImporter).to receive(:new).and_return(instance_double(BoothImageImporter, call: result))
 
-      post refresh_booth_image_manage_scenario_path(scenario)
+      post refresh_booth_image_scenario_path(scenario)
 
       expect(flash[:alert]).to eq("BOOTH画像を取得できませんでした")
     end

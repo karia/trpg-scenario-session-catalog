@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 公開エリア | `app/controllers/scenarios_controller.rb` ほか | 未ログインでも見える。SEO の対象はここだけ |
 | ログイン必須エリア | `play_sessions` / `people` | `current_person` が nil なら入れない |
-| 編集エリア | `app/controllers/manage/` | `Manage::BaseController` が入口を塞ぐ |
+| 管理者専用エリア | `app/controllers/manage/` | グループ、ユーザー、サイト全体設定だけを置く |
 | 認可 | `app/policies/` | 判断はすべてここ。ビューやコントローラに条件を散らさない |
 
 認証は Google のみ。`User` は Google アカウント、`Person` は人物で、1 対 1 で紐づく。
@@ -109,6 +109,8 @@ TDD、commit の分け方、pre-commit の扱いは [README の「変更を出�
 - 会話は日本語。commit と PR の title/description は英語
 
 ### コードを書くとき
+
+- `manage`配下には、管理者だけが作成・変更できるグループ、ユーザー、サイト全体設定だけを置く。それ以外の作成・編集導線は通常の一覧・詳細画面に統合する
 
 - NN/gのユーザビリティヒューリスティクスおよびWCAG 2.2 AAに準拠するように設計・実装してください。
 - ソースに複数行コメントを書かない。書くのは、コードから読み取れない背景や理由に限る
