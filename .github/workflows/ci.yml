@@ -90,6 +90,7 @@ jobs:
       DATABASE_PORT: 5432
       DATABASE_USERNAME: postgres
       DATABASE_PASSWORD: postgres
+      CHROME_BINARY: /usr/bin/google-chrome
 
     steps:
       - name: Checkout code

@@ -12,7 +12,6 @@ class PeopleController < ApplicationController
 
   def edit
     authorize @person, :update?
-    render "manage/people/edit" if policy(@person).manage?
   end
 
   def update
@@ -21,7 +20,7 @@ class PeopleController < ApplicationController
     if @person.update(person_params)
       redirect_to person_path(@person), notice: "プロフィールを更新しました"
     else
-      render(policy(@person).manage? ? "manage/people/edit" : :edit, status: :unprocessable_content)
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -48,10 +47,11 @@ class PeopleController < ApplicationController
 
     # グループ所属はここでは受け取らない。管理画面（管理者のみ）で扱う。
     def person_params
-      return admin_person_params if policy(@person).manage?
-      params.expect(person: [ :display_name, :display_alias_key, :x_account, :icon,
+      permitted = [ :display_name, :display_alias_key, :x_account, :icon,
         { aliases_attributes: [ [ :id, :name, :context, :visible, :position, :selection_key, :_destroy ] ],
-          person_aliases_attributes: [ [ :id, :name, :context, :visible, :position, :_destroy ] ] } ])
+          person_aliases_attributes: [ [ :id, :name, :context, :visible, :position, :_destroy ] ] } ]
+      permitted << { roles: [], group_ids: [] } if policy(@person).manage?
+      params.expect(person: permitted)
     end
 
     def admin_person_params

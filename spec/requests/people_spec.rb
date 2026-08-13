@@ -91,6 +91,25 @@ RSpec.describe "People" do
       expect(person.reload.display_name).to eq("管理者が直した")
     end
 
+    it "lets an admin edit profile aliases and management fields in the same form" do
+      group = create(:group)
+      sign_in_as create(:person, roles: %w[admin])
+
+      patch person_path(person), params: {
+        person: {
+          display_name: person.display_name,
+          roles: [ "gm" ],
+          group_ids: [ group.id ],
+          person_aliases_attributes: [ { name: "管理者が追加した別名", visible: "1" } ]
+        }
+      }
+
+      person.reload
+      expect(person.roles).to include("gm")
+      expect(person.groups).to eq([ group ])
+      expect(person.person_aliases.map(&:name)).to include("管理者が追加した別名")
+    end
+
     it "does not let the person change their own group membership" do
       group = create(:group)
       sign_in_as person
