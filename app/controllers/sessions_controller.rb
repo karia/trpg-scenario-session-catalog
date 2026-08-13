@@ -6,7 +6,7 @@ class SessionsController < ApplicationController
     reset_session
     session[:user_id] = user.id
 
-    redirect_to root_path, notice: sign_in_notice(user)
+    redirect_to return_to_url, notice: sign_in_notice(user)
   rescue KeyError, ActiveRecord::ActiveRecordError
     failure
   end
@@ -21,6 +21,10 @@ class SessionsController < ApplicationController
   end
 
   private
+    def return_to_url
+      url_from(request.env["omniauth.origin"]) || root_path
+    end
+
     def sign_in_notice(user)
       "ログインしました" if user.linked?
     end
