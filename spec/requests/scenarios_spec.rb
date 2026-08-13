@@ -50,6 +50,22 @@ RSpec.describe "Scenarios" do
       expect(response.body).to include("この情報はGMが独自判断で記載しており、シナリオ公式の案内と異なる場合があります")
     end
 
+    it "opens external links in a new tab and links displayed URLs" do
+      scenario.update!(synopsis: "公式情報: https://example.com/info")
+      scenario.purchase_links.create!(label: "公式ストア", url: "https://example.com/store")
+
+      get scenario_path(scenario)
+
+      page = Capybara.string(response.body)
+      expect(page).to have_link("公式ストア", href: "https://example.com/store", target: "_blank")
+      expect(page).to have_link(
+        "https://example.com/store", href: "https://example.com/store", target: "_blank"
+      )
+      expect(page).to have_link(
+        "https://example.com/info", href: "https://example.com/info", target: "_blank"
+      )
+    end
+
     it "uses the imported BOOTH image when no jacket is attached" do
       scenario.booth_image.attach(
         io: File.open(Rails.root.join("spec/fixtures/files/dot.png")), filename: "booth-detail.png", content_type: "image/png"

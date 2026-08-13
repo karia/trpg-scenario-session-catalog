@@ -37,7 +37,7 @@
       <dt class="text-muted">ココフォリア</dt>
       <dd class="font-sans">
         <%= link_to @play_session.cocofolia_url, @play_session.cocofolia_url,
-              rel: "noopener", class: "text-seal" %>
+              target: "_blank", rel: "noopener", class: "text-seal" %>
       </dd>
     <% end %>
   </dl>
@@ -53,8 +53,8 @@
             <span class="text-muted"><%= participation.character_name %></span>
           <% end %>
           <% if participation.character_sheet_url.present? %>
-            <%= link_to "キャラクターシート", participation.character_sheet_url,
-                  rel: "noopener", class: "ml-auto text-xs text-seal" %>
+            <%= link_to participation.character_sheet_url, participation.character_sheet_url,
+                  target: "_blank", rel: "noopener", class: "ml-auto text-xs text-seal" %>
           <% end %>
         </li>
       <% end %>
@@ -64,7 +64,7 @@
   <% if @play_session.note.present? %>
     <section class="mt-10">
       <h2 class="font-display text-xl">メモ</h2>
-      <p class="mt-3 whitespace-pre-line leading-relaxed"><%= @play_session.note %></p>
+      <p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@play_session.note) %></p>
     </section>
   <% end %>
 </article>
