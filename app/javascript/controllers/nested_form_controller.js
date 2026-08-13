@@ -13,6 +13,7 @@ export default class extends Controller {
     const html = this.templateTarget.innerHTML.replaceAll(this.tokenValue, new Date().getTime())
     this.anchorTarget.insertAdjacentHTML("beforebegin", html)
     this.syncAliasOptions()
+    this.dispatch("added")
   }
 
   syncAliasOptions() {

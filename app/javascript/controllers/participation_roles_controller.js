@@ -8,10 +8,6 @@ export default class extends Controller {
     this.update()
   }
 
-  roleTargetConnected(select) {
-    this.updateSelect(select)
-  }
-
   update() {
     this.roleTargets.forEach((select) => this.updateSelect(select))
   }

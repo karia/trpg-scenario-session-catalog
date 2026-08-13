@@ -5,6 +5,9 @@ RSpec.describe "Editor navigation" do
     editor = create(:person, roles: %w[admin], display_name: "管理者")
     scenario = create(:scenario, title: "見本シナリオ")
     play_session = create(:play_session, scenario: scenario)
+    create(:participation, play_session: play_session, person: editor, role: :gm)
+    keeper_system = create(:game_system, name: "探索システム", game_master_label: "KP")
+    keeper_scenario = create(:scenario, title: "探索シナリオ", game_systems: [ keeper_system ])
     create(:author, name: "見本作者")
     create(:game_system, name: "見本システム")
     user = create(:user, person: editor)
@@ -50,6 +53,12 @@ RSpec.describe "Editor navigation" do
     click_link "編集"
     expect(page).to have_css("h1", text: "セッションの編集")
     expect(page).to have_button("更新")
+    if ENV["CHROME_BINARY"]
+      select keeper_scenario.title, from: "シナリオ"
+      expect(page).to have_select("役割", with_options: %w[KP サブKP])
+      click_button "参加者を足す"
+      expect(page).to have_select("役割", with_options: %w[KP サブKP], count: 2)
+    end
 
     visit authors_path
     expect(page).to have_link("新規登録", href: new_author_path)
