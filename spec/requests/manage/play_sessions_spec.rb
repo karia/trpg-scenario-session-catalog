@@ -133,7 +133,7 @@ RSpec.describe "Manage::PlaySessions" do
       get edit_manage_play_session_path(session)
 
       options = Capybara.string(response.body).all('select[name*="[role]"] option').map(&:text).uniq
-      expect(options).to eq([ "役割", "DL", "PL", "サブDL" ])
+      expect(options).to eq([ "選択してください", "DL", "PL", "サブDL" ])
     end
 
     it "renders the edit form" do
