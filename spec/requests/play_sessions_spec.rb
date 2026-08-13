@@ -47,6 +47,7 @@ RSpec.describe "PlaySessions" do
       get play_sessions_path
 
       expect(response.body).to include("見本シナリオ")
+      expect(response.body[%r{<h1.*?</h1>}m]).to include("（全1件）")
     end
 
     it "shows the session to someone in the same group" do

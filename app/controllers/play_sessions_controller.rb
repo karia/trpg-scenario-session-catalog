@@ -3,7 +3,7 @@ class PlaySessionsController < ApplicationController
 
   def index
     authorize PlaySession
-    @play_sessions = policy(PlaySession).manage? ? maintained_sessions : visible_sessions.newest_first.load
+    @play_sessions = policy(PlaySession).manage? ? maintained_sessions.load : visible_sessions.newest_first.load
   end
 
   def show

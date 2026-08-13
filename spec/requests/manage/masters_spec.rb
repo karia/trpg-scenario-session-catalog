@@ -68,6 +68,15 @@ RSpec.describe "Manage masters" do
       expect(response.body).to include(public_send(edit_path, record), public_send(index_path))
     end
 
+    it "does not offer editing on a detail to a member without an editor role" do
+      sign_in_as create(:person)
+
+      get public_send(member_path, record), headers: headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(public_send(edit_path, record))
+    end
+
     it "links each list item to both detail and edit" do
       sign_in_as create(:person, roles: %w[gm])
       record

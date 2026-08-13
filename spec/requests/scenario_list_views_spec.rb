@@ -60,6 +60,16 @@ RSpec.describe "The scenario list" do
 
       expect(response.body).not_to include("人数と目安時間から選べます")
     end
+
+    it "opens new registration outside the filtered-list Turbo Frame" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      get root_path
+
+      expect(Capybara.string(response.body)).to have_css(
+        %(a[href="#{new_scenario_path}"][data-turbo-frame="_top"]), text: "新規登録"
+      )
+    end
   end
 
   describe "switching" do

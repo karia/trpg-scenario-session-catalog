@@ -30,9 +30,20 @@
         <nav class="ml-auto flex flex-wrap items-center justify-end gap-2 text-sm" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
-              <details class="relative">
-                <summary class="cursor-pointer text-seal underline">メニュー</summary>
-                <div class="absolute right-0 z-40 mt-2 grid min-w-48 gap-2 border border-rule bg-surface p-4 shadow-lg">
+              <%= link_to current_person.display_name, person_path(current_person), class: "text-muted" %>
+            <% else %>
+              <span class="text-muted">未登録</span>
+            <% end %>
+            <%= button_to "ログアウト", session_path, method: :delete,
+              class: "min-h-6 cursor-pointer px-1 text-muted underline" %>
+            <% if current_person %>
+              <div>
+                <button type="button" popovertarget="account-menu"
+                        class="cursor-pointer border border-ink px-3 py-1.5 text-ink hover:bg-ink hover:text-paper">
+                  メニュー
+                </button>
+                <nav id="account-menu" popover aria-label="アカウントメニュー"
+                     class="fixed top-16 right-5 bottom-auto left-auto m-0 min-w-48 border border-rule bg-surface p-4 shadow-lg open:grid open:gap-2">
                   <%= link_to "シナリオ", scenarios_path, class: "text-seal underline" %>
                   <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
                   <%= link_to "メンバー", people_path, class: "text-seal underline" %>
@@ -44,16 +55,9 @@
                     <%= link_to "アカウント", manage_users_path, class: "text-seal underline" %>
                     <%= link_to "サイト全体設定", manage_site_setting_path, class: "text-seal underline" %>
                   <% end %>
-                </div>
-              </details>
+                </nav>
+              </div>
             <% end %>
-            <% if current_person %>
-              <%= link_to current_person.display_name, person_path(current_person), class: "text-muted" %>
-            <% else %>
-              <span class="text-muted">未登録</span>
-            <% end %>
-            <%= button_to "ログアウト", session_path, method: :delete,
-              class: "min-h-6 cursor-pointer px-1 text-muted underline" %>
           <% else %>
             <%= link_to "新規登録", new_registration_path, class: "text-seal underline" %>
             <%# Turbo はフォーム送信を横取りするが、Google への cross-origin リダイレクトを追えない。 %>

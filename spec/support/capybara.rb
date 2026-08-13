@@ -1,5 +1,17 @@
 require "capybara/rails"
 
+Capybara.register_driver :headless_chromium do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+  options.binary = ENV.fetch("CHROME_BINARY")
+  options.add_argument("--headless=new")
+  options.add_argument("--no-sandbox")
+  options.add_argument("--disable-dev-shm-usage")
+  options.add_argument("--window-size=1440,1200")
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+end
+
 RSpec.configure do |config|
-  config.before(:each, type: :system) { driven_by :rack_test }
+  config.before(:each, type: :system) do
+    driven_by ENV["CHROME_BINARY"].present? ? :headless_chromium : :rack_test
+  end
 end

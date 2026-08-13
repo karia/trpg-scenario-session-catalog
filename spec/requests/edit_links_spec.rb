@@ -126,6 +126,7 @@ RSpec.describe "Edit links on detail screens" do
       get person_path(person)
 
       expect(response.body).to include(edit_path)
+      expect(Capybara.string(response.body)).to have_link("編集", href: edit_path, count: 1)
     end
   end
 end

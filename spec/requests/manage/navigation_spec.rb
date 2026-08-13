@@ -60,6 +60,19 @@ RSpec.describe "Manage navigation" do
   end
 
   describe "the header" do
+    it "puts the menu after the profile and sign-out controls and uses a popover" do
+      person = create(:person)
+      sign_in_as person
+
+      get root_path
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css('button[popovertarget="account-menu"]', text: "メニュー")
+      expect(page).to have_css('nav#account-menu[popover][aria-label="アカウントメニュー"]')
+      expect(response.body.index(person.display_name)).to be < response.body.index("popover")
+      expect(response.body.index("ログアウト")).to be < response.body.index("popover")
+    end
+
     it "offers the manage area to an editor" do
       sign_in_as create(:person, roles: %w[gm])
 

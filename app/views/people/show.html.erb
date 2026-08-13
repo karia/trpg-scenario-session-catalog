@@ -23,10 +23,7 @@
 
     <div class="flex gap-3">
       <% if policy(@person).update? %>
-        <%= link_to "プロフィール編集", edit_person_path(@person), class: "text-sm text-seal" %>
-      <% end %>
-      <% if policy(@person).manage? %>
-        <%= link_to "管理編集", edit_person_path(@person), class: "text-sm text-seal" %>
+        <%= link_to "編集", edit_person_path(@person), class: "text-sm text-seal" %>
       <% end %>
     </div>
   </div>
