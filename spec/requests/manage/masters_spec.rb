@@ -130,6 +130,17 @@ RSpec.describe "Manage masters" do
       index_path: :manage_game_systems_path,
       member_path: :manage_game_system_path,
       edit_path: :edit_manage_game_system_path
+
+    it "updates the game master label" do
+      system = create(:game_system, name: "エモクロアTRPG")
+      sign_in_as create(:person, roles: %w[gm])
+
+      patch manage_game_system_path(system), params: {
+        game_system: { name: system.name, game_master_label: "DL" }
+      }
+
+      expect(system.reload.game_master_label).to eq("DL")
+    end
   end
 
   describe "authors" do

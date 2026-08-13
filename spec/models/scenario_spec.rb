@@ -1,6 +1,33 @@
 require "rails_helper"
 
 RSpec.describe Scenario do
+  describe "game master labels" do
+    it "uses the label shared by its systems" do
+      scenario = build(:scenario, game_systems: [
+        build(:game_system, name: "CoC 6版", game_master_label: "KP"),
+        build(:game_system, name: "CoC 7版", game_master_label: "KP")
+      ])
+
+      expect(scenario.game_master_label).to eq("KP")
+      expect(scenario.sub_game_master_label).to eq("サブKP")
+    end
+
+    it "falls back to GM when no system label is configured" do
+      scenario = build(:scenario, game_systems: [ build(:game_system, game_master_label: nil) ])
+
+      expect(scenario.game_master_label).to eq("GM")
+    end
+
+    it "falls back to GM when systems disagree" do
+      scenario = build(:scenario, game_systems: [
+        build(:game_system, game_master_label: "KP"),
+        build(:game_system, game_master_label: "DL")
+      ])
+
+      expect(scenario.game_master_label).to eq("GM")
+    end
+  end
+
   describe "jacket image variants" do
     it "fits uploaded and imported images inside their bounds without cropping" do
       %i[jacket booth_image].each do |attachment|

@@ -52,7 +52,7 @@ module Manage
       end
 
       def record_params
-        params.expect(model_class.model_name.param_key.to_sym => [ :name, :display_alias_key,
+        params.expect(model_class.model_name.param_key.to_sym => [ :name, :game_master_label, :display_alias_key,
           { aliases_attributes: [ [ :id, :name, :visible, :position, :selection_key, :_destroy ] ] } ])
       end
   end

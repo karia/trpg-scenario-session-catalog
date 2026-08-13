@@ -8,12 +8,12 @@
             class: "mt-3 cursor-pointer border border-rule px-4 py-3 text-sm text-muted" %>
     <% elsif policy(scenario).reveal_preparation_note? %>
       <p class="mt-3 text-sm text-muted">
-        本編のネタバレはありませんが、購入しないとわからない情報等を含みます。GMから許可があった場合のみ開いてください。
+        本編のネタバレはありませんが、購入しないとわからない情報等を含みます。<%= scenario.game_master_label %>から許可があった場合のみ開いてください。
       </p>
       <%= button_to "プレーヤー向け事前情報を見る", scenario_spoiler_reveal_path(scenario),
             class: "mt-3 cursor-pointer redacted px-4 py-3 text-sm" %>
     <% else %>
-      <p class="mt-3 redacted px-4 py-3 text-sm">GMが許可したログイン済メンバーのみ表示可能です。</p>
+      <p class="mt-3 redacted px-4 py-3 text-sm"><%= scenario.game_master_label %>が許可したログイン済メンバーのみ表示可能です。</p>
     <% end %>
   </section>
 <% end %>

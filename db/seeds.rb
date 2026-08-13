@@ -35,7 +35,14 @@ def seed_scenario(row)
   scenario
 end
 
+def seed_game_master_labels
+  { "CoC6版" => "KP", "CoC7版" => "KP", "エモクロアTRPG" => "DL" }.each do |name, label|
+    GameSystem.find_or_initialize_by(name:).update!(game_master_label: label)
+  end
+end
+
 path = seed_file
 YAML.load_file(path).each { |row| seed_scenario(row) }
+seed_game_master_labels
 
 puts "seeded from #{path.basename}: scenarios=#{Scenario.count} systems=#{GameSystem.count} authors=#{Author.count}"

@@ -8,7 +8,7 @@
         <th scope="col" class="p-3">システム</th>
         <th scope="col" class="p-3">人数</th>
         <th scope="col" class="p-3">目安時間</th>
-        <th scope="col" class="p-3">GM経験</th>
+        <th scope="col" class="p-3"><%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>経験</th>
         <th scope="col" class="p-3">入手先</th>
       </tr>
     </thead>
@@ -22,7 +22,7 @@
           <td class="p-3 text-xs text-muted"><%= scenario.game_systems.map(&:name).join("／") %></td>
           <td class="p-3 font-mono text-xs"><%= player_count_value(scenario) %></td>
           <td class="p-3 font-mono text-xs"><%= duration_value(scenario) %></td>
-          <td class="p-3 text-center"><%= "☑" if scenario.gm_experienced? %></td>
+          <td class="p-3 text-center"><%= scenario.gm_experienced? ? "☑#{scenario.game_master_label}経験あり" : "#{scenario.game_master_label}経験なし" %></td>
           <td class="p-3 text-xs">
             <% scenario.purchase_links.each do |link| %>
               <% if link.url.present? %>

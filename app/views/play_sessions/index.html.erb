@@ -11,7 +11,7 @@
         <span class="font-mono text-xs text-muted"><%= play_session_schedule(session) %>（<%= play_session_status_label(session) %>）</span>
         <span class="font-display text-lg"><%= session.scenario.title %></span>
         <span class="ml-auto text-xs text-muted">
-          <%= session.participations.map { |p| p.person.display_name }.join("、") %>
+          <%= session.participations.map { |p| "#{participation_role_label(p)}: #{p.person.display_name}" }.join("、") %>
         </span>
       <% end %>
     </li>

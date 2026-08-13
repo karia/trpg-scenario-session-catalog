@@ -163,6 +163,14 @@ RSpec.describe "The scenario list" do
   end
 
   describe "GM experience" do
+    it "uses each scenario's game master label in the table" do
+      scenario.game_systems.first.update!(game_master_label: "DL")
+
+      get root_path
+
+      expect(Capybara.string(response.body).find("tr", text: scenario.title)).to have_text("☑DL経験あり")
+    end
+
     it "marks only experienced scenarios in the table" do
       inexperienced = create(:scenario, title: "未経験シナリオ", gm_experienced: false)
 

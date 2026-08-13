@@ -1,5 +1,5 @@
 class Participation < ApplicationRecord
-  enum :role, { gm: 0, player: 1, sub_keeper: 2 }, validate: true
+  enum :role, { gm: 0, player: 1, sub_gm: 2 }, validate: true
 
   belongs_to :play_session
   belongs_to :person

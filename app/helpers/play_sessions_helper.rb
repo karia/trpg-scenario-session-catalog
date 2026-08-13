@@ -22,7 +22,12 @@ module PlaySessionsHelper
     t("play_sessions.statuses.#{session.derived_status}")
   end
 
-  def participation_role_label(participation)
-    t("play_sessions.roles.#{participation.role}")
+  def participation_role_label(participation, role: participation.role)
+    scenario = participation.play_session&.scenario
+    case role.to_s
+    when "gm" then scenario&.game_master_label || GameSystem::DEFAULT_ROLE_LABELS.fetch(:gm)
+    when "sub_gm" then scenario&.sub_game_master_label || GameSystem::DEFAULT_ROLE_LABELS.fetch(:sub_gm)
+    else t("play_sessions.roles.#{role}")
+    end
   end
 end
