@@ -177,7 +177,7 @@ RSpec.describe "The scenario list" do
       get root_path
 
       page = Capybara.string(response.body)
-      expect(page).to have_css("th", text: "進行役経験")
+      expect(page).to have_css("th", text: "GM経験")
       expect(page.find("tr", text: scenario.title)).to have_text("☑")
       expect(page.find("tr", text: inexperienced.title)).to have_no_text("☑")
     end
