@@ -5,8 +5,8 @@
           allowfullscreen: true %>
   </div>
 <% else %>
-  <%= link_to link_text, url, rel:, class: "text-seal" %>
+  <%= link_to link_text, url, target: "_blank", rel:, class: "text-seal" %>
   <% if show_url %>
-    <span class="font-mono text-xs text-muted"><%= url %></span>
+    <%= link_to url, url, target: "_blank", rel:, class: "font-mono text-xs text-muted" %>
   <% end %>
 <% end %>

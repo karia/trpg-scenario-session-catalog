@@ -115,6 +115,11 @@ RSpec.describe "PlaySessions" do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("参加した人", "遊んだ人", "探索者A")
       expect(response.body).to include("https://charasheet.example/1234", "https://youtu.be/abc")
+      expect(Capybara.string(response.body)).to have_link(
+        "https://charasheet.example/1234",
+        href: "https://charasheet.example/1234",
+        target: "_blank"
+      )
     end
 
     it "embeds a YouTube recording" do
@@ -165,12 +170,15 @@ RSpec.describe "PlaySessions" do
     end
 
     it "shows the note to a viewer who is allowed to see the session" do
-      session.update!(note: "覚え書きの見本")
+      session.update!(note: "覚え書きの見本 https://example.com/note")
       sign_in_as create(:person, groups: [ group ])
 
       get play_session_path(session)
 
       expect(response.body).to include("覚え書きの見本")
+      expect(Capybara.string(response.body)).to have_link(
+        "https://example.com/note", href: "https://example.com/note", target: "_blank"
+      )
     end
 
     it "shows the Cocofolia URL to a participant" do
