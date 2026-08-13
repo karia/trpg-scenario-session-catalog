@@ -38,6 +38,12 @@ RSpec.describe "Manage navigation" do
 
       expect(session.reload.note).to eq("管理者が更新")
     end
+
+    it "does not render a second management header" do
+      get manage_groups_path
+
+      expect(Capybara.string(response.body)).to have_no_css('nav[aria-label="管理"]')
+    end
   end
 
   describe "a GM" do
@@ -67,10 +73,10 @@ RSpec.describe "Manage navigation" do
       get root_path
 
       page = Capybara.string(response.body)
-      expect(page).to have_css('button[popovertarget="account-menu"]', text: "メニュー")
-      expect(page).to have_css('nav#account-menu[popover][aria-label="アカウントメニュー"]')
-      expect(response.body.index(person.display_name)).to be < response.body.index("popover")
-      expect(response.body.index("ログアウト")).to be < response.body.index("popover")
+      expect(page).to have_css('button[aria-controls="account-menu"][aria-expanded="false"]', text: "メニュー")
+      expect(page).to have_css('nav#account-menu[hidden][aria-label="アカウントメニュー"]', visible: :all)
+      expect(response.body.index(person.display_name)).to be < response.body.index("account-menu")
+      expect(response.body.index("ログアウト")).to be < response.body.index("account-menu")
     end
 
     it "offers the manage area to an editor" do

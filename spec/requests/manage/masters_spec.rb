@@ -158,5 +158,14 @@ RSpec.describe "Manage masters" do
       index_path: :authors_path,
       member_path: :author_path,
       edit_path: :edit_author_path
+
+    it "uses the localized resource name on the new screen" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      get new_author_path
+
+      expect(response.body).to include("作者の新規登録")
+      expect(response.body).not_to include("Authorの新規登録")
+    end
   end
 end

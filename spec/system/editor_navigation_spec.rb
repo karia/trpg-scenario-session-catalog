@@ -19,7 +19,7 @@ RSpec.describe "Editor navigation" do
     save_screenshot("editor-scenarios.png") if ENV["VISUAL_REVIEW"]
     if ENV["CHROME_BINARY"]
       click_button "メニュー"
-      expect(page).to have_css("#account-menu:popover-open")
+      expect(page).to have_css('#account-menu:not([hidden])')
       save_screenshot("editor-menu.png") if ENV["VISUAL_REVIEW"]
       click_button "メニュー"
     end
@@ -27,6 +27,7 @@ RSpec.describe "Editor navigation" do
     click_link "新規登録"
     expect(page).to have_css("h1", text: "シナリオの新規登録")
     expect(page).to have_no_content("Content missing")
+    expect(page).to have_link("一覧に戻る", count: 1)
     save_screenshot("editor-scenario-new.png") if ENV["VISUAL_REVIEW"]
 
     visit play_sessions_path
@@ -34,6 +35,7 @@ RSpec.describe "Editor navigation" do
     save_screenshot("editor-sessions.png") if ENV["VISUAL_REVIEW"]
     click_link "新規登録"
     expect(page).to have_css("h1", text: "セッションの新規登録")
+    expect(page).to have_link("一覧に戻る", count: 1)
 
     visit people_path
     click_link editor.display_name, match: :first
@@ -49,9 +51,15 @@ RSpec.describe "Editor navigation" do
     visit authors_path
     expect(page).to have_link("新規登録", href: new_author_path)
     save_screenshot("editor-authors.png") if ENV["VISUAL_REVIEW"]
+    click_link "新規登録"
+    expect(page).to have_css("h1", text: "作者の新規登録")
+    expect(page).to have_link("一覧に戻る", count: 1)
 
     visit game_systems_path
     expect(page).to have_link("新規登録", href: new_game_system_path)
+    click_link "新規登録"
+    expect(page).to have_css("h1", text: "システムの新規登録")
+    expect(page).to have_link("一覧に戻る", count: 1)
 
     if ENV["VISUAL_REVIEW"]
       page.current_window.resize_to(390, 844)
