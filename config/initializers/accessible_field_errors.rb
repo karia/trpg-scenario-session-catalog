@@ -15,5 +15,6 @@ ActionView::Base.field_error_proc = proc do |html_tag, instance|
   field["aria-describedby"] = (describedby << error_id).uniq.join(" ")
   method_name = instance.instance_variable_get(:@method_name)
   message = instance.object.errors.full_messages_for(method_name).join("、")
-  "#{fragment.to_html}<span id=\"#{ERB::Util.html_escape(error_id)}\" class=\"sr-only\">#{ERB::Util.html_escape(message)}</span>".html_safe
+  attribute = ERB::Util.html_escape(method_name)
+  "#{fragment.to_html}<span id=\"#{ERB::Util.html_escape(error_id)}\" class=\"sr-only\" data-error-attribute=\"#{attribute}\">#{ERB::Util.html_escape(message)}</span>".html_safe
 end

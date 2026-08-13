@@ -13,11 +13,12 @@
           ／ <%= session.participations.map { |p| p.person.display_name }.join("、").presence || "参加者なし" %>
         </p>
       </div>
-      <span class="flex shrink-0 gap-3 text-xs">
-        <%= link_to "詳細", play_session_path(session), class: "text-seal" %>
-        <%= link_to "編集", edit_manage_play_session_path(session), class: "text-seal" %>
+      <span class="flex shrink-0 gap-1 text-xs">
+        <%= link_to "詳細", play_session_path(session), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
+        <%= link_to "編集", edit_manage_play_session_path(session), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
         <%= button_to "削除", manage_play_session_path(session), method: :delete,
-              form: { data: { turbo_confirm: "このセッションを削除しますか" } }, class: "text-muted" %>
+              form: { data: { turbo_confirm: "#{session.scenario.title} のセッションを削除しますか" } },
+              class: "min-h-6 px-1 text-muted" %>
       </span>
     </li>
   <% end %>

@@ -50,8 +50,28 @@ RSpec.describe "Accessibility" do
     post manage_scenarios_path, params: { scenario: { title: "" } }
 
     page = Capybara.string(response.body)
-    expect(page).to have_css('[data-controller="error-summary"][tabindex="-1"] a[href="#scenario_title"]')
+    expect(page).to have_css('[data-controller="error-summary"][tabindex="-1"] a[data-error-attribute="title"]')
     expect(page).to have_css('#scenario_title[aria-invalid="true"][aria-describedby="scenario_title_error"]')
     expect(page).to have_css("#scenario_title_error", visible: :all)
+  end
+
+  it "exposes the rendered nested field ID to the error summary controller" do
+    sign_in_as create(:person, roles: %w[gm])
+
+    post manage_scenarios_path,
+      params: { scenario: { title: "シナリオ", purchase_links_attributes: [ { label: "購入", url: "invalid" } ] } }
+
+    page = Capybara.string(response.body)
+    expect(page).to have_css('a[data-error-attribute="purchase_links.url"]')
+    expect(page).to have_css('[id$="_url_error"][data-error-attribute="url"]', visible: :all)
+  end
+
+  it "renders form-wide errors without a dead field link" do
+    record = build(:play_session)
+    record.errors.add(:base, "同じ人を複数の行に指定できません")
+
+    summary = Capybara.string(ApplicationController.helpers.accessible_error_summary(record))
+    expect(summary).to have_text("同じ人を複数の行に指定できません")
+    expect(summary).to have_no_link
   end
 end

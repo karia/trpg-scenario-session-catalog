@@ -11,8 +11,10 @@ module ApplicationHelper
         content_tag(:h2, "入力内容を確認してください", class: "font-bold"),
         content_tag(:ul, class: "mt-2 list-disc pl-5") do
           safe_join(record.errors.map do |error|
-            field = "#{record.model_name.param_key}_#{error.attribute.to_s.split('.').last}"
-            content_tag(:li, link_to(error.full_message, "##{field}", class: "underline"))
+            message = error.full_message
+            next content_tag(:li, message) if error.attribute == :base
+
+            content_tag(:li, link_to(message, "#", class: "underline", data: { error_attribute: error.attribute }))
           end)
         end
       ])

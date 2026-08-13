@@ -14,11 +14,12 @@
           ／ アカウント: <%= item.user&.email || "未紐づけ" %>
         </p>
       </div>
-      <span class="flex shrink-0 gap-3 text-xs">
-        <%= link_to "詳細", person_path(item), class: "text-seal" %>
-        <%= link_to "編集", edit_manage_person_path(item), class: "text-seal" %>
+      <span class="flex shrink-0 gap-1 text-xs">
+        <%= link_to "詳細", person_path(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
+        <%= link_to "編集", edit_manage_person_path(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
         <%= button_to "削除", manage_person_path(item), method: :delete,
-              form: { data: { turbo_confirm: "#{item.display_name} を削除しますか" } }, class: "text-muted" %>
+              form: { data: { turbo_confirm: "#{item.display_name} を削除しますか" } },
+              class: "min-h-6 px-1 text-muted" %>
       </span>
     </li>
   <% end %>
