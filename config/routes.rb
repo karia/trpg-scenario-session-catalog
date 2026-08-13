@@ -41,4 +41,6 @@ Rails.application.routes.draw do
   get "sitemap.xml", to: "sitemaps#show", defaults: { format: "xml" }
 
   root "scenarios#index"
+
+  match "/:code", to: "errors#show", via: :all, constraints: { code: /[45]\d{2}/ }
 end
