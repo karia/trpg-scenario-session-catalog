@@ -6,7 +6,8 @@
         { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
   <div><%= row.label :role, "役割", class: "block text-xs text-muted" %>
   <%= row.select :role, Participation.roles.keys.map { |k| [ participation_role_label(row.object, role: k), k ] },
-        { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
+        { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm",
+        data: { participation_roles_target: "role" } %></div>
   <div><%= row.label :character_name, "キャラクター名", class: "block text-xs text-muted" %>
   <%= row.text_field :character_name, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
   <div><%= row.label :character_sheet_url, "キャラクターシートURL", class: "block text-xs text-muted" %>

@@ -38,6 +38,18 @@ RSpec.describe "Manage::PlaySessions" do
   describe "as a GM" do
     before { sign_in_as create(:person, roles: %w[gm]) }
 
+    it "provides system-specific role labels when creating a session" do
+      scenario.game_systems << create(:game_system, game_master_label: "KP")
+
+      get manage_play_sessions_path
+
+      page = Capybara.string(response.body)
+      form = page.find('[data-controller="participation-roles"]')
+      labels = JSON.parse(form["data-participation-roles-labels-value"])
+      expect(labels.fetch(scenario.id.to_s)).to eq("gm" => "KP", "sub_gm" => "サブKP")
+      expect(page).to have_css('[data-action="change->participation-roles#update"]')
+    end
+
     it "creates a session with its participants in one submission" do
       gm = create(:person, display_name: "回した人")
       player = create(:person, display_name: "遊んだ人")
