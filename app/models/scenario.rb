@@ -62,7 +62,7 @@ class Scenario < ApplicationRecord
 
   def game_master_label
     labels = game_systems.filter_map { |system| system.game_master_label.presence }.uniq
-    labels.one? ? labels.first : "GM"
+    labels.one? ? labels.first : GameSystem::DEFAULT_GAME_MASTER_LABEL
   end
 
   def sub_game_master_label = "サブ#{game_master_label}"

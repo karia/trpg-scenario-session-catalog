@@ -10,9 +10,9 @@
 
   <% if @record.is_a?(GameSystem) %>
     <div>
-      <%= form.label :game_master_label, "GMの呼称", class: "block text-xs text-muted" %>
-      <%= form.text_field :game_master_label, placeholder: "GM", class: "mt-1 w-32 border border-rule bg-paper px-3 py-2 text-sm" %>
-      <p class="mt-1 text-xs text-muted">未指定の場合は「GM」と表示します。</p>
+      <%= form.label :game_master_label, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}の呼称", class: "block text-xs text-muted" %>
+      <%= form.text_field :game_master_label, placeholder: GameSystem::DEFAULT_GAME_MASTER_LABEL, class: "mt-1 w-32 border border-rule bg-paper px-3 py-2 text-sm" %>
+      <p class="mt-1 text-xs text-muted">未指定の場合は「<%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>」と表示します。</p>
     </div>
   <% end %>
 

@@ -45,7 +45,9 @@ RSpec.describe "Manage::PlaySessions" do
 
       page = Capybara.string(response.body)
       form = page.find('[data-controller="participation-roles"]')
+      defaults = JSON.parse(form["data-participation-roles-defaults-value"])
       labels = JSON.parse(form["data-participation-roles-labels-value"])
+      expect(defaults).to eq("gm" => "GM", "sub_gm" => "サブGM")
       expect(labels.fetch(scenario.id.to_s)).to eq("gm" => "KP", "sub_gm" => "サブKP")
       expect(page).to have_css('[data-action="change->participation-roles#update"]')
     end

@@ -1,6 +1,11 @@
 require "rails_helper"
 
 RSpec.describe GameSystem do
+  it "defines the default game master role labels in one place" do
+    expect(described_class::DEFAULT_GAME_MASTER_LABEL).to eq("GM")
+    expect(described_class::DEFAULT_ROLE_LABELS).to eq(gm: "GM", sub_gm: "サブGM")
+  end
+
   it "requires a name" do
     expect(described_class.new(name: "")).not_to be_valid
   end
