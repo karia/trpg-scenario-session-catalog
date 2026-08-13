@@ -31,6 +31,14 @@ RSpec.describe "The sign-in button" do
     expect(form).to include('method="post"')
   end
 
+  it "passes the current URL through the sign-in flow" do
+    get root_path(order: "title_desc")
+
+    form = response.body[%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m]
+
+    expect(form).to include(%(name="origin" value="/?order=title_desc"))
+  end
+
   # Chrome は form-action をリダイレクト先にも当てる。self だけだと押しても Google へ進めない。
   it "allows the sign-in redirect to Google in form-action" do
     get root_path

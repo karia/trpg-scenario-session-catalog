@@ -15,8 +15,8 @@ RSpec.describe "Sessions" do
     OmniAuth.config.test_mode = false
   end
 
-  def sign_in
-    post "/auth/google_oauth2"
+  def sign_in(origin: nil)
+    post "/auth/google_oauth2", params: { origin: }.compact
     follow_redirect!
   end
 
@@ -31,6 +31,18 @@ RSpec.describe "Sessions" do
       expect { sign_in }.to change(User, :count).by(1)
 
       expect(User.sole.person).to be_nil
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "returns to the URL where sign-in started" do
+      sign_in(origin: scenario_path(create(:scenario), view: "cards"))
+
+      expect(response).to redirect_to(%r{/scenarios/\d+\?view=cards\z})
+    end
+
+    it "does not redirect to another host" do
+      sign_in(origin: "https://example.com/phishing")
+
       expect(response).to redirect_to(root_path)
     end
 
