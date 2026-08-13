@@ -113,6 +113,17 @@ RSpec.describe "Manage::PlaySessions" do
       expect(response.body).to include("覚え書きの見本")
     end
 
+    it "uses the scenario's labels in the role options" do
+      scenario.game_systems << create(:game_system, game_master_label: "DL")
+      session = create(:play_session, scenario:)
+      session.participations.create!(person: create(:person), role: :gm)
+
+      get edit_manage_play_session_path(session)
+
+      options = Capybara.string(response.body).all('select[name*="[role]"] option').map(&:text).uniq
+      expect(options).to eq([ "役割", "DL", "PL", "サブDL" ])
+    end
+
     it "renders the edit form" do
       session = create(:play_session, scenario:)
 

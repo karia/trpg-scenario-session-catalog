@@ -8,6 +8,14 @@
   <%= render "shared/alias_fields", form: form, display_attribute: :name,
         alias_class: @record.class.reflect_on_association(:aliases).klass %>
 
+  <% if @record.is_a?(GameSystem) %>
+    <div>
+      <%= form.label :game_master_label, "GMの呼称", class: "block text-xs text-muted" %>
+      <%= form.text_field :game_master_label, placeholder: "GM", class: "mt-1 w-32 border border-rule bg-paper px-3 py-2 text-sm" %>
+      <p class="mt-1 text-xs text-muted">未指定の場合は「GM」と表示します。</p>
+    </div>
+  <% end %>
+
   <div class="flex gap-4">
     <%= form.submit "更新", class: "bg-ink px-5 py-2 text-sm text-paper" %>
     <%= link_to "詳細に戻る", url_for(action: :show, id: @record), class: "self-center text-sm text-muted" %>

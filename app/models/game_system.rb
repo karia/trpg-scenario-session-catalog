@@ -8,6 +8,7 @@ class GameSystem < ApplicationRecord
   has_many :scenarios, through: :scenario_game_systems
 
   validates :name, presence: true, uniqueness: true
+  normalizes :game_master_label, with: ->(value) { value.strip.presence }
 
   default_scope { order(:name) }
 end

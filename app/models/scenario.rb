@@ -60,6 +60,13 @@ class Scenario < ApplicationRecord
 
   def booth_purchase_url = purchase_links.find(&:booth?)&.url
 
+  def game_master_label
+    labels = game_systems.filter_map { |system| system.game_master_label.presence }.uniq
+    labels.one? ? labels.first : "GM"
+  end
+
+  def sub_game_master_label = "サブ#{game_master_label}"
+
   validates :title, presence: true
   validates :jacket,
     content_type: { in: [ :png, :jpeg, :webp ], spoofing_protection: true },

@@ -41,7 +41,7 @@
 
   <fieldset class="border border-rule bg-surface p-5">
     <legend class="px-2 font-display text-sm">参加者</legend>
-    <p class="text-xs text-muted">キャラクター名とキャラシは PL のみ。GM とサブキーパーは空でよい。</p>
+    <p class="text-xs text-muted">キャラクター名とキャラシは PL のみ。<%= play_session.scenario&.game_master_label || "GM" %> と<%= play_session.scenario&.sub_game_master_label || "サブGM" %>は空でよい。</p>
 
     <div class="mt-3 space-y-3" data-controller="nested-form">
       <template data-nested-form-target="template">

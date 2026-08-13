@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Participation do
   it "covers the three roles at the table" do
-    expect(described_class.roles.keys).to match_array(%w[gm player sub_keeper])
+    expect(described_class.roles.keys).to match_array(%w[gm player sub_gm])
   end
 
   it "allows a GM to have no character sheet" do

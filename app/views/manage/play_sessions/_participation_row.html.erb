@@ -5,7 +5,7 @@
   <%= row.collection_select :person_id, people_for_select, :id, :display_name,
         { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
   <div><%= row.label :role, "役割", class: "block text-xs text-muted" %>
-  <%= row.select :role, Participation.roles.keys.map { |k| [ t("play_sessions.roles.#{k}"), k ] },
+  <%= row.select :role, Participation.roles.keys.map { |k| [ participation_role_label(row.object, role: k), k ] },
         { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
   <div><%= row.label :character_name, "キャラクター名", class: "block text-xs text-muted" %>
   <%= row.text_field :character_name, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>

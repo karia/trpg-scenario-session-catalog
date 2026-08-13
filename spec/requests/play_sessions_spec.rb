@@ -3,7 +3,10 @@ require "rails_helper"
 RSpec.describe "PlaySessions" do
   let(:group) { create(:group) }
   let(:participant) { create(:person, display_name: "参加した人", groups: [ group ]) }
-  let(:scenario) { create(:scenario, title: "見本シナリオ") }
+  let(:scenario) do
+    create(:scenario, title: "見本シナリオ",
+      game_systems: [ create(:game_system, game_master_label: "KP") ])
+  end
   let(:session) do
     create(:play_session, scenario:).tap do |play_session|
       create(:session_schedule, play_session:, scheduled_on: Date.new(2026, 5, 1))
@@ -51,7 +54,7 @@ RSpec.describe "PlaySessions" do
 
       get play_sessions_path
 
-      expect(response.body).to include("見本シナリオ")
+      expect(response.body).to include("見本シナリオ", "KP: 参加した人")
     end
 
     # 件数は見える範囲の数。全体の数を出すと、見えない回があることを教えてしまう。
@@ -120,6 +123,17 @@ RSpec.describe "PlaySessions" do
         href: "https://charasheet.example/1234",
         target: "_blank"
       )
+      expect(response.body).to include("KP")
+    end
+
+    it "uses the system's label for a supporting game master" do
+      session.participations.create!(person: create(:person), role: :sub_gm)
+      sign_in_as create(:person, groups: [ group ])
+
+      get play_session_path(session)
+
+      expect(response.body).to include("サブKP")
+      expect(response.body).not_to include("サブキーパー")
     end
 
     it "embeds a YouTube recording" do

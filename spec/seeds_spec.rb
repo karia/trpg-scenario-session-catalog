@@ -29,6 +29,12 @@ RSpec.describe "db/seeds.rb" do
     expect(scenario.game_systems.map(&:name)).to contain_exactly("見本システム 1版", "見本システム 2版")
   end
 
+  it "configures the standard game master labels" do
+    expect(GameSystem.find_by(name: "CoC6版").game_master_label).to eq("KP")
+    expect(GameSystem.find_by(name: "CoC7版").game_master_label).to eq("KP")
+    expect(GameSystem.find_by(name: "エモクロアTRPG").game_master_label).to eq("DL")
+  end
+
   it "attaches every author of a jointly written scenario" do
     scenario = Scenario.find_by(title: "二系統の見本")
 
