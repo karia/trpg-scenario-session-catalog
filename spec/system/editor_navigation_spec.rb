@@ -23,6 +23,20 @@ RSpec.describe "Editor navigation" do
     if ENV["CHROME_BINARY"]
       click_button "メニュー"
       expect(page).to have_css('#account-menu:not([hidden])')
+      menu_geometry = page.evaluate_script(<<~JS)
+        (() => {
+          const button = document.querySelector('[aria-controls="account-menu"]')
+          const menu = document.querySelector('#account-menu')
+          const buttonRect = button.getBoundingClientRect()
+          const menuRect = menu.getBoundingClientRect()
+          return {
+            verticalGap: Math.round(menuRect.top - buttonRect.bottom),
+            rightEdgeGap: Math.round(menuRect.right - buttonRect.right)
+          }
+        })()
+      JS
+      expect(menu_geometry.fetch("verticalGap")).to be_between(0, 16)
+      expect(menu_geometry.fetch("rightEdgeGap")).to be_between(-1, 1)
       save_screenshot("editor-menu.png") if ENV["VISUAL_REVIEW"]
       click_button "メニュー"
     end
@@ -38,6 +52,13 @@ RSpec.describe "Editor navigation" do
     save_screenshot("editor-sessions.png") if ENV["VISUAL_REVIEW"]
     click_link "新規登録"
     expect(page).to have_css("h1", text: "セッションの新規登録")
+    expect(page).to have_no_content("Content missing")
+    expect(page).to have_link("一覧に戻る", count: 1)
+
+    visit people_path
+    click_link "新規登録"
+    expect(page).to have_css("h1", text: "メンバーの新規登録")
+    expect(page).to have_no_content("Content missing")
     expect(page).to have_link("一覧に戻る", count: 1)
 
     visit people_path
@@ -48,7 +69,7 @@ RSpec.describe "Editor navigation" do
     visit scenario_path(scenario)
     expect(page).to have_link("編集", href: edit_scenario_path(scenario))
 
-    visit play_session_path(play_session)
+    visit play_sessions_path
     expect(page).to have_link("編集", href: edit_play_session_path(play_session))
     click_link "編集"
     expect(page).to have_css("h1", text: "セッションの編集")
@@ -65,12 +86,14 @@ RSpec.describe "Editor navigation" do
     save_screenshot("editor-authors.png") if ENV["VISUAL_REVIEW"]
     click_link "新規登録"
     expect(page).to have_css("h1", text: "作者の新規登録")
+    expect(page).to have_no_content("Content missing")
     expect(page).to have_link("一覧に戻る", count: 1)
 
     visit game_systems_path
     expect(page).to have_link("新規登録", href: new_game_system_path)
     click_link "新規登録"
     expect(page).to have_css("h1", text: "システムの新規登録")
+    expect(page).to have_no_content("Content missing")
     expect(page).to have_link("一覧に戻る", count: 1)
 
     if ENV["VISUAL_REVIEW"]
