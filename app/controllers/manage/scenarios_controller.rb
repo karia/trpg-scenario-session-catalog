@@ -16,7 +16,15 @@ module Manage
     def move
       authorize @scenario, :reorder?
       @scenario.move(params[:direction].to_s)
-      redirect_to manage_scenarios_path
+      @scenarios = Scenario.includes(:game_systems, :authors).gm_ordered
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace("manage_scenarios",
+            partial: "manage/scenarios/scenarios", locals: { scenarios: @scenarios })
+        end
+        format.html { redirect_to manage_scenarios_path }
+      end
     end
 
     def refresh_booth_image
