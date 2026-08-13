@@ -34,9 +34,11 @@ RSpec.describe "Sorting and filtering the scenario list" do
     get root_path
 
     frame = Capybara.string(response.body).find("turbo-frame#scenario_list")
+    expect(frame["data-turbo-action"]).to eq("advance")
     expect(frame).to have_button("1人")
     expect(frame).to have_select("並び順")
     expect(frame).to have_css("table")
+    expect(frame).to have_css('a[data-turbo-frame="_top"]', text: "いちばん")
   end
 
   it "still renders a complete HTML page on a cold request" do

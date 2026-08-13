@@ -1,6 +1,6 @@
 <% content_for :title, "シナリオ一覧" %>
 
-<%= turbo_frame_tag "scenario_list" do %>
+<%= turbo_frame_tag "scenario_list", data: { turbo_action: "advance" } do %>
 <div class="flex flex-wrap items-baseline justify-between gap-4">
   <h1 class="font-display text-3xl tracking-wide">
     シナリオ一覧<span class="ml-2 text-base text-muted" role="status">（全<%= @scenarios.size %>件）</span>

@@ -16,7 +16,7 @@
       <% scenarios.each do |scenario| %>
         <tr class="border-b border-rule last:border-b-0 hover:bg-paper">
           <td class="p-3">
-            <%= link_to scenario.title, scenario_path(scenario), class: "font-display text-ink" %>
+            <%= link_to scenario.title, scenario_path(scenario), data: { turbo_frame: "_top" }, class: "font-display text-ink" %>
           </td>
           <td class="p-3 text-xs text-muted"><%= scenario.authors.map(&:name).join("、") %></td>
           <td class="p-3 text-xs text-muted"><%= scenario.game_systems.map(&:name).join("／") %></td>
