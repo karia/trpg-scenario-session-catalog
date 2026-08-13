@@ -1,13 +1,5 @@
 <%= form_with model: [ :manage, scenario ], class: "mt-6 space-y-8" do |form| %>
-  <% if scenario.errors.any? %>
-    <div class="border border-seal bg-surface p-4 text-sm text-seal">
-      <ul class="list-inside list-disc">
-        <% scenario.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= accessible_error_summary(scenario) %>
 
   <fieldset class="border border-rule bg-surface p-5">
     <legend class="px-2 font-display text-sm">基本</legend>

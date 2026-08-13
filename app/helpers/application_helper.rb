@@ -2,6 +2,23 @@ module ApplicationHelper
   YOUTUBE_VIDEO_ID = /\A[\w-]{11}\z/
   HTTP_URL = URI::DEFAULT_PARSER.make_regexp(%w[http https])
 
+  def accessible_error_summary(record)
+    return unless record.errors.any?
+
+    content_tag(:div, class: "border border-seal bg-surface p-4 text-sm text-seal", role: "alert",
+      tabindex: "-1", data: { controller: "error-summary" }) do
+      safe_join([
+        content_tag(:h2, "入力内容を確認してください", class: "font-bold"),
+        content_tag(:ul, class: "mt-2 list-disc pl-5") do
+          safe_join(record.errors.map do |error|
+            field = "#{record.model_name.param_key}_#{error.attribute.to_s.split('.').last}"
+            content_tag(:li, link_to(error.full_message, "##{field}", class: "underline"))
+          end)
+        end
+      ])
+    end
+  end
+
   def auto_link_urls(text)
     cursor = 0
     fragments = text.to_s.to_enum(:scan, HTTP_URL).map do

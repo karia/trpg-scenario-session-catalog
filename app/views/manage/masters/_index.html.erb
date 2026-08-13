@@ -13,9 +13,7 @@
   <% end %>
 <% end %>
 
-<% if record.errors.any? %>
-  <p class="mt-2 text-sm text-seal"><%= record.errors.full_messages.join("、") %></p>
-<% end %>
+<div class="mt-2"><%= accessible_error_summary(record) %></div>
 
 <ul class="mt-6 divide-y divide-rule border border-rule bg-surface text-sm">
   <% records.each do |item| %>
