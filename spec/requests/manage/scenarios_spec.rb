@@ -173,6 +173,19 @@ RSpec.describe "Manage::Scenarios" do
         expect(Scenario.gm_ordered.pluck(:title)).to eq([ "した", "うえ" ])
       end
 
+      it "replaces the table body after moving one row with Turbo" do
+        create(:scenario, title: "うえ")
+        bottom = create(:scenario, title: "した")
+
+        patch move_manage_scenario_path(bottom, direction: "up"),
+          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+        expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+        document = Capybara.string(response.body)
+        expect(document).to have_css('turbo-stream[action="replace"][target="manage_scenarios"]')
+        expect(response.body.index("した")).to be < response.body.index("うえ")
+      end
+
       it "offers those buttons on every row" do
         scenario = create(:scenario, title: "カタシロ")
 

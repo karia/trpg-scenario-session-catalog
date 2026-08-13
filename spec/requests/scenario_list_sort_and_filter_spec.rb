@@ -30,6 +30,25 @@ RSpec.describe "Sorting and filtering the scenario list" do
     Capybara.string(response.body).find('select[name="order"]')
   end
 
+  it "puts the interactive list controls and results in one Turbo Frame" do
+    get root_path
+
+    frame = Capybara.string(response.body).find("turbo-frame#scenario_list")
+    expect(frame["data-turbo-action"]).to eq("advance")
+    expect(frame).to have_button("1人")
+    expect(frame).to have_select("並び順")
+    expect(frame).to have_css("table")
+    expect(frame).to have_css('a[data-turbo-frame="_top"]', text: "いちばん")
+  end
+
+  it "still renders a complete HTML page on a cold request" do
+    get root_path(order: "title_desc")
+
+    expect(response.media_type).to eq("text/html")
+    expect(response.body).to include("<html", "<title>", "turbo-frame")
+    expect_order("最後の見本", "なかほど", "いちばん")
+  end
+
   describe "sorting" do
     it "opens on the order the GM arranged" do
       get root_path

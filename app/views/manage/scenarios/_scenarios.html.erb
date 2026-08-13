@@ -1,0 +1,30 @@
+<tbody id="manage_scenarios"
+       data-controller="sortable"
+       data-sortable-url-value="<%= reorder_manage_scenarios_path %>"
+       data-sortable-saved-message-value="保存しました"
+       data-sortable-failed-message-value="保存できませんでした">
+  <% scenarios.each do |scenario| %>
+    <tr class="border-b border-rule last:border-b-0"
+        draggable="true"
+        data-sortable-target="row"
+        data-sortable-id-param="<%= scenario.id %>"
+        data-action="dragstart->sortable#start dragover->sortable#over drop->sortable#drop dragend->sortable#finish">
+      <td class="p-3 whitespace-nowrap">
+        <span class="cursor-move text-muted select-none" aria-hidden="true">⠿</span>
+        <%= button_to "↑", move_manage_scenario_path(scenario, direction: "up"), method: :patch,
+              form: { class: "inline" }, class: "px-1 text-seal",
+              aria: { label: "#{scenario.title} を1つ上へ" } %>
+        <%= button_to "↓", move_manage_scenario_path(scenario, direction: "down"), method: :patch,
+              form: { class: "inline" }, class: "px-1 text-seal",
+              aria: { label: "#{scenario.title} を1つ下へ" } %>
+      </td>
+      <td class="p-3 font-display"><%= scenario.title %></td>
+      <td class="p-3 text-xs text-muted"><%= scenario.game_systems.map(&:name).join("／") %></td>
+      <td class="p-3 text-xs text-muted"><%= scenario.authors.map(&:name).join("、") %></td>
+      <td class="p-3 text-right">
+        <%= link_to "詳細", scenario_path(scenario), class: "mr-3 text-seal" %>
+        <%= link_to "編集", edit_manage_scenario_path(scenario), class: "text-seal" %>
+      </td>
+    </tr>
+  <% end %>
+</tbody>
