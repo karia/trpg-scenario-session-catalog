@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "BIZ UDPGothic";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("biz-udpgothic/biz-udpgothic-japanese-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "BIZ UDPGothic";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("biz-udpgothic/biz-udpgothic-japanese-700-normal.woff2") format("woff2");
+}
+
 @theme {
   --color-ink: #14161c;
   --color-paper: #eceef2;
@@ -8,9 +24,9 @@
   --color-muted: #5c6472;
   --color-rule: #ccd1d9;
 
-  --font-display: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Source Han Serif JP", serif;
-  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+  --font-display: "BIZ UDPGothic", sans-serif;
+  --font-sans: "BIZ UDPGothic", sans-serif;
+  --font-mono: "BIZ UDPGothic", sans-serif;
 }
 
 @layer base {
@@ -22,7 +38,6 @@
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: "palt";
   }
 
   a {
