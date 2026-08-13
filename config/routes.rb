@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     constraints: { provider: /google_oauth2/ }
   get "/auth/failure", to: "sessions#failure"
   resource :session, only: [ :destroy ]
+  resource :registration, only: [ :new ]
 
   resources :scenarios, only: [ :index, :show ] do
     resource :favorite, only: [ :create, :destroy ]

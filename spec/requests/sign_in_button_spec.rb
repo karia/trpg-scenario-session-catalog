@@ -1,6 +1,14 @@
 require "rails_helper"
 
 RSpec.describe "The sign-in button" do
+  it "shows separate registration and sign-in actions to signed-out visitors" do
+    get root_path
+
+    expect(response.body).to include(%(href="#{new_registration_path}"))
+    expect(response.body).to include(">新規登録</a>")
+    expect(response.body).to include(">ログイン</button>")
+  end
+
   # Turbo はフォーム送信を fetch に置き換えるため、Google への cross-origin リダイレクトを
   # 追えず、押しても何も起きなくなる。ブラウザに素の送信をさせる必要がある。
   it "opts out of Turbo so the browser follows the redirect to Google" do
@@ -38,5 +46,6 @@ RSpec.describe "The sign-in button" do
     get root_path
 
     expect(response.body).not_to include('action="/auth/google_oauth2"')
+    expect(response.body).not_to include(%(href="#{new_registration_path}"))
   end
 end

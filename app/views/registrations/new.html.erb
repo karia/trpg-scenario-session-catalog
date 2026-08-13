@@ -1,0 +1,26 @@
+<% content_for :title, "新規登録" %>
+
+<div class="mx-auto max-w-2xl">
+  <h1 class="font-display text-3xl tracking-wide">新規登録</h1>
+
+  <div class="mt-6 space-y-5 border border-rule bg-surface p-6 text-sm leading-7">
+    <p>
+      このサイトの全機能（セッション情報表示・お気に入りシナリオ機能など）を利用するにはGoogleアカウントでのログインと、管理者の許可が必要です。以下のステップで登録してください。
+    </p>
+
+    <ol class="list-decimal space-y-1 pl-6">
+      <li>下記のボタンを押してGoogleログインする</li>
+      <li>プロフィールを提供してよいかGoogleに聞かれるので許可する</li>
+      <li>管理者に連絡して許可してもらうのを待つ</li>
+    </ol>
+
+    <p>
+      なお、Googleアカウントの情報はこのサイト上では管理者以外の人に表示されることはありません。表示名は自由に設定できます。
+    </p>
+
+    <%# Turbo はフォーム送信を横取りするが、Google への cross-origin リダイレクトを追えない。 %>
+    <%= button_to "Google でログイン", "/auth/google_oauth2", method: :post,
+          form: { data: { turbo: false } },
+          class: "cursor-pointer bg-ink px-4 py-2 text-paper hover:bg-seal" %>
+  </div>
+</div>

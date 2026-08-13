@@ -22,8 +22,6 @@ class SessionsController < ApplicationController
 
   private
     def sign_in_notice(user)
-      return "ログインしました" if user.linked?
-
-      "ログインしました。管理者がメンバー登録するまで、閲覧できるのは公開ページだけです"
+      "ログインしました" if user.linked?
     end
 end
