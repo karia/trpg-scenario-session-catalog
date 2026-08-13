@@ -12,18 +12,18 @@
       <td class="p-3 whitespace-nowrap">
         <span class="cursor-move text-muted select-none" aria-hidden="true">⠿</span>
         <%= button_to "↑", move_manage_scenario_path(scenario, direction: "up"), method: :patch,
-              form: { class: "inline" }, class: "px-1 text-seal",
+              form: { class: "inline" }, class: "inline-flex min-h-6 min-w-6 items-center justify-center text-seal",
               aria: { label: "#{scenario.title} を1つ上へ" } %>
         <%= button_to "↓", move_manage_scenario_path(scenario, direction: "down"), method: :patch,
-              form: { class: "inline" }, class: "px-1 text-seal",
+              form: { class: "inline" }, class: "inline-flex min-h-6 min-w-6 items-center justify-center text-seal",
               aria: { label: "#{scenario.title} を1つ下へ" } %>
       </td>
       <td class="p-3 font-display"><%= scenario.title %></td>
       <td class="p-3 text-xs text-muted"><%= scenario.game_systems.map(&:name).join("／") %></td>
       <td class="p-3 text-xs text-muted"><%= scenario.authors.map(&:name).join("、") %></td>
       <td class="p-3 text-right">
-        <%= link_to "詳細", scenario_path(scenario), class: "mr-3 text-seal" %>
-        <%= link_to "編集", edit_manage_scenario_path(scenario), class: "text-seal" %>
+        <%= link_to "詳細", scenario_path(scenario), class: "mr-1 inline-flex min-h-6 items-center px-1 text-seal" %>
+        <%= link_to "編集", edit_manage_scenario_path(scenario), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
       </td>
     </tr>
   <% end %>

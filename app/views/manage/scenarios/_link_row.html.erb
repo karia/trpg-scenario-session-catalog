@@ -1,10 +1,11 @@
-<div class="grid gap-2 sm:grid-cols-[10rem_1fr_auto]">
-  <%= link.label :label, "ラベル", class: "sr-only" %>
-  <%= link.text_field :label, placeholder: "ラベル", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
-  <%= link.label :url, "URL", class: "sr-only" %>
-  <%= link.url_field :url, placeholder: "https://", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+<fieldset class="grid gap-2 border border-rule p-3 sm:grid-cols-[10rem_1fr_auto]">
+  <legend class="px-1 text-sm font-bold">リンク <%= link.index.to_i + 1 %></legend>
+  <div><%= link.label :label, "ラベル", class: "block text-xs text-muted" %>
+  <%= link.text_field :label, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %></div>
+  <div><%= link.label :url, "URL", class: "block text-xs text-muted" %>
+  <%= link.url_field :url, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %></div>
   <label class="inline-flex items-center gap-1 text-xs text-muted">
     <%= link.check_box :_destroy %> 削除
   </label>
   <%= link.hidden_field :id if link.object.persisted? %>
-</div>
+</fieldset>

@@ -9,18 +9,20 @@
   <%= @scenarios.size %>本 ／ 行をドラッグするか ↑↓ を押すと並び順が変わり、その場で保存されます。この並びが一覧の「GMのおすすめ順」になります。
 </p>
 
-<table class="mt-6 w-full border border-rule bg-surface text-sm">
+<div class="mt-6 overflow-x-auto" role="region" aria-label="シナリオの並び順と操作" tabindex="0">
+<table class="w-full min-w-3xl border border-rule bg-surface text-sm">
   <thead class="border-b border-rule text-left text-xs text-muted">
     <tr>
-      <th class="p-3"><span class="sr-only">並び順</span></th>
-      <th class="p-3">タイトル</th>
-      <th class="p-3">システム</th>
-      <th class="p-3">作者</th>
-      <th class="p-3"></th>
+      <th scope="col" class="p-3"><span class="sr-only">並び順</span></th>
+      <th scope="col" class="p-3">タイトル</th>
+      <th scope="col" class="p-3">システム</th>
+      <th scope="col" class="p-3">作者</th>
+      <th scope="col" class="p-3 text-right">操作</th>
     </tr>
   </thead>
   <%= render "scenarios", scenarios: @scenarios %>
 </table>
+</div>
 
 <div class="fixed right-6 bottom-6"
      role="status"

@@ -1,7 +1,10 @@
-<div class="flex flex-wrap items-center gap-3">
-  <%= recording_form.url_field :url, placeholder: "https://",
-        class: "min-w-64 grow border border-rule bg-surface px-3 py-2 text-sm" %>
+<fieldset class="flex flex-wrap items-end gap-3">
+  <legend class="sr-only">録画リンク <%= recording_form.index.to_i + 1 %></legend>
+  <div class="min-w-64 grow">
+  <%= recording_form.label :url, "録画URL", class: "block text-xs text-muted" %>
+  <%= recording_form.url_field :url, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %>
+  </div>
   <% if recording_form.object.persisted? %>
     <label class="text-xs text-muted"><%= recording_form.check_box :_destroy %> 削除</label>
   <% end %>
-</div>
+</fieldset>

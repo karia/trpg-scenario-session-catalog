@@ -16,14 +16,18 @@
     <%= render "shared/analytics" %>
   </head>
 
-  <body class="min-h-dvh flex flex-col">
+  <body class="min-h-dvh flex flex-col" data-controller="form-status"
+        data-action="turbo:submit-start->form-status#start turbo:submit-end->form-status#finish">
+    <a href="#main-content" class="fixed top-2 left-2 z-50 -translate-y-20 bg-ink px-4 py-2 text-sm text-paper focus:translate-y-0">
+      本文へ移動
+    </a>
     <header class="border-b border-rule bg-surface">
-      <div class="mx-auto max-w-5xl px-5 py-5 flex items-baseline gap-4">
+      <div class="mx-auto flex max-w-5xl flex-wrap items-baseline gap-4 px-5 py-5">
         <%= link_to root_path, class: "font-display text-xl tracking-wide no-underline text-ink" do %>
           TRPGカタログ
         <% end %>
 
-        <nav class="ml-auto flex items-center gap-4 text-xs">
+        <nav class="ml-auto flex flex-wrap items-center justify-end gap-2 text-sm" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
               <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
@@ -38,7 +42,7 @@
               <span class="text-muted">未登録</span>
             <% end %>
             <%= button_to "ログアウト", session_path, method: :delete,
-                  class: "cursor-pointer text-muted underline" %>
+              class: "min-h-6 cursor-pointer px-1 text-muted underline" %>
           <% else %>
             <%= link_to "新規登録", new_registration_path, class: "text-seal underline" %>
             <%# Turbo はフォーム送信を横取りするが、Google への cross-origin リダイレクトを追えない。 %>
@@ -64,14 +68,14 @@
     <% if flash.any? %>
       <div class="mx-auto w-full max-w-5xl px-5 pt-6">
         <% flash.each do |type, message| %>
-          <p class="border border-rule bg-surface px-4 py-3 text-sm <%= type.to_s == "alert" ? "text-seal" : "" %>" role="status">
+          <p class="border border-rule bg-surface px-4 py-3 text-sm <%= type.to_s == "alert" ? "text-seal" : "" %>" role="<%= type.to_s == "alert" ? "alert" : "status" %>">
             <%= message %>
           </p>
         <% end %>
       </div>
     <% end %>
 
-    <main class="mx-auto w-full max-w-5xl grow px-5 py-10">
+    <main id="main-content" tabindex="-1" class="mx-auto w-full max-w-5xl grow px-5 py-10">
       <%= yield %>
     </main>
 
@@ -80,6 +84,8 @@
         シナリオの権利はそれぞれの作者に帰属します。
       </div>
     </footer>
+
+    <div class="sr-only" role="status" aria-live="polite" data-form-status-target="message"></div>
 
     <%= render "shared/ads" %>
   </body>

@@ -1,9 +1,5 @@
 <%= form_with model: [ :manage, play_session ], class: "mt-6 space-y-6" do |form| %>
-  <% if play_session.errors.any? %>
-    <div class="border border-seal bg-surface p-4 text-sm text-seal">
-      <%= play_session.errors.full_messages.join("、") %>
-    </div>
-  <% end %>
+  <%= accessible_error_summary(play_session) %>
 
   <fieldset class="border border-rule bg-surface p-5">
     <legend class="px-2 font-display text-sm">セッション</legend>

@@ -9,9 +9,9 @@
         <p class="font-mono text-xs"><%= user.email.presence || "メールアドレス不明" %></p>
         <p class="text-xs text-muted">初回ログイン <%= l user.created_at, format: :short %></p>
       </div>
-      <span class="flex shrink-0 gap-3 text-xs">
-        <%= link_to "詳細", manage_user_path(user), class: "text-seal" %>
-        <%= link_to "編集", edit_manage_user_path(user), class: "text-seal" %>
+      <span class="flex shrink-0 gap-1 text-xs">
+        <%= link_to "詳細", manage_user_path(user), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
+        <%= link_to "編集", edit_manage_user_path(user), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
       </span>
     </li>
   <% end %>

@@ -1,7 +1,5 @@
 <%= form_with model: [ :manage, person ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
-  <% if person.errors.any? %>
-    <p class="text-sm text-seal"><%= person.errors.full_messages.join("、") %></p>
-  <% end %>
+  <%= accessible_error_summary(person) %>
 
   <div class="grid gap-4 sm:grid-cols-2">
     <div>

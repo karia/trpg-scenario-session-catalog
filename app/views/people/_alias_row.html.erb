@@ -1,10 +1,11 @@
-<div class="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-  <%= row.label :name, "別名", class: "sr-only" %>
-  <%= row.text_field :name, placeholder: "別名", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
-  <%= row.label :context, "どこでの名前か", class: "sr-only" %>
-  <%= row.text_field :context, placeholder: "どこでの名前か", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
+<fieldset class="grid gap-2 border border-rule p-3 sm:grid-cols-[1fr_1fr_auto]">
+  <legend class="px-1 text-sm font-bold">別名 <%= row.index.to_i + 1 %></legend>
+  <div><%= row.label :name, "名前", class: "block text-xs text-muted" %>
+  <%= row.text_field :name, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %></div>
+  <div><%= row.label :context, "使用場所", class: "block text-xs text-muted" %>
+  <%= row.text_field :context, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %></div>
   <label class="inline-flex items-center gap-1 text-xs text-muted">
     <%= row.check_box :_destroy %> 削除
   </label>
   <%= row.hidden_field :id if row.object.persisted? %>
-</div>
+</fieldset>

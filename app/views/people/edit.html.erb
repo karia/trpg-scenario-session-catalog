@@ -3,9 +3,7 @@
 <h1 class="font-display text-2xl">プロフィールの編集</h1>
 
 <%= form_with model: @person, class: "mt-6 space-y-6" do |form| %>
-  <% if @person.errors.any? %>
-    <p class="border border-seal bg-surface p-4 text-sm text-seal"><%= @person.errors.full_messages.join("、") %></p>
-  <% end %>
+  <%= accessible_error_summary(@person) %>
 
   <fieldset class="border border-rule bg-surface p-5">
     <legend class="px-2 font-display text-sm">あなたのこと</legend>

@@ -3,15 +3,7 @@
 <h1 class="font-display text-2xl">サイト全体設定</h1>
 
 <%= form_with model: @site_setting, url: manage_site_setting_path, method: :patch, class: "mt-6 space-y-6" do |form| %>
-  <% if @site_setting.errors.any? %>
-    <div class="border border-seal bg-surface px-4 py-3 text-sm text-seal" role="alert">
-      <ul class="list-disc pl-5">
-        <% @site_setting.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= accessible_error_summary(@site_setting) %>
 
   <div>
     <%= form.label :google_analytics_measurement_id, "Google Analytics 測定 ID", class: "block text-sm font-bold" %>

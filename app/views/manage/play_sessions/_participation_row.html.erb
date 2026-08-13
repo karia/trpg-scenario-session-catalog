@@ -1,16 +1,19 @@
+<fieldset class="border border-rule bg-paper p-3">
+  <legend class="px-1 text-sm font-bold">参加者 <%= row.index.to_i + 1 %></legend>
 <div class="grid gap-2 sm:grid-cols-[12rem_8rem_1fr_1fr_auto]">
-  <%= row.label :person_id, "参加者", class: "sr-only" %>
+  <div><%= row.label :person_id, "名前", class: "block text-xs text-muted" %>
   <%= row.collection_select :person_id, people_for_select, :id, :display_name,
-        { include_blank: "参加者" }, class: "border border-rule bg-paper px-3 py-2 text-sm" %>
-  <%= row.label :role, "役割", class: "sr-only" %>
+        { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
+  <div><%= row.label :role, "役割", class: "block text-xs text-muted" %>
   <%= row.select :role, Participation.roles.keys.map { |k| [ t("play_sessions.roles.#{k}"), k ] },
-        { include_blank: "役割" }, class: "border border-rule bg-paper px-3 py-2 text-sm" %>
-  <%= row.label :character_name, "キャラクター名", class: "sr-only" %>
-  <%= row.text_field :character_name, placeholder: "キャラクター名", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
-  <%= row.label :character_sheet_url, "キャラクターシート", class: "sr-only" %>
-  <%= row.url_field :character_sheet_url, placeholder: "キャラシ https://", class: "border border-rule bg-paper px-3 py-2 text-sm" %>
-  <label class="inline-flex items-center gap-1 text-xs text-muted">
+        { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
+  <div><%= row.label :character_name, "キャラクター名", class: "block text-xs text-muted" %>
+  <%= row.text_field :character_name, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
+  <div><%= row.label :character_sheet_url, "キャラクターシートURL", class: "block text-xs text-muted" %>
+  <%= row.url_field :character_sheet_url, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
+  <label class="inline-flex min-h-6 items-center gap-1 self-end text-xs text-muted">
     <%= row.check_box :_destroy %> 外す
   </label>
   <%= row.hidden_field :id if row.object.persisted? %>
 </div>
+</fieldset>
