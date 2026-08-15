@@ -9,7 +9,9 @@ class PersonPolicy < ApplicationPolicy
   # Person の追加と削除、グループ所属の変更は管理者だけ。GM には開かない。
   def manage? = admin?
   def create? = admin?
-  def destroy? = admin?
+
+  # 自分を消せる相手がいないため、管理者が 0 人になる経路も生まれない。
+  def destroy? = admin? && record != person
 
   class Scope < ApplicationPolicy::Scope
     def resolve

@@ -72,6 +72,15 @@ RSpec.describe "Authorization matrix" do
       expect(allows?(admin, described_class, no_role, :update?)).to be(true)
     end
 
+    # 管理者が自分を消すと、管理者が 0 人になりうる。
+    it "lets an admin delete any member except themselves" do
+      expect(allows?(admin, described_class, no_role, :destroy?)).to be(true)
+      expect(allows?(admin, described_class, admin, :destroy?)).to be(false)
+      expect(allows?(gm, described_class, no_role, :destroy?)).to be_falsey
+      expect(allows?(no_role, described_class, no_role, :destroy?)).to be_falsey
+      expect(allows?(anonymous, described_class, no_role, :destroy?)).to be_falsey
+    end
+
     # 管理画面はグループ所属を触れるため、本人であっても管理者以外は入れない。
     it "keeps the manage screen to admins, even against the person themselves" do
       expect(allows?(gm, described_class, gm, :manage?)).to be_falsey
@@ -105,6 +114,15 @@ RSpec.describe "Authorization matrix" do
       expect(allows?(gm, described_class, User.new, :update?)).to be_falsey
       expect(allows?(admin, described_class, User.new, :index?)).to be(true)
       expect(allows?(admin, described_class, User.new, :update?)).to be(true)
+    end
+
+    # 自分のログイン手段を消すと、その場で締め出される。
+    it "lets an admin delete any account except one bound to themselves" do
+      expect(allows?(admin, described_class, User.new, :destroy?)).to be(true)
+      expect(allows?(admin, described_class, User.new(person: no_role), :destroy?)).to be(true)
+      expect(allows?(admin, described_class, User.new(person: admin), :destroy?)).to be(false)
+      expect(allows?(gm, described_class, User.new, :destroy?)).to be_falsey
+      expect(allows?(anonymous, described_class, User.new, :destroy?)).to be_falsey
     end
   end
 
