@@ -14,7 +14,40 @@ RSpec.describe DiscordGuildMemberClient do
 
     expect(described_class.new(bot_token: "bot-token").member?(guild_id, user_id)).to be(true)
     expect(request["Authorization"]).to eq("Bot bot-token")
+    expect(request["User-Agent"]).to eq(described_class::USER_AGENT)
     expect(request.path).to eq("/api/v10/guilds/#{guild_id}/members/#{user_id}")
+  end
+
+  it "shares a successful lookup through the cache" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+    response = Net::HTTPOK.new("1.1", "200", "OK")
+    request = instance_double(Net::HTTP)
+    allow(Net::HTTP).to receive(:new).and_return(request)
+    allow(request).to receive(:use_ssl=)
+    allow(request).to receive(:open_timeout=)
+    allow(request).to receive(:read_timeout=)
+    allow(request).to receive(:request).once.and_return(response)
+    client = described_class.new(bot_token: "bot-token", cache:)
+
+    2.times { expect(client.member?(guild_id, user_id)).to be(true) }
+  end
+
+  it "suppresses subsequent requests while Discord is rate limited" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+    response = Net::HTTPTooManyRequests.new("1.1", "429", "Too Many Requests")
+    response.body = '{"retry_after":30}'
+    response.instance_variable_set(:@read, true)
+    http = instance_double(Net::HTTP)
+    allow(Net::HTTP).to receive(:new).and_return(http)
+    allow(http).to receive(:use_ssl=)
+    allow(http).to receive(:open_timeout=)
+    allow(http).to receive(:read_timeout=)
+    allow(http).to receive(:request).once.and_return(response)
+    client = described_class.new(bot_token: "bot-token", cache:)
+
+    expect { client.member?(guild_id, user_id) }.to raise_error(described_class::Error, /429/)
+    expect { client.member?(guild_id, "34567890123456789#{0}") }
+      .to raise_error(described_class::Error, /rate limited/)
   end
 
   it "reports a non-member from Discord's 404 response" do

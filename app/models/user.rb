@@ -41,8 +41,9 @@ class User < ApplicationRecord
 
     groups = Group.where.not(discord_guild_id: nil).to_a
     client ||= DiscordGuildMemberClient.new if groups.any?
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 3.seconds
     memberships = groups.index_with do |group|
-      client.member?(group.discord_guild_id, uid)
+      Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline && client.member?(group.discord_guild_id, uid)
     rescue DiscordGuildMemberClient::Error => error
       Rails.logger.warn("Discord guild membership check failed: #{error.class}")
       false

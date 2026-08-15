@@ -113,6 +113,19 @@ RSpec.describe "Manage::People" do
       expect(group.reload.discord_guild_id).to eq(guild_id)
     end
 
+    it "turns a selected Discord-managed membership into a manual membership" do
+      person = create(:person)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      membership = person.group_memberships.create!(group:, discord_managed: true)
+
+      patch manage_group_path(group), params: {
+        group: { name: group.name, discord_guild_id: group.discord_guild_id, manual_person_ids: [ person.id ] }
+      }
+
+      expect(response).to redirect_to(manage_group_path(group))
+      expect(membership.reload).not_to be_discord_managed
+    end
+
     it "renders account detail and edit screens with reciprocal links" do
       user = create(:user, person: create(:person, display_name: "紐づけ先"))
 

@@ -19,10 +19,11 @@
   </div>
 
   <div>
-    <span class="block text-xs text-muted"><%= Person.model_name.human %></span>
-    <%= form.collection_check_boxes :person_ids, Person.order(:display_name), :id, :display_name do |b| %>
+    <span class="block text-xs text-muted">手動で所属させる人物</span>
+    <%= form.collection_check_boxes :manual_person_ids, Person.order(:display_name), :id, :display_name do |b| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= b.check_box %> <%= b.text %></label>
     <% end %>
+    <p class="mt-1 text-xs text-muted">Discordから自動所属した人物を選ぶと、退会後も残る手動所属へ切り替えます。</p>
   </div>
 
   <div class="flex gap-4">
