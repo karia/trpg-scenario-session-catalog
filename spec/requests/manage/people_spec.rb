@@ -101,6 +101,18 @@ RSpec.describe "Manage::People" do
       expect(response.body).to include("詳細に戻る", manage_group_path(group))
     end
 
+    it "updates a group's Discord guild ID" do
+      group = create(:group)
+      guild_id = "12345678901234567#{8}"
+
+      patch manage_group_path(group), params: {
+        group: { name: group.name, discord_guild_id: guild_id }
+      }
+
+      expect(response).to redirect_to(manage_group_path(group))
+      expect(group.reload.discord_guild_id).to eq(guild_id)
+    end
+
     it "renders account detail and edit screens with reciprocal links" do
       user = create(:user, person: create(:person, display_name: "紐づけ先"))
 

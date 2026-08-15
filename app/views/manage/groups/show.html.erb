@@ -6,6 +6,11 @@
     <%= link_to "編集", edit_manage_group_path(@record), class: "text-sm text-seal" %>
   </div>
 
+  <dl class="mt-6 grid grid-cols-[10rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 text-sm">
+    <dt class="text-muted">DiscordサーバーID</dt>
+    <dd class="font-mono"><%= @record.discord_guild_id.presence || "未設定" %></dd>
+  </dl>
+
   <section class="mt-8">
     <h2 class="font-display text-xl"><%= Person.model_name.human %></h2>
     <% if @record.people.any? %>

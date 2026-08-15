@@ -11,6 +11,14 @@
   </div>
 
   <div>
+    <%= form.label :discord_guild_id, "DiscordサーバーID", class: "block text-xs text-muted" %>
+    <%= form.text_field :discord_guild_id, inputmode: "numeric", autocomplete: "off",
+          aria: { describedby: "discord-guild-id-help" },
+          class: "mt-1 w-64 border border-rule bg-paper px-3 py-2 font-mono text-sm" %>
+    <p id="discord-guild-id-help" class="mt-1 text-xs text-muted">未設定ならDiscordからの自動参加を行いません。</p>
+  </div>
+
+  <div>
     <span class="block text-xs text-muted"><%= Person.model_name.human %></span>
     <%= form.collection_check_boxes :person_ids, Person.order(:display_name), :id, :display_name do |b| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= b.check_box %> <%= b.text %></label>

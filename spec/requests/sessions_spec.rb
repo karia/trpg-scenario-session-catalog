@@ -2,6 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Sessions" do
   before do
+    allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids).and_return([])
     OmniAuth.config.test_mode = true
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
       provider: "google_oauth2",
@@ -11,7 +12,8 @@ RSpec.describe "Sessions" do
     OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
       provider: "discord",
       uid: "20000001",
-      info: { email: "discord@example.com", name: "Discord User" }
+      info: { email: "discord@example.com", name: "Discord User" },
+      credentials: { token: "discord-token" }
     )
   end
 
@@ -49,6 +51,16 @@ RSpec.describe "Sessions" do
 
       expect(User.sole).to have_attributes(provider: "discord", uid: "20000001", person: nil)
       expect(session[:user_id]).to eq(User.sole.id)
+    end
+
+    it "automatically links a Discord guild member to a new person" do
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids)
+        .with("discord-token").and_return([ group.discord_guild_id ])
+      sign_in_with_discord
+
+      expect(User.sole.person.groups).to contain_exactly(group)
+      expect(response).to redirect_to(root_path)
     end
 
     it "returns to the URL where sign-in started" do

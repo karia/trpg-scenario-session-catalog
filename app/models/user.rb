@@ -36,6 +36,19 @@ class User < ApplicationRecord
   def linked? = person.present?
   def provider_name = PROVIDERS.fetch(provider)
 
+  def join_discord_groups!(guild_ids)
+    raise ArgumentError, "not a Discord account" unless provider == "discord"
+
+    groups = Group.where(discord_guild_id: guild_ids).to_a
+    return if groups.empty?
+
+    with_lock do
+      self.person ||= Person.create!(display_name: name.presence || "Discordユーザー")
+      save! if person_id_changed?
+      groups.each { |group| person.group_memberships.find_or_create_by!(group:) }
+    end
+  end
+
   private
     def copy_legacy_google_uid
       self.uid ||= google_uid if provider == "google_oauth2"

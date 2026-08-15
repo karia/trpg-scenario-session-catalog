@@ -87,4 +87,37 @@ RSpec.describe User do
       expect { described_class.from_omniauth(auth) }.not_to change(described_class, :count)
     end
   end
+
+  describe "#join_discord_groups!" do
+    it "creates a person and joins every group matched by guild ID" do
+      user = create(:user, provider: "discord", person: nil, name: "Discord User")
+      matched_guild_id = "12345678901234567#{8}"
+      other_guild_id = "98765432109876543#{2}"
+      matched = create(:group, discord_guild_id: matched_guild_id)
+      other = create(:group, discord_guild_id: other_guild_id)
+
+      user.join_discord_groups!([ matched_guild_id ])
+
+      expect(user.reload.person.display_name).to eq("Discord User")
+      expect(user.person.groups).to contain_exactly(matched)
+      expect(user.person.groups).not_to include(other)
+    end
+
+    it "leaves an unmatched account unlinked" do
+      user = create(:user, provider: "discord", person: nil)
+
+      expect { user.join_discord_groups!([ "12345678901234567#{8}" ]) }.not_to change(Person, :count)
+      expect(user.reload.person).to be_nil
+    end
+
+    it "adds a matched group to an existing person without duplicating membership" do
+      person = create(:person)
+      user = create(:user, provider: "discord", person:)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+
+      expect { user.join_discord_groups!([ "123456789012345678" ]) }
+        .not_to change(GroupMembership, :count)
+      expect(person.groups).to include(group)
+    end
+  end
 end

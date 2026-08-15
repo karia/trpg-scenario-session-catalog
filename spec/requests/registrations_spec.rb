@@ -5,10 +5,11 @@ RSpec.describe "Registrations" do
     get new_registration_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("管理者の許可が必要です")
+    expect(response.body).to include("Discord連携済みのサーバーに参加していない場合")
     expect(response.body).to include("下記のボタンを押してGoogleまたはDiscordでログインする")
     expect(response.body).to include("プロフィールを提供してよいか認証先に聞かれるので許可する")
     expect(response.body).to include("管理者に連絡して許可してもらうのを待つ")
+    expect(response.body).to include("参加中のサーバー名や一覧は保存しません")
     expect(response.body).to include("管理者以外の人に表示されることはありません")
 
     form = response.body.scan(%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m)

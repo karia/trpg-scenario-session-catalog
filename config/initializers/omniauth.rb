@@ -8,7 +8,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :discord,
     ENV["DISCORD_CLIENT_ID"],
     ENV["DISCORD_CLIENT_SECRET"],
-    scope: "identify email"
+    scope: "identify email guilds"
 end
 
 # 認証の開始を POST に限定する。GET のままだと外部サイトからログインを誘発できる。
