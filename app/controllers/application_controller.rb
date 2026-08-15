@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   include Authentication
   include Pundit::Authorization
+  include ConfirmsSelfDemotion
 
   # 権限は Person に付く。User には認証に要る情報しか持たせない。
   def pundit_user = current_person
