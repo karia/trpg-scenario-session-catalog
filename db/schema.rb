@@ -276,7 +276,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
     t.string "name"
     t.bigint "person_id"
     t.string "provider", default: "google_oauth2", null: false
-    t.string "uid", null: false
+    t.string "uid"
     t.datetime "updated_at", null: false
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
     t.index ["person_id", "provider"], name: "index_users_on_person_id_and_provider", unique: true

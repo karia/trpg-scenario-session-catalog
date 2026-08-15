@@ -57,6 +57,20 @@ RSpec.describe User do
       expect(user.reload.email).to eq("moved@example.com")
       expect(user.person).to be_present
     end
+
+    it "adopts an account inserted by an old application instance" do
+      legacy = described_class.insert_all!([ {
+        google_uid: auth.uid.to_s,
+        email: "old@example.com",
+        created_at: Time.current,
+        updated_at: Time.current
+      } ]).then { |result| described_class.find(result.rows.first.first) }
+
+      expect(legacy.uid).to be_nil
+
+      expect { described_class.from_google(auth) }.not_to change(described_class, :count)
+      expect(legacy.reload).to have_attributes(uid: auth.uid.to_s, email: "someone@example.com")
+    end
   end
 
   describe ".from_omniauth" do

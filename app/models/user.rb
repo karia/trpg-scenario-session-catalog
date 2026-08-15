@@ -9,6 +9,7 @@ class User < ApplicationRecord
   validates :provider, inclusion: { in: PROVIDERS.keys }
   validates :uid, presence: true, uniqueness: { scope: :provider }
   validates :person_id, uniqueness: { scope: :provider }, allow_nil: true
+  before_validation :copy_legacy_google_uid
 
   # 初回は Person 未紐づけで作る。紐づけは管理者が管理画面で行う。
   def self.from_google(auth)
@@ -19,7 +20,12 @@ class User < ApplicationRecord
     provider = auth.provider.to_s
     raise ArgumentError, "unsupported provider" unless PROVIDERS.key?(provider)
 
-    user = find_or_initialize_by(provider:, uid: auth.uid.to_s)
+    uid = auth.uid.to_s
+    user = find_by(provider:, uid:)
+    user ||= find_by(google_uid: uid) if provider == "google_oauth2"
+    user ||= new(provider:, uid:)
+    user.provider = provider
+    user.uid = uid
     user.google_uid = user.uid if provider == "google_oauth2"
     user.email = auth.info&.email
     user.name = auth.info&.name
@@ -29,4 +35,9 @@ class User < ApplicationRecord
 
   def linked? = person.present?
   def provider_name = PROVIDERS.fetch(provider)
+
+  private
+    def copy_legacy_google_uid
+      self.uid ||= google_uid if provider == "google_oauth2"
+    end
 end

@@ -8,9 +8,8 @@ class GeneralizeUserIdentities < ActiveRecord::Migration[8.1]
       direction.up { execute "UPDATE users SET uid = google_uid" }
     end
 
-    change_column_null :users, :uid, false
     change_column_null :users, :google_uid, true
-    remove_index :users, :person_id
+    remove_index :users, :person_id, unique: true
     add_index :users, [ :provider, :uid ], unique: true
     add_index :users, [ :person_id, :provider ], unique: true
   end
