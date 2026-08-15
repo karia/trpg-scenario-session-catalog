@@ -9,6 +9,12 @@ ja:
       scenario: シナリオ
       site_setting: サイト全体設定
       user: アカウント
+    # 削除を止めた理由の文面に入る。既定のままだと英語の関連名が出る。
+    attributes:
+      person:
+        participations: 参加記録
+      scenario:
+        play_sessions: セッション
   scenarios:
     orders:
       gm: GMのおすすめ順
