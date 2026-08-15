@@ -81,11 +81,20 @@
     <legend class="px-2 font-display text-sm">評価と本文</legend>
 
     <div class="space-y-4">
-      <div>
-        <label class="inline-flex items-center gap-2 text-sm">
-          <%= form.check_box :gm_experienced %> <%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>経験あり
-        </label>
-      </div>
+      <% [ [ :gm_experienced, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}経験" ],
+           [ :pl_experienced, "PL経験" ], [ :read, "シナリオ既読" ] ].each do |attribute, label| %>
+        <fieldset>
+          <legend class="text-xs text-muted"><%= label %></legend>
+          <div class="mt-1 flex gap-4 text-sm">
+            <label class="inline-flex items-center gap-2">
+              <%= radio_button_tag "scenario_status[#{attribute}]", "1", @scenario_status.public_send(attribute), required: true %> あり
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <%= radio_button_tag "scenario_status[#{attribute}]", "0", !@scenario_status.public_send(attribute), required: true %> なし
+            </label>
+          </div>
+        </fieldset>
+      <% end %>
 
       <p class="text-xs text-muted">
         並び順は<%= link_to "#{Scenario.model_name.human}の並び順", scenario_order_index_path, class: "text-seal" %>で決めます。

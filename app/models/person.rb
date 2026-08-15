@@ -13,6 +13,8 @@ class Person < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorite_scenarios, through: :favorites, source: :scenario
   has_many :spoiler_reveals, dependent: :destroy
+  has_many :scenario_statuses, dependent: :destroy
+  has_many :owned_scenarios, through: :scenario_statuses, source: :scenario
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
 

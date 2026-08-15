@@ -26,6 +26,7 @@ class Scenario < ApplicationRecord
   has_many :authors, through: :scenario_authors
   has_many :favorites, dependent: :destroy
   has_many :spoiler_reveals, dependent: :destroy
+  has_many :scenario_statuses, dependent: :destroy
   # セッションが残っているシナリオは消させない。消すと参加記録ごと失われる。
   has_many :play_sessions, dependent: :restrict_with_error
   has_many :purchase_links, -> { order(:position, :id) }, dependent: :destroy, inverse_of: :scenario
@@ -66,6 +67,10 @@ class Scenario < ApplicationRecord
   end
 
   def sub_game_master_label = "サブ#{game_master_label}"
+
+  def status_for(person)
+    scenario_statuses.find { |status| status.person_id == person&.id }
+  end
 
   validates :title, presence: true
   validates :jacket,

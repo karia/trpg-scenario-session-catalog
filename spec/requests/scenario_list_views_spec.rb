@@ -47,6 +47,14 @@ RSpec.describe "The scenario list" do
   end
 
   describe "the heading" do
+    it "names the administrator whose scenarios are listed" do
+      create(:person, display_name: "カーリア", roles: %w[admin])
+
+      get root_path
+
+      expect(response.body).to include("カーリアが所持するTRPGシナリオ一覧")
+    end
+
     it "counts the scenarios beside the title" do
       create(:scenario, title: "もう1本")
 
@@ -172,48 +180,50 @@ RSpec.describe "The scenario list" do
     end
   end
 
-  describe "GM experience" do
-    it "uses each scenario's game master label in the table" do
+  describe "scenario status" do
+    let!(:admin) { create(:person, roles: %w[admin]) }
+
+    it "uses each scenario's game master label for GM experience" do
       scenario.game_systems.first.update!(game_master_label: "DL")
+      create(:scenario_status, person: admin, scenario:, gm_experienced: true)
 
       get root_path
 
-      expect(Capybara.string(response.body).find("tr", text: scenario.title)).to have_text("☑DL経験あり")
+      expect(Capybara.string(response.body).find("tr", text: scenario.title)).to have_text("DL経験あり")
     end
 
-    it "marks only experienced scenarios in the table" do
-      inexperienced = create(:scenario, title: "未経験シナリオ", gm_experienced: false)
+    it "shows only the administrator's highest-priority label" do
+      create(:scenario_status, person: admin, scenario:, pl_experienced: true, read: true)
+      other = create(:person, roles: %w[gm])
+      create(:scenario_status, person: other, scenario:, gm_experienced: true)
 
       get root_path
 
       page = Capybara.string(response.body)
-      expect(page).to have_css("th", text: "GM経験")
-      expect(page.find("tr", text: scenario.title)).to have_text("☑")
-      expect(page.find("tr", text: inexperienced.title)).to have_no_text("☑")
+      expect(page).to have_css("th", text: "ステータス")
+      expect(page.find("tr", text: scenario.title)).to have_text("PL経験あり")
+      expect(page.find("tr", text: scenario.title)).to have_no_text(/GM経験あり|シナリオ既読/)
     end
 
-    it "says the GM has experience on an experienced scenario page" do
-      get scenario_path(scenario)
+    it "falls back to ownership when the administrator has no positive status" do
+      create(:scenario_status, person: admin, scenario:)
 
-      expect(response.body).to include("☑GM経験あり")
+      get root_path
+
+      expect(Capybara.string(response.body).find("tr", text: scenario.title)).to have_text("シナリオ所持")
     end
 
-    it "says the GM has no experience on an inexperienced scenario page" do
-      scenario.update!(gm_experienced: false)
-
-      get scenario_path(scenario)
-
-      expect(response.body).to include("GM経験なし")
-      expect(response.body).not_to include("☑GM経験あり")
-    end
-
-    it "uses the new label on the edit screen" do
-      sign_in_as create(:person, roles: %w[gm])
+    it "offers yes and no radio buttons for all three values on the edit screen" do
+      editor = create(:person, roles: %w[gm])
+      create(:scenario_status, person: editor, scenario:, gm_experienced: true, read: true)
+      sign_in_as editor
 
       get edit_scenario_path(scenario)
 
-      expect(response.body).to include("GM経験あり")
-      expect(response.body).not_to include("回したことがある")
+      page = Capybara.string(response.body)
+      %w[gm_experienced pl_experienced read].each do |attribute|
+        expect(page).to have_css(%(input[type="radio"][name="scenario_status[#{attribute}]"]), count: 2)
+      end
     end
   end
 
