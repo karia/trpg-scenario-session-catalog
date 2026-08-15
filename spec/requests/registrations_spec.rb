@@ -22,6 +22,10 @@ RSpec.describe "Registrations" do
     expect(discord_form).to include('method="post"')
     expect(discord_form).to include('data-turbo="false"')
     expect(discord_form).to include("Discord でログイン")
+
+    buttons = Capybara.string(response.body).find("div.flex.justify-center.gap-3")
+    expect(buttons).to have_button("Google でログイン")
+    expect(buttons).to have_button("Discord でログイン")
   end
 
   it "shows an approval request on every page while the account is unlinked" do

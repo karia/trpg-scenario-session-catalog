@@ -18,14 +18,16 @@
       なお、Googleアカウントの情報はこのサイト上では管理者以外の人に表示されることはありません。表示名は自由に設定できます。
     </p>
 
-    <%# Turbo はフォーム送信を横取りするが、Google への cross-origin リダイレクトを追えない。 %>
-    <%= button_to "Google でログイン", "/auth/google_oauth2", method: :post,
-          params: { origin: request.fullpath },
-          form: { data: { turbo: false } },
-          class: "cursor-pointer bg-ink px-4 py-2 text-paper hover:bg-seal" %>
-    <%= button_to "Discord でログイン", "/auth/discord", method: :post,
-          params: { origin: request.fullpath },
-          form: { data: { turbo: false } },
-          class: "ml-2 cursor-pointer bg-ink px-4 py-2 text-paper hover:bg-seal" %>
+    <div class="flex justify-center gap-3">
+      <%# Turbo はフォーム送信を横取りするが、provider への cross-origin リダイレクトを追えない。 %>
+      <%= button_to "Google でログイン", "/auth/google_oauth2", method: :post,
+            params: { origin: request.fullpath },
+            form: { data: { turbo: false } },
+            class: "cursor-pointer bg-ink px-4 py-2 text-paper hover:bg-seal" %>
+      <%= button_to "Discord でログイン", "/auth/discord", method: :post,
+            params: { origin: request.fullpath },
+            form: { data: { turbo: false } },
+            class: "cursor-pointer bg-ink px-4 py-2 text-paper hover:bg-seal" %>
+    </div>
   </div>
 </div>
