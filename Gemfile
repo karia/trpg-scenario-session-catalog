@@ -38,6 +38,8 @@ gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 2.0"
+# image_processing 2.0 made the backend a soft dependency. Rails' default variant processor is vips.
+gem "ruby-vips", "~> 2.0", require: false
 
 # S3-compatible storage for Active Storage (MinIO in development and production)
 gem "aws-sdk-s3", require: false
