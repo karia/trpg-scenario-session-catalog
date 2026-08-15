@@ -31,7 +31,7 @@ Rails.application.routes.draw do
 
   namespace :manage do
     resources :groups, except: [ :new ]
-    resources :users, only: [ :index, :show, :edit, :update ]
+    resources :users, only: [ :index, :show, :edit, :update, :destroy ]
     resource :site_setting, only: [ :show, :edit, :update ]
   end
 
