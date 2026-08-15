@@ -1,8 +1,10 @@
 require "rails_helper"
 
 RSpec.describe "Sessions" do
+  let(:discord_client) { instance_double(DiscordGuildMemberClient, member?: false) }
+
   before do
-    allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids).and_return([])
+    allow(DiscordGuildMemberClient).to receive(:new).and_return(discord_client)
     OmniAuth.config.test_mode = true
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
       provider: "google_oauth2",
@@ -11,7 +13,7 @@ RSpec.describe "Sessions" do
     )
     OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
       provider: "discord",
-      uid: "20000001",
+      uid: "23456789012345678#{9}",
       info: { email: "discord@example.com", name: "Discord User" },
       credentials: { token: "discord-token" }
     )
@@ -49,25 +51,38 @@ RSpec.describe "Sessions" do
     it "signs in with Discord" do
       expect { sign_in_with_discord }.to change(User, :count).by(1)
 
-      expect(User.sole).to have_attributes(provider: "discord", uid: "20000001", person: nil)
+      expect(User.sole).to have_attributes(provider: "discord", uid: "23456789012345678#{9}", person: nil)
       expect(session[:user_id]).to eq(User.sole.id)
     end
 
     it "automatically links a Discord guild member to a new person" do
       group = create(:group, discord_guild_id: "12345678901234567#{8}")
-      allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids)
-        .with("discord-token").and_return([ group.discord_guild_id ])
+      allow(discord_client).to receive(:member?)
+        .with(group.discord_guild_id, "23456789012345678#{9}").and_return(true)
       sign_in_with_discord
 
       expect(User.sole.person.groups).to contain_exactly(group)
       expect(response).to redirect_to(root_path)
     end
 
+    it "removes Discord-managed access on the first request after leaving the guild" do
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      allow(discord_client).to receive(:member?).and_return(true)
+      sign_in_with_discord
+      membership = User.sole.person.group_memberships.find_by!(group:)
+
+      allow(discord_client).to receive(:member?).and_return(false)
+      get play_sessions_path
+
+      expect(GroupMembership.exists?(membership.id)).to be(false)
+    end
+
     it "signs in a linked Discord user when fetching guilds fails" do
       person = create(:person)
-      user = create(:user, provider: "discord", uid: "20000001", person:)
-      allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids)
-        .and_raise(DiscordGuildsClient::Error, "Discord API returned 503")
+      user = create(:user, provider: "discord", uid: "23456789012345678#{9}", person:)
+      create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      allow(discord_client).to receive(:member?)
+        .and_raise(DiscordGuildMemberClient::Error, "Discord API returned 503")
 
       sign_in_with_discord
 
@@ -76,8 +91,9 @@ RSpec.describe "Sessions" do
     end
 
     it "signs in an unlinked Discord user when fetching guilds fails" do
-      allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids)
-        .and_raise(DiscordGuildsClient::Error, "Discord API returned 503")
+      create(:group, discord_guild_id: "12345678901234567#{8}")
+      allow(discord_client).to receive(:member?)
+        .and_raise(DiscordGuildMemberClient::Error, "Discord API returned 503")
 
       sign_in_with_discord
 

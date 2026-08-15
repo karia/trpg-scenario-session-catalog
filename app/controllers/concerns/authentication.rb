@@ -13,7 +13,11 @@ module Authentication
 
   # Person に紐づいていないユーザーは nil を返す。ログイン必須エリアはこれで閉じる。
   def current_person
-    current_user&.person
+    return @current_person if defined?(@current_person)
+
+    user = current_user
+    user.sync_discord_groups! if user&.provider == "discord"
+    @current_person = user&.person
   end
 
   def signed_in? = current_user.present?

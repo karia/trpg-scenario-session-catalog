@@ -36,16 +36,34 @@ class User < ApplicationRecord
   def linked? = person.present?
   def provider_name = PROVIDERS.fetch(provider)
 
-  def join_discord_groups!(guild_ids)
+  def sync_discord_groups!(client: nil)
     raise ArgumentError, "not a Discord account" unless provider == "discord"
 
-    groups = Group.where(discord_guild_id: guild_ids).to_a
-    return if groups.empty?
+    groups = Group.where.not(discord_guild_id: nil).to_a
+    client ||= DiscordGuildMemberClient.new if groups.any?
+    memberships = groups.index_with do |group|
+      client.member?(group.discord_guild_id, uid)
+    rescue DiscordGuildMemberClient::Error => error
+      Rails.logger.warn("Discord guild membership check failed: #{error.class}")
+      false
+    end
 
     with_lock do
-      self.person ||= Person.create!(display_name: name.presence || "Discordユーザー")
+      self.person ||= Person.create!(display_name: name.presence || "Discordユーザー") if memberships.value?(true)
       save! if person_id_changed?
-      groups.each { |group| person.group_memberships.find_or_create_by!(group:) }
+      next unless person
+
+      person.group_memberships.where(discord_managed: true).includes(:group).find_each do |membership|
+        membership.destroy! unless memberships.key?(membership.group)
+      end
+      memberships.each do |group, member|
+        membership = person.group_memberships.find_by(group:)
+        if member
+          person.group_memberships.create!(group:, discord_managed: true) unless membership
+        elsif membership&.discord_managed?
+          membership.destroy!
+        end
+      end
     end
   end
 

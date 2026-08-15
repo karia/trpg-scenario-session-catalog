@@ -88,36 +88,65 @@ RSpec.describe User do
     end
   end
 
-  describe "#join_discord_groups!" do
-    it "creates a person and joins every group matched by guild ID" do
-      user = create(:user, provider: "discord", person: nil, name: "Discord User")
+  describe "#sync_discord_groups!" do
+    let(:user_id) { "23456789012345678#{9}" }
+    let(:client) { instance_double(DiscordGuildMemberClient) }
+
+    it "creates a person and a Discord-managed membership for a guild member" do
+      user = create(:user, provider: "discord", uid: user_id, person: nil, name: "Discord User")
       matched_guild_id = "12345678901234567#{8}"
       other_guild_id = "98765432109876543#{2}"
       matched = create(:group, discord_guild_id: matched_guild_id)
       other = create(:group, discord_guild_id: other_guild_id)
+      allow(client).to receive(:member?).with(matched_guild_id, user_id).and_return(true)
+      allow(client).to receive(:member?).with(other_guild_id, user_id).and_return(false)
 
-      user.join_discord_groups!([ matched_guild_id ])
+      user.sync_discord_groups!(client:)
 
       expect(user.reload.person.display_name).to eq("Discord User")
       expect(user.person.groups).to contain_exactly(matched)
       expect(user.person.groups).not_to include(other)
+      expect(user.person.group_memberships.sole).to be_discord_managed
     end
 
     it "leaves an unmatched account unlinked" do
-      user = create(:user, provider: "discord", person: nil)
+      user = create(:user, provider: "discord", uid: user_id, person: nil)
+      create(:group, discord_guild_id: "12345678901234567#{8}")
+      allow(client).to receive(:member?).and_return(false)
 
-      expect { user.join_discord_groups!([ "12345678901234567#{8}" ]) }.not_to change(Person, :count)
+      expect { user.sync_discord_groups!(client:) }.not_to change(Person, :count)
       expect(user.reload.person).to be_nil
     end
 
-    it "adds a matched group to an existing person without duplicating membership" do
+    it "does not convert an existing manual membership" do
       person = create(:person)
-      user = create(:user, provider: "discord", person:)
+      user = create(:user, provider: "discord", uid: user_id, person:)
       group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      allow(client).to receive(:member?).and_return(true)
 
-      expect { user.join_discord_groups!([ "123456789012345678" ]) }
+      expect { user.sync_discord_groups!(client:) }
         .not_to change(GroupMembership, :count)
-      expect(person.groups).to include(group)
+      expect(person.group_memberships.find_by(group:)).not_to be_discord_managed
+    end
+
+    it "removes a Discord-managed membership after the user leaves the guild" do
+      person = create(:person)
+      user = create(:user, provider: "discord", uid: user_id, person:)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      person.group_memberships.create!(group:, discord_managed: true)
+      allow(client).to receive(:member?).and_return(false)
+
+      expect { user.sync_discord_groups!(client:) }.to change(GroupMembership, :count).by(-1)
+    end
+
+    it "fails closed when Discord cannot confirm a managed membership" do
+      person = create(:person)
+      user = create(:user, provider: "discord", uid: user_id, person:)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      person.group_memberships.create!(group:, discord_managed: true)
+      allow(client).to receive(:member?).and_raise(DiscordGuildMemberClient::Error)
+
+      expect { user.sync_discord_groups!(client:) }.to change(GroupMembership, :count).by(-1)
     end
   end
 end

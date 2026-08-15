@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
   def create
     auth = request.env.fetch("omniauth.auth")
     user = User.from_omniauth(auth)
-    join_discord_groups(user, auth)
+    user.sync_discord_groups! if user.provider == "discord"
     reset_session
     session[:user_id] = user.id
 
@@ -23,14 +23,6 @@ class SessionsController < ApplicationController
   end
 
   private
-    def join_discord_groups(user, auth)
-      return unless user.provider == "discord"
-
-      user.join_discord_groups!(DiscordGuildsClient.new.guild_ids(auth.credentials.token))
-    rescue DiscordGuildsClient::Error => error
-      Rails.logger.warn("Discord guild sync failed: #{error.class}")
-    end
-
     def return_to_url
       url_from(request.env["omniauth.origin"]) || root_path
     end
