@@ -39,6 +39,8 @@ RSpec.describe "A member's own pages" do
 
     visit scenario_path(scenario)
     click_button "お気に入りに入れる"
+    # ボタンの差し替えを待たずに visit すると、飛びかけた POST ごと捨てられる。
+    expect(page).to have_button("お気に入りを外す")
 
     visit person_path(person)
     expect(page).to have_content("見本シナリオ")
