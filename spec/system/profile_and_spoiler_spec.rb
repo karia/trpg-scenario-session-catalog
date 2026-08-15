@@ -13,6 +13,9 @@ RSpec.describe "A member's own pages" do
     )
     visit root_path
     click_button "Googleでログイン"
+    # click_button も visit も遷移の完了を待たないため、ここで着地を待たないと
+    # 後から届いたログインのリダイレクトが次の visit を上書きする。
+    expect(page).to have_content("ログインしました")
 
     visit edit_person_path(person)
     fill_in "person[x_account]", with: "karia"
@@ -36,6 +39,8 @@ RSpec.describe "A member's own pages" do
 
     visit scenario_path(scenario)
     click_button "お気に入りに入れる"
+    # ボタンの差し替えを待たずに visit すると、飛びかけた POST ごと捨てられる。
+    expect(page).to have_button("お気に入りを外す")
 
     visit person_path(person)
     expect(page).to have_content("見本シナリオ")
