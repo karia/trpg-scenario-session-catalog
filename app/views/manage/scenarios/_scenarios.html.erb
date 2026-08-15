@@ -5,12 +5,10 @@
        data-sortable-failed-message-value="保存できませんでした">
   <% scenarios.each do |scenario| %>
     <tr class="border-b border-rule last:border-b-0"
-        draggable="true"
         data-sortable-target="row"
-        data-sortable-id-param="<%= scenario.id %>"
-        data-action="dragstart->sortable#start dragover->sortable#over drop->sortable#drop dragend->sortable#finish">
+        data-sortable-id-param="<%= scenario.id %>">
       <td class="p-3 whitespace-nowrap">
-        <span class="cursor-move text-muted select-none" aria-hidden="true">⠿</span>
+        <span class="sortable-handle cursor-move touch-none text-muted select-none" aria-hidden="true">⠿</span>
         <%= button_to "↑", move_manage_scenario_path(scenario, direction: "up"), method: :patch,
               form: { class: "inline" }, class: "inline-flex min-h-6 min-w-6 items-center justify-center text-seal",
               aria: { label: "#{scenario.title} を1つ上へ" } %>
