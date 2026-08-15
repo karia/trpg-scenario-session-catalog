@@ -33,8 +33,10 @@ RSpec.describe Scenario do
       %i[jacket booth_image].each do |attachment|
         variants = described_class.reflect_on_attachment(attachment).named_variants
 
-        expect(variants[:thumb].transformations[:resize_to_limit]).to start_with(480, 640)
-        expect(variants[:cover].transformations[:resize_to_limit]).to start_with(800, 1200)
+        # sharpen は既定に戻ると見た目が変わるうえ、variant key が同じままなので
+        # 生成済みの画像が直らない。値ごと固定する。
+        expect(variants[:thumb].transformations[:resize_to_limit]).to eq([ 480, 640, { sharpen: true } ])
+        expect(variants[:cover].transformations[:resize_to_limit]).to eq([ 800, 1200, { sharpen: true } ])
       end
     end
 

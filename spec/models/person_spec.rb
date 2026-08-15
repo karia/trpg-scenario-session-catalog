@@ -39,4 +39,22 @@ RSpec.describe Person do
       expect(person.groups.map(&:name)).to contain_exactly("よく遊ぶ人たち", "ペア卓")
     end
   end
+
+  # resize_to_fill は resize_to_limit と別の引数の組み立てを通るため、別に見る。
+  describe "icon variant" do
+    it "keeps sharpening" do
+      variants = described_class.reflect_on_attachment(:icon).named_variants
+
+      expect(variants[:thumb].transformations[:resize_to_fill]).to eq([ 160, 160, { sharpen: true } ])
+    end
+
+    it "actually processes" do
+      person = create(:person)
+      person.icon.attach(
+        Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/dot.png"), "image/png")
+      )
+
+      expect { person.icon.variant(:thumb).processed }.not_to raise_error
+    end
+  end
 end
