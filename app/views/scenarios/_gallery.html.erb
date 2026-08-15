@@ -22,7 +22,7 @@
         </h2>
 
         <p class="text-xs text-muted">
-          <%= scenario.game_systems.map(&:name).join("／").presence || "システム未設定" %>
+          <%= scenario.game_systems.map(&:name).join("／").presence || "#{GameSystem.model_name.human}未設定" %>
         </p>
 
         <dl class="mt-auto grid grid-cols-[4rem_1fr] gap-x-3 gap-y-1 font-mono text-xs">
@@ -32,6 +32,7 @@
           <dd><%= duration_value(scenario) %></dd>
         </dl>
       <% end %>
+      <% if policy(scenario).update? %><p class="px-4 pb-4 text-xs"><%= link_to "編集", edit_scenario_path(scenario), data: { turbo_frame: "_top" }, class: "text-seal" %></p><% end %>
     </li>
   <% end %>
 </ul>

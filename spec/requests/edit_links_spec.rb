@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe "Edit links on detail screens" do
   describe "GET /scenarios/:id" do
     let(:scenario) { create(:scenario) }
-    let(:edit_path) { edit_manage_scenario_path(scenario) }
+    let(:edit_path) { edit_scenario_path(scenario) }
 
     it "is absent for a visitor who has not signed in" do
       get scenario_path(scenario)
@@ -49,7 +49,7 @@ RSpec.describe "Edit links on detail screens" do
   describe "GET /play_sessions/:id" do
     let(:group) { create(:group) }
     let(:play_session) { create(:play_session) }
-    let(:edit_path) { edit_manage_play_session_path(play_session) }
+    let(:edit_path) { edit_play_session_path(play_session) }
 
     before do
       play_session.participations.create!(person: create(:person, groups: [ group ]), role: :gm)
@@ -126,6 +126,7 @@ RSpec.describe "Edit links on detail screens" do
       get person_path(person)
 
       expect(response.body).to include(edit_path)
+      expect(Capybara.string(response.body)).to have_link("編集", href: edit_path, count: 1)
     end
   end
 end

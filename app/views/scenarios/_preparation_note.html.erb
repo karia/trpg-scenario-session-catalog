@@ -13,7 +13,7 @@
       <%= button_to "プレーヤー向け事前情報を見る", scenario_spoiler_reveal_path(scenario),
             class: "mt-3 cursor-pointer redacted px-4 py-3 text-sm" %>
     <% else %>
-      <p class="mt-3 redacted px-4 py-3 text-sm"><%= scenario.game_master_label %>が許可したログイン済メンバーのみ表示可能です。</p>
+      <p class="mt-3 redacted px-4 py-3 text-sm"><%= scenario.game_master_label %>が許可したログイン済<%= Person.model_name.human %>のみ表示可能です。</p>
     <% end %>
   </section>
 <% end %>

@@ -14,26 +14,24 @@ Rails.application.routes.draw do
   resource :session, only: [ :destroy ]
   resource :registration, only: [ :new ]
 
-  resources :scenarios, only: [ :index, :show ] do
+  resources :scenarios do
     resource :favorite, only: [ :create, :destroy ]
     resource :spoiler_reveal, only: [ :create, :destroy ]
+    post :refresh_booth_image, on: :member
+    delete :jacket, on: :member, action: :destroy_jacket
   end
-  resources :play_sessions, only: [ :index, :show ]
-  resources :people, only: [ :index, :show, :edit, :update ]
+  resources :scenario_order, only: [ :index ], controller: :scenario_order do
+    patch :reorder, on: :collection
+    patch :move, on: :member
+  end
+  resources :play_sessions
+  resources :people
+  resources :game_systems
+  resources :authors
 
   namespace :manage do
-    resources :scenarios do
-      patch :reorder, on: :collection
-      patch :move, on: :member
-      post :refresh_booth_image, on: :member
-      delete :jacket, on: :member, action: :destroy_jacket
-    end
-    resources :game_systems, except: [ :new ]
-    resources :authors, except: [ :new ]
-    resources :people, except: [ :show, :new ]
     resources :groups, except: [ :new ]
     resources :users, only: [ :index, :show, :edit, :update ]
-    resources :play_sessions, except: [ :show, :new ]
     resource :site_setting, only: [ :show, :edit, :update ]
   end
 

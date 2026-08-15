@@ -17,11 +17,11 @@
   <div class="mt-3 space-y-2" data-controller="nested-form" data-nested-form-token-value="NEW_RECORDING">
     <template data-nested-form-target="template">
       <%= schedule_form.fields_for :recording_links, RecordingLink.new, child_index: "NEW_RECORDING" do |recording_form| %>
-        <%= render "recording_link_row", recording_form: recording_form %>
+        <%= render "manage/play_sessions/recording_link_row", recording_form: recording_form %>
       <% end %>
     </template>
     <%= schedule_form.fields_for :recording_links do |recording_form| %>
-      <%= render "recording_link_row", recording_form: recording_form %>
+      <%= render "manage/play_sessions/recording_link_row", recording_form: recording_form %>
     <% end %>
     <div data-nested-form-target="anchor"></div>
     <button type="button" data-action="nested-form#add" class="cursor-pointer text-xs text-seal">録画リンクを足す</button>

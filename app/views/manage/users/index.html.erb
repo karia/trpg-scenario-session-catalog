@@ -1,6 +1,6 @@
-<% content_for :title, "Google アカウントの紐づけ" %>
-<h1 class="font-display text-2xl">Google アカウントの紐づけ</h1>
-<p class="mt-2 text-sm text-muted">紐づくまで、そのアカウントは公開エリアしか見られません。</p>
+<% content_for :title, "Google #{User.model_name.human}の紐づけ" %>
+<h1 class="font-display text-2xl">Google <%= User.model_name.human %>の紐づけ</h1>
+<p class="mt-2 text-sm text-muted">紐づくまで、その<%= User.model_name.human %>は公開エリアしか見られません。</p>
 
 <ul class="mt-6 divide-y divide-rule border border-rule bg-surface text-sm">
   <% @users.each do |user| %>

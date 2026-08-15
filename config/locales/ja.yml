@@ -1,4 +1,14 @@
 ja:
+  activerecord:
+    models:
+      author: 作者
+      game_system: システム
+      group: グループ
+      person: メンバー
+      play_session: セッション
+      scenario: シナリオ
+      site_setting: サイト全体設定
+      user: アカウント
   scenarios:
     orders:
       gm: GMのおすすめ順

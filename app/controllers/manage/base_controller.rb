@@ -1,13 +1,13 @@
 module Manage
-  # 管理者と GM だけが入れる編集エリア。存在を伏せるため権限が無い場合は 404 を返す。
+  # 管理者専用エリア。存在を伏せるため権限が無い場合は 404 を返す。
   class BaseController < ApplicationController
     layout "manage"
 
-    before_action :require_editor
+    before_action :require_admin
 
     private
-      def require_editor
-        raise Pundit::NotAuthorizedError unless current_person&.admin? || current_person&.gm?
+      def require_admin
+        raise Pundit::NotAuthorizedError unless current_person&.admin?
       end
   end
 end

@@ -155,10 +155,10 @@ RSpec.describe "Authorization matrix" do
       expect(AuthorPolicy::Scope.new(gm, Author).resolve).not_to be_empty
     end
 
-    it "returns nothing from the master tables to someone with no role" do
+    it "returns the master tables to a signed-in member" do
       create(:game_system)
 
-      expect(GameSystemPolicy::Scope.new(no_role, GameSystem).resolve).to be_empty
+      expect(GameSystemPolicy::Scope.new(no_role, GameSystem).resolve).not_to be_empty
     end
 
     it "returns everything to an admin" do

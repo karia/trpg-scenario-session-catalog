@@ -30,19 +30,35 @@
         <nav class="ml-auto flex flex-wrap items-center justify-end gap-2 text-sm" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
-              <%= link_to "セッション", play_sessions_path, class: "text-seal underline" %>
-              <%= link_to "メンバー", people_path, class: "text-seal underline" %>
-            <% end %>
-            <% if policy(Scenario).manage? %>
-              <%= link_to "編集", manage_scenarios_path, class: "text-seal underline" %>
-            <% end %>
-            <% if current_person %>
               <%= link_to current_person.display_name, person_path(current_person), class: "text-muted" %>
             <% else %>
               <span class="text-muted">未登録</span>
             <% end %>
             <%= button_to "ログアウト", session_path, method: :delete,
               class: "min-h-6 cursor-pointer px-1 text-muted underline" %>
+            <% if current_person %>
+              <div class="relative" data-controller="dropdown" data-action="click@window->dropdown#close">
+                <button type="button" aria-controls="account-menu" aria-expanded="false"
+                        data-dropdown-target="button" data-action="dropdown#toggle"
+                        class="cursor-pointer border border-ink px-3 py-1.5 text-ink hover:bg-ink hover:text-paper">
+                  メニュー
+                </button>
+                <nav id="account-menu" hidden aria-label="<%= User.model_name.human %>メニュー" data-dropdown-target="menu"
+                     class="absolute top-full right-0 z-40 mt-2 grid min-w-48 gap-2 border border-rule bg-surface p-4 shadow-lg">
+                  <%= link_to Scenario.model_name.human, scenarios_path, class: "text-seal underline" %>
+                  <%= link_to PlaySession.model_name.human, play_sessions_path, class: "text-seal underline" %>
+                  <%= link_to Person.model_name.human, people_path, class: "text-seal underline" %>
+                  <%= link_to GameSystem.model_name.human, game_systems_path, class: "text-seal underline" %>
+                  <%= link_to Author.model_name.human, authors_path, class: "text-seal underline" %>
+                  <% if policy(Scenario).reorder? %><%= link_to "#{Scenario.model_name.human}の並び順", scenario_order_index_path, class: "text-seal underline" %><% end %>
+                  <% if current_person.admin? %>
+                    <%= link_to Group.model_name.human, manage_groups_path, class: "text-seal underline" %>
+                    <%= link_to User.model_name.human, manage_users_path, class: "text-seal underline" %>
+                    <%= link_to SiteSetting.model_name.human, manage_site_setting_path, class: "text-seal underline" %>
+                  <% end %>
+                </nav>
+              </div>
+            <% end %>
           <% else %>
             <%= link_to "新規登録", new_registration_path, class: "text-seal underline" %>
             <%# Turbo はフォーム送信を横取りするが、Google への cross-origin リダイレクトを追えない。 %>
@@ -60,7 +76,7 @@
     <% if signed_in? && current_person.nil? %>
       <div class="mx-auto w-full max-w-5xl px-5 pt-6">
         <p class="border border-seal bg-surface px-4 py-3 text-sm text-seal" role="status">
-          全機能を利用するには管理者の許可が必要です。管理者に連絡して、メンバー登録を依頼してください。
+          全機能を利用するには管理者の許可が必要です。管理者に連絡して、<%= Person.model_name.human %>登録を依頼してください。
         </p>
       </div>
     <% end %>
@@ -81,7 +97,7 @@
 
     <footer class="border-t border-rule bg-surface">
       <div class="mx-auto max-w-5xl px-5 py-6 text-xs text-muted">
-        シナリオの権利はそれぞれの作者に帰属します。
+        <%= Scenario.model_name.human %>の権利はそれぞれの<%= Author.model_name.human %>に帰属します。
       </div>
     </footer>
 

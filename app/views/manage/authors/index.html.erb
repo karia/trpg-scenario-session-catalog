@@ -1,3 +1,3 @@
-<%= render "manage/masters/index", title: "作者の管理", records: @records, record: @record,
-      index_path: manage_authors_path, edit_path: ->(r) { edit_manage_author_path(r) },
-      record_path: ->(r) { manage_author_path(r) } %>
+<%= render "manage/masters/index", title: "#{Author.model_name.human}一覧", records: @records,
+      index_path: authors_path, new_path: new_author_path, edit_path: ->(r) { edit_author_path(r) },
+      record_path: ->(r) { author_path(r) } %>

@@ -1,3 +1,3 @@
-<%= render "manage/masters/index", title: "システムの管理", records: @records, record: @record,
-      index_path: manage_game_systems_path, edit_path: ->(r) { edit_manage_game_system_path(r) },
-      record_path: ->(r) { manage_game_system_path(r) } %>
+<%= render "manage/masters/index", title: "#{GameSystem.model_name.human}一覧", records: @records,
+      index_path: game_systems_path, new_path: new_game_system_path, edit_path: ->(r) { edit_game_system_path(r) },
+      record_path: ->(r) { game_system_path(r) } %>

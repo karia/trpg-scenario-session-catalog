@@ -1,6 +1,6 @@
-<% content_for :title, "Google アカウントの編集" %>
+<% content_for :title, "Google #{User.model_name.human}の編集" %>
 
-<h1 class="font-display text-2xl">Google アカウントの編集</h1>
+<h1 class="font-display text-2xl">Google <%= User.model_name.human %>の編集</h1>
 <p class="mt-2 font-mono text-xs"><%= @user.email.presence || "メールアドレス不明" %></p>
 
 <%= form_with model: [ :manage, @user ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>

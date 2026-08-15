@@ -2,7 +2,7 @@
 <% sessions = policy_scope(PlaySession).where(scenario: scenario).includes(participations: :person).newest_first %>
 <% if sessions.any? %>
   <section class="mt-10">
-    <h2 class="font-display text-xl">セッション履歴</h2>
+    <h2 class="font-display text-xl"><%= PlaySession.model_name.human %>履歴</h2>
     <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
       <% sessions.each do |session| %>
         <li>

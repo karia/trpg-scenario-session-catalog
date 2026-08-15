@@ -96,7 +96,7 @@ RSpec.describe "Sessions" do
       delete session_path
 
       expect(response).to redirect_to(root_path)
-      get manage_scenarios_path
+      get people_path
       expect(response).to have_http_status(:not_found)
     end
   end

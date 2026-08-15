@@ -3,7 +3,9 @@
 <article>
   <div class="flex flex-wrap items-baseline justify-between gap-4">
     <h1 class="font-display text-3xl"><%= @record.name %></h1>
-    <%= link_to "編集", url_for(action: :edit, id: @record), class: "text-sm text-seal" %>
+    <% if policy(@record).update? %>
+      <%= link_to "編集", url_for(action: :edit, id: @record), class: "text-sm text-seal" %>
+    <% end %>
   </div>
 
   <% if @record.visible_aliases.any? %>
@@ -16,7 +18,7 @@
 
   <% if @record.respond_to?(:scenarios) %>
     <section class="mt-8">
-      <h2 class="font-display text-xl">シナリオ</h2>
+      <h2 class="font-display text-xl"><%= Scenario.model_name.human %></h2>
       <% if @record.scenarios.any? %>
         <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
           <% @record.scenarios.order(:title).each do |scenario| %>

@@ -1,6 +1,6 @@
 <% content_for :title, "#{@person.display_name} のプロフィール編集" %>
 
-<h1 class="font-display text-2xl">プロフィールの編集</h1>
+<h1 class="font-display text-2xl"><%= policy(@person).manage? ? "#{Person.model_name.human}の編集" : "プロフィールの編集" %></h1>
 
 <%= form_with model: @person, class: "mt-6 space-y-6" do |form| %>
   <%= accessible_error_summary(@person) %>
@@ -21,7 +21,11 @@
 
   <%= render "shared/alias_fields", form: form, display_attribute: :display_name, alias_class: PersonAlias %>
 
-  <p class="text-xs text-muted">グループの所属は管理者が設定します。</p>
+  <% if policy(@person).manage? %>
+    <%= render "people/administration_fields", form: form, person: @person %>
+  <% else %>
+    <p class="text-xs text-muted"><%= Group.model_name.human %>の所属は管理者が設定します。</p>
+  <% end %>
 
   <div class="flex gap-4">
     <%= form.submit "保存", class: "cursor-pointer bg-ink px-6 py-2 text-sm text-paper" %>

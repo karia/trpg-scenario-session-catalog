@@ -1,5 +1,5 @@
-<% content_for :title, "セッションの管理" %>
-<h1 class="font-display text-2xl">セッションの管理</h1>
+<% content_for :title, "#{PlaySession.model_name.human}の管理" %>
+<h1 class="font-display text-2xl"><%= PlaySession.model_name.human %>の管理</h1>
 
 <%= render "form", play_session: @play_session || PlaySession.new %>
 
@@ -17,7 +17,7 @@
         <%= link_to "詳細", play_session_path(session), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
         <%= link_to "編集", edit_manage_play_session_path(session), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
         <%= button_to "削除", manage_play_session_path(session), method: :delete,
-              form: { data: { turbo_confirm: "#{session.scenario.title} のセッションを削除しますか" } },
+              form: { data: { turbo_confirm: "#{session.scenario.title} の#{PlaySession.model_name.human}を削除しますか" } },
               class: "min-h-6 px-1 text-muted" %>
       </span>
     </li>

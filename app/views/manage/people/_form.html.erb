@@ -1,4 +1,4 @@
-<%= form_with model: [ :manage, person ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
+<%= form_with model: person, class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
   <%= accessible_error_summary(person) %>
 
   <div class="grid gap-4 sm:grid-cols-2">
@@ -39,7 +39,7 @@
   </div>
 
   <div>
-    <span class="block text-xs text-muted">グループ</span>
+    <span class="block text-xs text-muted"><%= Group.model_name.human %></span>
     <%= form.collection_check_boxes :group_ids, Group.all.to_a, :id, :name do |b| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= b.check_box %> <%= b.text %></label>
     <% end %>
@@ -48,7 +48,7 @@
   <div class="flex gap-4">
     <%= form.submit person.persisted? ? "更新" : "追加", class: "bg-ink px-5 py-2 text-sm text-paper" %>
     <%= link_to person.persisted? ? "詳細に戻る" : "一覧に戻る",
-          person.persisted? ? person_path(person) : manage_people_path,
+          person.persisted? ? person_path(person) : people_path,
           class: "self-center text-sm text-muted" %>
   </div>
 <% end %>

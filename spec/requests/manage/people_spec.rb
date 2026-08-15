@@ -3,23 +3,23 @@ require "rails_helper"
 RSpec.describe "Manage::People" do
   describe "access" do
     it "answers 404 to an anonymous visitor" do
-      get manage_people_path
+      get people_path
 
       expect(response).to have_http_status(:not_found)
     end
 
-    it "answers 404 to a GM, who may edit content but not membership" do
+    it "lets a GM use the shared member list" do
       sign_in_as create(:person, roles: %w[gm])
 
-      get manage_people_path
+      get people_path
 
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(:ok)
     end
 
     it "lets an admin in" do
       sign_in_as create(:person, roles: %w[admin])
 
-      get manage_people_path
+      get people_path
 
       expect(response).to have_http_status(:ok)
     end
@@ -31,7 +31,7 @@ RSpec.describe "Manage::People" do
     it "limits the icon picker to supported image formats" do
       person = create(:person)
 
-      get edit_manage_person_path(person)
+      get edit_person_path(person)
 
       expect(Capybara.string(response.body))
         .to have_css('input[name="person[icon]"][accept="image/png,image/jpeg,image/webp"]')
@@ -40,7 +40,7 @@ RSpec.describe "Manage::People" do
     it "creates a person with roles and groups" do
       group = create(:group, name: "よく遊ぶ人たち")
 
-      post manage_people_path, params: {
+      post people_path, params: {
         person: { display_name: "新入り", x_account: "newbie", roles: [ "gm" ], group_ids: [ group.id ] }
       }
 
@@ -52,7 +52,7 @@ RSpec.describe "Manage::People" do
     end
 
     it "carries no explanation under the title" do
-      get manage_people_path
+      get people_path
 
       expect(response.body).not_to include("Person は管理者が作ります")
     end
@@ -81,8 +81,8 @@ RSpec.describe "Manage::People" do
       group = create(:group)
       user = create(:user, person: nil)
 
-      get manage_people_path
-      expect(response.body).to include(person_path(person), edit_manage_person_path(person))
+      get people_path
+      expect(response.body).to include(person_path(person), edit_person_path(person))
 
       get manage_groups_path
       expect(response.body).to include(manage_group_path(group), edit_manage_group_path(group))
@@ -169,7 +169,7 @@ RSpec.describe "Manage::People" do
       admin = create(:person, roles: %w[admin])
       sign_in_as admin
 
-      patch manage_person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
+      patch person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(admin.reload).to be_admin
@@ -180,7 +180,7 @@ RSpec.describe "Manage::People" do
       create(:person, roles: %w[admin])
       sign_in_as admin
 
-      patch manage_person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
+      patch person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
 
       expect(admin.reload).not_to be_admin
     end
@@ -193,12 +193,12 @@ RSpec.describe "Manage::People" do
       user = create(:user, person: nil)
 
       sign_in_as user
-      get manage_scenarios_path
+      get people_path
       expect(response).to have_http_status(:not_found)
 
       user.update!(person: create(:person, roles: %w[gm]))
 
-      get manage_scenarios_path
+      get people_path
       expect(response).to have_http_status(:ok)
     end
   end

@@ -5,7 +5,7 @@ RSpec.describe "Manage::PlaySessions" do
 
   describe "access" do
     it "answers 404 to an anonymous visitor" do
-      get manage_play_sessions_path
+      get new_play_session_path
 
       expect(response).to have_http_status(:not_found)
     end
@@ -13,7 +13,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "answers 404 to a person with no role" do
       sign_in_as create(:person)
 
-      get manage_play_sessions_path
+      get new_play_session_path
 
       expect(response).to have_http_status(:not_found)
     end
@@ -21,7 +21,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "answers 404 to a plain player, whose public index? would otherwise allow it" do
       sign_in_as create(:person)
 
-      get manage_play_sessions_path
+      get new_play_session_path
 
       expect(response).to have_http_status(:not_found)
     end
@@ -29,7 +29,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "lets a GM in" do
       sign_in_as create(:person, roles: %w[gm])
 
-      get manage_play_sessions_path
+      get new_play_session_path
 
       expect(response).to have_http_status(:ok)
     end
@@ -41,7 +41,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "provides system-specific role labels when creating a session" do
       scenario.game_systems << create(:game_system, game_master_label: "KP")
 
-      get manage_play_sessions_path
+      get new_play_session_path
 
       page = Capybara.string(response.body)
       form = page.find('[data-controller="participation-roles"]')
@@ -56,7 +56,7 @@ RSpec.describe "Manage::PlaySessions" do
       gm = create(:person, display_name: "回した人")
       player = create(:person, display_name: "遊んだ人")
 
-      post manage_play_sessions_path, params: {
+      post play_sessions_path, params: {
         play_session: {
           scenario_id: scenario.id,
           session_schedules_attributes: [
@@ -97,7 +97,7 @@ RSpec.describe "Manage::PlaySessions" do
     end
 
     it "re-renders when the scenario is missing" do
-      post manage_play_sessions_path, params: { play_session: { scenario_id: "" } }
+      post play_sessions_path, params: { play_session: { scenario_id: "" } }
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(PlaySession.count).to eq(0)
@@ -108,13 +108,13 @@ RSpec.describe "Manage::PlaySessions" do
       other = create(:play_session)
       other.participations.create!(person: create(:person), role: :gm)
 
-      get manage_play_sessions_path
+      get play_sessions_path
 
-      expect(response.body).to include(play_session_path(other), edit_manage_play_session_path(other))
+      expect(response.body).to include(play_session_path(other), edit_play_session_path(other))
     end
 
     it "carries no explanation under the title" do
-      get manage_play_sessions_path
+      get play_sessions_path
 
       expect(response.body).not_to include("公開範囲に関わらず")
     end
@@ -122,7 +122,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "shows the note, which the reader-facing scope would hide" do
       session = create(:play_session, scenario:, note: "覚え書きの見本")
 
-      get edit_manage_play_session_path(session)
+      get edit_play_session_path(session)
 
       expect(response.body).to include("覚え書きの見本")
     end
@@ -132,7 +132,7 @@ RSpec.describe "Manage::PlaySessions" do
       session = create(:play_session, scenario:)
       session.participations.create!(person: create(:person), role: :gm)
 
-      get edit_manage_play_session_path(session)
+      get edit_play_session_path(session)
 
       options = Capybara.string(response.body).all('select[name*="[role]"] option').map(&:text).uniq
       expect(options).to eq([ "選択してください", "DL", "PL", "サブDL" ])
@@ -141,7 +141,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "renders the edit form" do
       session = create(:play_session, scenario:)
 
-      get edit_manage_play_session_path(session)
+      get edit_play_session_path(session)
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("ココフォリアリンク", "play_session[cocofolia_url]")
@@ -150,7 +150,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "re-renders instead of raising when the scenario is cleared on update" do
       session = create(:play_session, scenario:)
 
-      patch manage_play_session_path(session), params: { play_session: { scenario_id: "" } }
+      patch play_session_path(session), params: { play_session: { scenario_id: "" } }
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(session.reload.scenario).to eq(scenario)
@@ -159,7 +159,7 @@ RSpec.describe "Manage::PlaySessions" do
     it "refuses the same person on two rows instead of raising" do
       person = create(:person)
 
-      post manage_play_sessions_path, params: {
+      post play_sessions_path, params: {
         play_session: {
           scenario_id: scenario.id,
           participations_attributes: [
@@ -174,7 +174,7 @@ RSpec.describe "Manage::PlaySessions" do
     end
 
     it "ignores a row that was added but never filled in" do
-      post manage_play_sessions_path, params: {
+      post play_sessions_path, params: {
         play_session: {
           scenario_id: scenario.id,
           participations_attributes: [
@@ -191,7 +191,7 @@ RSpec.describe "Manage::PlaySessions" do
       session = create(:play_session, scenario:)
       participation = session.participations.create!(person: create(:person), role: :player)
 
-      patch manage_play_session_path(session), params: {
+      patch play_session_path(session), params: {
         play_session: { participations_attributes: [ { id: participation.id, _destroy: "1" } ] }
       }
 
@@ -201,14 +201,14 @@ RSpec.describe "Manage::PlaySessions" do
     it "deletes a session" do
       session = create(:play_session, scenario:)
 
-      expect { delete manage_play_session_path(session) }.to change(PlaySession, :count).by(-1)
+      expect { delete play_session_path(session) }.to change(PlaySession, :count).by(-1)
     end
 
     it "updates and removes nested schedules" do
       session = create(:play_session, scenario:)
       schedule = create(:session_schedule, play_session: session)
 
-      patch manage_play_session_path(session), params: {
+      patch play_session_path(session), params: {
         play_session: { session_schedules_attributes: [ { id: schedule.id, _destroy: "1" } ] }
       }
 
@@ -225,7 +225,7 @@ RSpec.describe "Manage::PlaySessions" do
     before { sign_in_as create(:person, roles: %w[admin]) }
 
     it "keeps the Cocofolia URL out of the edit form" do
-      get edit_manage_play_session_path(session)
+      get edit_play_session_path(session)
 
       expect(response).to have_http_status(:ok)
       expect(response.body).not_to include("ココフォリアリンク", "play_session[cocofolia_url]",
@@ -233,7 +233,7 @@ RSpec.describe "Manage::PlaySessions" do
     end
 
     it "does not update the Cocofolia URL from a crafted request" do
-      patch manage_play_session_path(session), params: {
+      patch play_session_path(session), params: {
         play_session: { cocofolia_url: "https://ccfolia.com/rooms/changed-by-admin" }
       }
 

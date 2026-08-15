@@ -90,6 +90,7 @@ jobs:
       DATABASE_PORT: 5432
       DATABASE_USERNAME: postgres
       DATABASE_PASSWORD: postgres
+      CHROME_BINARY: /usr/bin/google-chrome
 
     steps:
       - name: Checkout code
@@ -103,6 +104,10 @@ jobs:
       - name: Prepare the test database
         run: bin/rails db:test:prepare
 
+      # Browser specs validate computed layout, so serve the same compiled CSS/JS as production.
+      - name: Compile assets for browser tests
+        run: bin/rails assets:precompile
+
       - name: Run the test suite
         run: bin/rspec
 
@@ -111,7 +116,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
+          path: ${{ github.workspace }}/tmp/capybara
           if-no-files-found: ignore
 
   # Dockerfile の破損が main に入ってから分かるのを防ぐ。push はしない。

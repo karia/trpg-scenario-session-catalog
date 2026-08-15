@@ -68,6 +68,15 @@ RSpec.describe "Manage masters" do
       expect(response.body).to include(public_send(edit_path, record), public_send(index_path))
     end
 
+    it "does not offer editing on a detail to a member without an editor role" do
+      sign_in_as create(:person)
+
+      get public_send(member_path, record), headers: headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(public_send(edit_path, record))
+    end
+
     it "links each list item to both detail and edit" do
       sign_in_as create(:person, roles: %w[gm])
       record
@@ -127,15 +136,15 @@ RSpec.describe "Manage masters" do
   describe "game systems" do
     it_behaves_like "a master resource",
       factory: :game_system,
-      index_path: :manage_game_systems_path,
-      member_path: :manage_game_system_path,
-      edit_path: :edit_manage_game_system_path
+      index_path: :game_systems_path,
+      member_path: :game_system_path,
+      edit_path: :edit_game_system_path
 
     it "updates the game master label" do
       system = create(:game_system, name: "エモクロアTRPG")
       sign_in_as create(:person, roles: %w[gm])
 
-      patch manage_game_system_path(system), params: {
+      patch game_system_path(system), params: {
         game_system: { name: system.name, game_master_label: "DL" }
       }
 
@@ -146,8 +155,17 @@ RSpec.describe "Manage masters" do
   describe "authors" do
     it_behaves_like "a master resource",
       factory: :author,
-      index_path: :manage_authors_path,
-      member_path: :manage_author_path,
-      edit_path: :edit_manage_author_path
+      index_path: :authors_path,
+      member_path: :author_path,
+      edit_path: :edit_author_path
+
+    it "uses the localized resource name on the new screen" do
+      sign_in_as create(:person, roles: %w[gm])
+
+      get new_author_path
+
+      expect(response.body).to include("作者の新規登録")
+      expect(response.body).not_to include("Authorの新規登録")
+    end
   end
 end
