@@ -24,6 +24,8 @@ DB の用意だけしたいときは `bin/setup --skip-server`。
 
 `.env` は編集しなくても動く。既定値が `compose.yaml` に合わせてある。
 OAuth 認証を手元で試すときは、利用する provider の client ID と client secret が要る。
+Discordサーバーとのグループ連携には、同じApplicationのBotを対象サーバーへ招待し、そのtokenを `DISCORD_BOT_TOKEN` に設定する。
+ログインではユーザーのサーバー一覧を要求せず、Botから設定済みサーバーに対する本人の所属だけを確認する。
 
 ## 変更を出す
 

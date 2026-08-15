@@ -2,7 +2,9 @@ class SessionsController < ApplicationController
   skip_after_action :verify_authorized
 
   def create
-    user = User.from_omniauth(request.env.fetch("omniauth.auth"))
+    auth = request.env.fetch("omniauth.auth")
+    user = User.from_omniauth(auth)
+    user.sync_discord_groups! if user.provider == "discord"
     reset_session
     session[:user_id] = user.id
 

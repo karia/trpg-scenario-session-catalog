@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  DISCORD_SYNC_DEADLINE = 3.seconds
   PROVIDERS = {
     "google_oauth2" => "Google",
     "discord" => "Discord"
@@ -35,6 +36,39 @@ class User < ApplicationRecord
 
   def linked? = person.present?
   def provider_name = PROVIDERS.fetch(provider)
+
+  def sync_discord_groups!(client: nil)
+    raise ArgumentError, "not a Discord account" unless provider == "discord"
+
+    groups = Group.where.not(discord_guild_id: nil).to_a
+    client ||= DiscordGuildMemberClient.new if groups.any?
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + DISCORD_SYNC_DEADLINE
+    memberships = groups.index_with do |group|
+      remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      remaining.positive? && Timeout.timeout(remaining) { client.member?(group.discord_guild_id, uid) }
+    rescue DiscordGuildMemberClient::Error, Timeout::Error => error
+      Rails.logger.warn("Discord guild membership check failed: #{error.class}")
+      false
+    end
+
+    with_lock do
+      self.person ||= Person.create!(display_name: name.presence || "Discordユーザー") if memberships.value?(true)
+      save! if person_id_changed?
+      next unless person
+
+      person.group_memberships.where(discord_managed: true).includes(:group).find_each do |membership|
+        membership.destroy! unless memberships.key?(membership.group)
+      end
+      memberships.each do |group, member|
+        membership = person.group_memberships.find_by(group:)
+        if member
+          person.group_memberships.create!(group:, discord_managed: true) unless membership
+        elsif membership&.discord_managed?
+          membership.destroy!
+        end
+      end
+    end
+  end
 
   private
     def copy_legacy_google_uid

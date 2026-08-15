@@ -50,11 +50,11 @@ class PeopleController < ApplicationController
       permitted = [ :display_name, :display_alias_key, :x_account, :icon,
         { aliases_attributes: [ [ :id, :name, :context, :visible, :position, :selection_key, :_destroy ] ],
           person_aliases_attributes: [ [ :id, :name, :context, :visible, :position, :_destroy ] ] } ]
-      permitted << { roles: [], group_ids: [] } if policy(@person).manage?
+      permitted << { roles: [], manual_group_ids: [] } if policy(@person).manage?
       params.expect(person: permitted)
     end
 
     def admin_person_params
-      params.expect(person: [ :display_name, :x_account, :icon, { roles: [], group_ids: [] } ])
+      params.expect(person: [ :display_name, :x_account, :icon, { roles: [], manual_group_ids: [] } ])
     end
 end

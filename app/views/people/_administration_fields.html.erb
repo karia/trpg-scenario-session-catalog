@@ -21,7 +21,7 @@
 
   <div class="mt-4">
     <span class="block text-xs text-muted"><%= Group.model_name.human %></span>
-    <%= form.collection_check_boxes :group_ids, Group.all.to_a, :id, :name do |group| %>
+    <%= form.collection_check_boxes :manual_group_ids, Group.all.to_a, :id, :name do |group| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= group.check_box %> <%= group.text %></label>
     <% end %>
   </div>

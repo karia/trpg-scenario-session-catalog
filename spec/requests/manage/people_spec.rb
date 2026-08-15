@@ -8,6 +8,20 @@ RSpec.describe "Manage::People" do
       expect(response).to have_http_status(:not_found)
     end
 
+    it "does not create a person or membership before rejecting an anonymous create" do
+      group = create(:group)
+
+      people_count = Person.count
+      memberships_count = GroupMembership.count
+      post people_path, params: {
+        person: { display_name: "unauthorized", manual_group_ids: [ group.id ] }
+      }
+
+      expect(Person.count).to eq(people_count)
+      expect(GroupMembership.count).to eq(memberships_count)
+      expect(response).to have_http_status(:not_found)
+    end
+
     it "lets a GM use the shared member list" do
       sign_in_as create(:person, roles: %w[gm])
 
@@ -41,7 +55,7 @@ RSpec.describe "Manage::People" do
       group = create(:group, name: "よく遊ぶ人たち")
 
       post people_path, params: {
-        person: { display_name: "新入り", x_account: "newbie", roles: [ "gm" ], group_ids: [ group.id ] }
+        person: { display_name: "新入り", x_account: "newbie", roles: [ "gm" ], manual_group_ids: [ group.id ] }
       }
 
       person = Person.find_by(display_name: "新入り")
@@ -49,6 +63,33 @@ RSpec.describe "Manage::People" do
       expect(person.roles).to eq([ "gm" ])
       expect(person).to be_player
       expect(person.groups).to eq([ group ])
+    end
+
+    it "does not partially save memberships when person validation fails" do
+      group = create(:group)
+
+      people_count = Person.count
+      memberships_count = GroupMembership.count
+      post people_path, params: {
+        person: { display_name: "", roles: [], manual_group_ids: [ group.id ] }
+      }
+
+      expect(Person.count).to eq(people_count)
+      expect(GroupMembership.count).to eq(memberships_count)
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "turns a selected Discord-managed group into a manual group from person editing" do
+      person = create(:person)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      membership = person.group_memberships.create!(group:, discord_managed: true)
+
+      patch person_path(person), params: {
+        person: { display_name: person.display_name, roles: [], manual_group_ids: [ group.id ] }
+      }
+
+      expect(response).to redirect_to(person_path(person))
+      expect(membership.reload).not_to be_discord_managed
     end
 
     it "carries no explanation under the title" do
@@ -99,6 +140,31 @@ RSpec.describe "Manage::People" do
 
       get edit_manage_group_path(group)
       expect(response.body).to include("詳細に戻る", manage_group_path(group))
+    end
+
+    it "updates a group's Discord guild ID" do
+      group = create(:group)
+      guild_id = "12345678901234567#{8}"
+
+      patch manage_group_path(group), params: {
+        group: { name: group.name, discord_guild_id: guild_id }
+      }
+
+      expect(response).to redirect_to(manage_group_path(group))
+      expect(group.reload.discord_guild_id).to eq(guild_id)
+    end
+
+    it "turns a selected Discord-managed membership into a manual membership" do
+      person = create(:person)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      membership = person.group_memberships.create!(group:, discord_managed: true)
+
+      patch manage_group_path(group), params: {
+        group: { name: group.name, discord_guild_id: group.discord_guild_id, manual_person_ids: [ person.id ] }
+      }
+
+      expect(response).to redirect_to(manage_group_path(group))
+      expect(membership.reload).not_to be_discord_managed
     end
 
     it "renders account detail and edit screens with reciprocal links" do

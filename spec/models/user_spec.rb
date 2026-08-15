@@ -87,4 +87,81 @@ RSpec.describe User do
       expect { described_class.from_omniauth(auth) }.not_to change(described_class, :count)
     end
   end
+
+  describe "#sync_discord_groups!" do
+    let(:user_id) { "23456789012345678#{9}" }
+    let(:client) { instance_double(DiscordGuildMemberClient) }
+
+    it "creates a person and a Discord-managed membership for a guild member" do
+      user = create(:user, provider: "discord", uid: user_id, person: nil, name: "Discord User")
+      matched_guild_id = "12345678901234567#{8}"
+      other_guild_id = "98765432109876543#{2}"
+      matched = create(:group, discord_guild_id: matched_guild_id)
+      other = create(:group, discord_guild_id: other_guild_id)
+      allow(client).to receive(:member?).with(matched_guild_id, user_id).and_return(true)
+      allow(client).to receive(:member?).with(other_guild_id, user_id).and_return(false)
+
+      user.sync_discord_groups!(client:)
+
+      expect(user.reload.person.display_name).to eq("Discord User")
+      expect(user.person.groups).to contain_exactly(matched)
+      expect(user.person.groups).not_to include(other)
+      expect(user.person.group_memberships.sole).to be_discord_managed
+    end
+
+    it "leaves an unmatched account unlinked" do
+      user = create(:user, provider: "discord", uid: user_id, person: nil)
+      create(:group, discord_guild_id: "12345678901234567#{8}")
+      allow(client).to receive(:member?).and_return(false)
+
+      expect { user.sync_discord_groups!(client:) }.not_to change(Person, :count)
+      expect(user.reload.person).to be_nil
+    end
+
+    it "does not convert an existing manual membership" do
+      person = create(:person)
+      user = create(:user, provider: "discord", uid: user_id, person:)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      allow(client).to receive(:member?).and_return(true)
+
+      expect { user.sync_discord_groups!(client:) }
+        .not_to change(GroupMembership, :count)
+      expect(person.group_memberships.find_by(group:)).not_to be_discord_managed
+    end
+
+    it "removes a Discord-managed membership after the user leaves the guild" do
+      person = create(:person)
+      user = create(:user, provider: "discord", uid: user_id, person:)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      person.group_memberships.create!(group:, discord_managed: true)
+      allow(client).to receive(:member?).and_return(false)
+
+      expect { user.sync_discord_groups!(client:) }.to change(GroupMembership, :count).by(-1)
+    end
+
+    it "fails closed when Discord cannot confirm a managed membership" do
+      person = create(:person)
+      user = create(:user, provider: "discord", uid: user_id, person:)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      person.group_memberships.create!(group:, discord_managed: true)
+      allow(client).to receive(:member?).and_raise(DiscordGuildMemberClient::Error)
+
+      expect { user.sync_discord_groups!(client:) }.to change(GroupMembership, :count).by(-1)
+    end
+
+    it "enforces one deadline across all configured guilds" do
+      stub_const("User::DISCORD_SYNC_DEADLINE", 0.01.seconds)
+      user = create(:user, provider: "discord", uid: user_id, person: nil)
+      create(:group, discord_guild_id: "12345678901234567#{8}")
+      create(:group, discord_guild_id: "98765432109876543#{2}")
+      allow(client).to receive(:member?) { sleep 0.02; true }
+
+      started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      user.sync_discord_groups!(client:)
+
+      expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at).to be < 0.04
+      expect(client).to have_received(:member?).once
+      expect(user.reload.person).to be_nil
+    end
+  end
 end

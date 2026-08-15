@@ -99,7 +99,7 @@ RSpec.describe "People" do
         person: {
           display_name: person.display_name,
           roles: [ "gm" ],
-          group_ids: [ group.id ],
+          manual_group_ids: [ group.id ],
           person_aliases_attributes: [ { name: "管理者が追加した別名", visible: "1" } ]
         }
       }
@@ -114,7 +114,7 @@ RSpec.describe "People" do
       group = create(:group)
       sign_in_as person
 
-      patch person_path(person), params: { person: { display_name: "本人", group_ids: [ group.id ] } }
+      patch person_path(person), params: { person: { display_name: "本人", manual_group_ids: [ group.id ] } }
 
       expect(person.reload.groups).to be_empty
     end
@@ -123,7 +123,7 @@ RSpec.describe "People" do
       group = create(:group)
       sign_in_as create(:person, roles: %w[admin])
 
-      patch person_path(person), params: { person: { display_name: "本人", group_ids: [ group.id ] } }
+      patch person_path(person), params: { person: { display_name: "本人", manual_group_ids: [ group.id ] } }
 
       expect(person.reload.groups).to eq([ group ])
     end
