@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_13_160305) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_15_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -198,6 +198,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_13_160305) do
     t.index ["scenario_id"], name: "index_scenario_game_systems_on_scenario_id"
   end
 
+  create_table "scenario_statuses", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "gm_experienced", default: false, null: false
+    t.bigint "person_id", null: false
+    t.boolean "pl_experienced", default: false, null: false
+    t.boolean "read", default: false, null: false
+    t.bigint "scenario_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id", "scenario_id"], name: "index_scenario_statuses_on_person_id_and_scenario_id", unique: true
+    t.index ["person_id"], name: "index_scenario_statuses_on_person_id"
+    t.index ["scenario_id"], name: "index_scenario_statuses_on_scenario_id"
+  end
+
   create_table "scenarios", force: :cascade do |t|
     t.string "character_restriction"
     t.integer "character_sheet_deadline"
@@ -285,6 +298,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_13_160305) do
   add_foreign_key "scenario_authors", "scenarios"
   add_foreign_key "scenario_game_systems", "game_systems"
   add_foreign_key "scenario_game_systems", "scenarios"
+  add_foreign_key "scenario_statuses", "people"
+  add_foreign_key "scenario_statuses", "scenarios"
   add_foreign_key "session_schedules", "play_sessions"
   add_foreign_key "spoiler_reveals", "people"
   add_foreign_key "spoiler_reveals", "scenarios"

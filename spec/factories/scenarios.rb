@@ -12,6 +12,14 @@ FactoryBot.define do
     player_count_min { 1 }
   end
 
+  factory :scenario_status do
+    scenario
+    person
+    gm_experienced { false }
+    pl_experienced { false }
+    read { false }
+  end
+
   factory :purchase_link do
     scenario
     label { "BOOTH" }
