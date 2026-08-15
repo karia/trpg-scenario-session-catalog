@@ -216,4 +216,20 @@ RSpec.describe "Scenarios" do
       expect(response.body).to include("書籍購入者限定特典")
     end
   end
+
+  describe "PATCH /scenarios/:id" do
+    it "records scenario status for the signed-in editor" do
+      editor = create(:person, roles: %w[gm])
+      scenario = create(:scenario)
+      sign_in_as editor
+
+      patch scenario_path(scenario), params: {
+        scenario: { title: scenario.title, player_count_min: 1 },
+        scenario_status: { gm_experienced: "0", pl_experienced: "1", read: "1" }
+      }
+
+      status = editor.scenario_statuses.find_by!(scenario:)
+      expect(status).to have_attributes(gm_experienced: false, pl_experienced: true, read: true)
+    end
+  end
 end
