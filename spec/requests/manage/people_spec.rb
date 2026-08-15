@@ -8,6 +8,20 @@ RSpec.describe "Manage::People" do
       expect(response).to have_http_status(:not_found)
     end
 
+    it "does not create a person or membership before rejecting an anonymous create" do
+      group = create(:group)
+
+      people_count = Person.count
+      memberships_count = GroupMembership.count
+      post people_path, params: {
+        person: { display_name: "unauthorized", manual_group_ids: [ group.id ] }
+      }
+
+      expect(Person.count).to eq(people_count)
+      expect(GroupMembership.count).to eq(memberships_count)
+      expect(response).to have_http_status(:not_found)
+    end
+
     it "lets a GM use the shared member list" do
       sign_in_as create(:person, roles: %w[gm])
 
@@ -49,6 +63,20 @@ RSpec.describe "Manage::People" do
       expect(person.roles).to eq([ "gm" ])
       expect(person).to be_player
       expect(person.groups).to eq([ group ])
+    end
+
+    it "does not partially save memberships when person validation fails" do
+      group = create(:group)
+
+      people_count = Person.count
+      memberships_count = GroupMembership.count
+      post people_path, params: {
+        person: { display_name: "", roles: [], manual_group_ids: [ group.id ] }
+      }
+
+      expect(Person.count).to eq(people_count)
+      expect(GroupMembership.count).to eq(memberships_count)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it "turns a selected Discord-managed group into a manual group from person editing" do

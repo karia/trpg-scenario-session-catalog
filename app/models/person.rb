@@ -51,6 +51,11 @@ class Person < ApplicationRecord
 
   def manual_group_ids=(ids)
     desired_ids = Array(ids).reject(&:blank?).map(&:to_i)
+    if new_record?
+      desired_ids.each { |group_id| group_memberships.build(group_id:, discord_managed: false) }
+      return
+    end
+
     group_memberships.where(discord_managed: false).where.not(group_id: desired_ids).destroy_all
     desired_ids.each do |group_id|
       membership = group_memberships.find_or_initialize_by(group_id:)
