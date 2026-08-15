@@ -18,7 +18,7 @@ RSpec.describe "Editor navigation" do
     )
 
     visit root_path
-    click_button "ログイン"
+    click_button "Googleでログイン"
     save_screenshot("editor-scenarios.png") if ENV["VISUAL_REVIEW"]
     if ENV["CHROME_BINARY"]
       click_button "メニュー"

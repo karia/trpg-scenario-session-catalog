@@ -1,4 +1,4 @@
-<% content_for :title, @user.email.presence || "Google #{User.model_name.human}" %>
+<% content_for :title, @user.email.presence || "#{@user.provider_name} #{User.model_name.human}" %>
 
 <article>
   <div class="flex flex-wrap items-baseline justify-between gap-4">
@@ -7,6 +7,10 @@
   </div>
 
   <dl class="mt-6 grid grid-cols-[7rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 text-sm">
+    <dt class="text-muted">ログイン方法</dt>
+    <dd><%= @user.provider_name %></dd>
+    <dt class="text-muted">表示名</dt>
+    <dd><%= @user.name.presence || "不明" %></dd>
     <dt class="text-muted">初回ログイン</dt>
     <dd><%= l @user.created_at, format: :short %></dd>
     <dt class="text-muted">紐づけ先</dt>

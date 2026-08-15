@@ -4,6 +4,11 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     ENV["GOOGLE_CLIENT_SECRET"],
     scope: "email,profile",
     prompt: "select_account"
+
+  provider :discord,
+    ENV["DISCORD_CLIENT_ID"],
+    ENV["DISCORD_CLIENT_SECRET"],
+    scope: "identify email"
 end
 
 # 認証の開始を POST に限定する。GET のままだと外部サイトからログインを誘発できる。

@@ -1,13 +1,13 @@
 require "rails_helper"
 
 RSpec.describe "Registrations" do
-  it "explains the registration steps and provides Google sign-in" do
+  it "explains the registration steps and provides Google and Discord sign-in" do
     get new_registration_path
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("管理者の許可が必要です")
-    expect(response.body).to include("下記のボタンを押してGoogleログインする")
-    expect(response.body).to include("プロフィールを提供してよいかGoogleに聞かれるので許可する")
+    expect(response.body).to include("下記のボタンを押してGoogleまたはDiscordでログインする")
+    expect(response.body).to include("プロフィールを提供してよいか認証先に聞かれるので許可する")
     expect(response.body).to include("管理者に連絡して許可してもらうのを待つ")
     expect(response.body).to include("管理者以外の人に表示されることはありません")
 
@@ -16,6 +16,12 @@ RSpec.describe "Registrations" do
     expect(form).to include('method="post"')
     expect(form).to include('data-turbo="false"')
     expect(form).to include("Google でログイン")
+
+    discord_form = response.body.scan(%r{<form[^>]*action="/auth/discord".*?</form>}m)
+      .find { |candidate| candidate.include?("Discord でログイン") }
+    expect(discord_form).to include('method="post"')
+    expect(discord_form).to include('data-turbo="false"')
+    expect(discord_form).to include("Discord でログイン")
   end
 
   it "shows an approval request on every page while the account is unlinked" do

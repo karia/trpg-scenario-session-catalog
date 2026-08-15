@@ -1,12 +1,14 @@
-<% content_for :title, "Google #{User.model_name.human}の紐づけ" %>
-<h1 class="font-display text-2xl">Google <%= User.model_name.human %>の紐づけ</h1>
+<% content_for :title, "#{User.model_name.human}の紐づけ" %>
+<h1 class="font-display text-2xl"><%= User.model_name.human %>の紐づけ</h1>
 <p class="mt-2 text-sm text-muted">紐づくまで、その<%= User.model_name.human %>は公開エリアしか見られません。</p>
 
 <ul class="mt-6 divide-y divide-rule border border-rule bg-surface text-sm">
   <% @users.each do |user| %>
     <li class="flex flex-wrap items-center justify-between gap-3 p-3">
       <div>
+        <p class="text-xs font-bold"><%= user.provider_name %></p>
         <p class="font-mono text-xs"><%= user.email.presence || "メールアドレス不明" %></p>
+        <% if user.name.present? %><p class="text-xs text-muted"><%= user.name %></p><% end %>
         <p class="text-xs text-muted">初回ログイン <%= l user.created_at, format: :short %></p>
       </div>
       <span class="flex shrink-0 gap-1 text-xs">

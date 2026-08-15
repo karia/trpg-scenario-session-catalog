@@ -111,7 +111,7 @@ RSpec.describe "Manage::People" do
       expect(response.body).to include("詳細に戻る", manage_user_path(user))
     end
 
-    it "refuses to link one person to two accounts" do
+    it "refuses to link one person to two accounts from the same provider" do
       person = create(:person)
       create(:user, person: person)
       other = create(:user, person: nil)
@@ -120,6 +120,16 @@ RSpec.describe "Manage::People" do
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(other.reload.person).to be_nil
+    end
+    it "links Google and Discord accounts to the same person" do
+      person = create(:person)
+      google = create(:user, provider: "google_oauth2", person: person)
+      discord = create(:user, provider: "discord", person: nil)
+
+      patch manage_user_path(discord), params: { user: { person_id: person.id } }
+
+      expect(response).to redirect_to(manage_user_path(discord))
+      expect(person.reload.users).to contain_exactly(google, discord)
     end
   end
 

@@ -12,7 +12,7 @@ RSpec.describe "A member's own pages" do
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
     visit root_path
-    click_button "ログイン"
+    click_button "Googleでログイン"
 
     visit edit_person_path(person)
     fill_in "person[x_account]", with: "karia"

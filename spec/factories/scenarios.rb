@@ -44,6 +44,8 @@ FactoryBot.define do
 
   factory :user do
     sequence(:google_uid) { |n| "uid-#{n}" }
+    provider { "google_oauth2" }
+    uid { google_uid }
     sequence(:email) { |n| "user#{n}@example.com" }
   end
 end

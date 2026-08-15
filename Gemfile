@@ -48,8 +48,9 @@ gem "active_storage_validations"
 # Authorization [https://github.com/varvet/pundit]
 gem "pundit"
 
-# Google sign-in. CSRF protection is required for the request phase.
+# OAuth sign-in. CSRF protection is required for the request phase.
 gem "omniauth-google-oauth2"
+gem "omniauth-discord"
 gem "omniauth-rails_csrf_protection"
 
 # Japanese translations for Rails' own messages (validation errors and dates)

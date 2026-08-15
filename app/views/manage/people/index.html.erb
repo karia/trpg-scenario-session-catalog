@@ -11,7 +11,7 @@
         <p class="text-xs text-muted">
           権限: <%= person_role_labels(item).join("、") %>
           ／ <%= Group.model_name.human %>: <%= item.groups.map(&:name).join("、").presence || "なし" %>
-          ／ <%= User.model_name.human %>: <%= item.user&.email || "未紐づけ" %>
+          ／ <%= User.model_name.human %>: <%= item.users.map { |user| "#{user.provider_name}: #{user.email.presence || user.name.presence || "不明"}" }.join("、").presence || "未紐づけ" %>
         </p>
       </div>
       <span class="flex shrink-0 gap-1 text-xs">

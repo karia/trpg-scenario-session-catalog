@@ -26,8 +26,8 @@ Rails.application.configure do
     policy.frame_src   :self, *GOOGLE_TAG_ORIGINS, "https://www.youtube.com"
     policy.frame_ancestors :none
     policy.base_uri    :self
-    # Chrome は form-action をリダイレクト先にも適用する。ログインの POST は Google へ 302 する。
-    policy.form_action :self, "https://accounts.google.com"
+    # Chrome は form-action をリダイレクト先にも適用する。ログインの POST は provider へ 302 する。
+    policy.form_action :self, "https://accounts.google.com", "https://discord.com"
   end
 
   # session.id はセッションが張られるまで nil になる。リクエストごとに生成する。
