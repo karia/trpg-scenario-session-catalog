@@ -1,0 +1,6 @@
+<%# locals: (record:, path:, label:, confirm:, aria_label: nil, class_name: "min-h-6 px-1 text-muted", form_class: "inline") %>
+<% if policy(record).destroy? %>
+  <%= button_to label, path, method: :delete,
+        form: { class: form_class, data: { turbo_confirm: confirm, turbo_frame: "_top" } },
+        aria: { label: aria_label }, class: class_name %>
+<% end %>

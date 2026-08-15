@@ -21,10 +21,13 @@
       </p>
     </div>
 
-    <div class="flex gap-3">
+    <div class="flex flex-wrap items-baseline gap-3">
       <% if policy(@person).update? %>
         <%= link_to "編集", edit_person_path(@person), class: "text-sm text-seal" %>
       <% end %>
+      <%= render "shared/delete_button", record: @person, path: person_path(@person),
+            label: "この#{Person.model_name.human}を削除",
+            confirm: "#{@person.display_name} を削除しますか", class_name: "text-sm text-seal" %>
     </div>
   </div>
 

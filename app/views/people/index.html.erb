@@ -24,7 +24,14 @@
           <% end %>
         </span>
       <% end %>
-      <% if policy(member).update? %><p class="px-4 pb-4 text-xs"><%= link_to "編集", edit_person_path(member), class: "text-seal" %></p><% end %>
+      <% if policy(member).update? || policy(member).destroy? %>
+        <p class="flex flex-wrap items-center gap-3 px-4 pb-4 text-xs">
+          <% if policy(member).update? %><%= link_to "編集", edit_person_path(member), class: "text-seal" %><% end %>
+          <%= render "shared/delete_button", record: member, path: person_path(member), label: "削除",
+                aria_label: "#{member.display_name} を削除",
+                confirm: "#{member.display_name} を削除しますか", class_name: "min-h-6 text-muted" %>
+        </p>
+      <% end %>
     </li>
   <% end %>
 </ul>

@@ -10,9 +10,15 @@
     <h1 class="font-display text-3xl leading-tight tracking-wide">
       <%= link_to @play_session.scenario.title, scenario_path(@play_session.scenario), class: "text-ink" %>
     </h1>
-    <% if policy(@play_session).update? %>
-      <%= link_to "編集", edit_play_session_path(@play_session), class: "text-sm text-seal" %>
-    <% end %>
+    <div class="flex flex-wrap items-baseline gap-4">
+      <% if policy(@play_session).update? %>
+        <%= link_to "編集", edit_play_session_path(@play_session), class: "text-sm text-seal" %>
+      <% end %>
+      <%= render "shared/delete_button", record: @play_session, path: play_session_path(@play_session),
+            label: "この#{PlaySession.model_name.human}を削除",
+            confirm: "#{@play_session.scenario.title} の#{PlaySession.model_name.human}を削除しますか",
+            class_name: "text-sm text-seal" %>
+    </div>
   </div>
 
   <dl class="mt-6 grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 font-mono text-sm">
