@@ -245,7 +245,9 @@ RSpec.describe "Manage::People" do
       admin = create(:person, roles: %w[admin])
       sign_in_as admin
 
-      patch person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
+      patch person_path(admin), params: {
+        person: { display_name: admin.display_name, roles: [ "gm" ] }, confirm_self_demotion: "1"
+      }
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(admin.reload).to be_admin
@@ -256,7 +258,9 @@ RSpec.describe "Manage::People" do
       create(:person, roles: %w[admin])
       sign_in_as admin
 
-      patch person_path(admin), params: { person: { display_name: admin.display_name, roles: [ "gm" ] } }
+      patch person_path(admin), params: {
+        person: { display_name: admin.display_name, roles: [ "gm" ] }, confirm_self_demotion: "1"
+      }
 
       expect(admin.reload).not_to be_admin
     end

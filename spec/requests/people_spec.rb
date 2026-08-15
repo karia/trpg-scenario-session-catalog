@@ -242,4 +242,117 @@ RSpec.describe "People" do
       expect(response.body).not_to include("ログインしている人だけが見られます")
     end
   end
+
+  describe "dropping your own roles" do
+    let(:admin) { create(:person, roles: %w[admin gm], display_name: "管理者") }
+
+    before { create(:person, roles: %w[admin], display_name: "もうひとりの管理者") }
+
+    it "asks for confirmation and keeps the roles" do
+      sign_in_as admin
+
+      patch person_path(admin), params: { person: { display_name: "管理者", roles: [ "gm", "" ] } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("管理者権限を失い")
+      expect(admin.reload.roles).to contain_exactly("admin", "gm")
+    end
+
+    it "warns about the GM role too" do
+      sign_in_as admin
+
+      patch person_path(admin), params: { person: { display_name: "管理者", roles: [ "admin", "" ] } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("GM権限を失い")
+      expect(admin.reload.roles).to contain_exactly("admin", "gm")
+    end
+
+    it "shows the submitted roles on the re-rendered form" do
+      sign_in_as admin
+
+      patch person_path(admin), params: { person: { display_name: "管理者", roles: [ "gm", "" ] } }
+
+      page = Capybara.string(response.body)
+      expect(page.find("#person_roles_admin")).not_to be_checked
+      expect(page.find("#person_roles_gm")).to be_checked
+    end
+
+    it "goes through once the warning is acknowledged" do
+      sign_in_as admin
+
+      patch person_path(admin), params: {
+        person: { display_name: "管理者", roles: [ "gm", "" ] }, confirm_self_demotion: "1"
+      }
+
+      expect(response).to redirect_to(person_path(admin))
+      expect(admin.reload.roles).to contain_exactly("gm")
+    end
+
+    it "does not warn when the roles are unchanged" do
+      sign_in_as admin
+
+      patch person_path(admin), params: {
+        person: { display_name: "管理者", x_account: "karia", roles: [ "admin", "gm", "" ] }
+      }
+
+      expect(response).to redirect_to(person_path(admin))
+      expect(admin.reload.x_account).to eq("karia")
+    end
+
+    it "does not warn when someone else loses a role" do
+      sign_in_as admin
+      target = create(:person, roles: %w[gm], display_name: "GM の人")
+
+      patch person_path(target), params: { person: { display_name: "GM の人", roles: [ "" ] } }
+
+      expect(response).to redirect_to(person_path(target))
+      expect(target.reload.roles).to be_empty
+    end
+
+    it "does not warn when a member without roles edits their own profile" do
+      member = create(:person, display_name: "ただの人")
+      sign_in_as member
+
+      patch person_path(member), params: { person: { display_name: "ただの人", x_account: "member" } }
+
+      expect(response).to redirect_to(person_path(member))
+      expect(member.reload.x_account).to eq("member")
+    end
+  end
+
+  describe "deleting your own person" do
+    let(:admin) { create(:person, roles: %w[admin], display_name: "管理者") }
+
+    before { create(:person, roles: %w[admin], display_name: "もうひとりの管理者") }
+
+    it "asks for confirmation and keeps the person" do
+      sign_in_as admin
+
+      delete person_path(admin)
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("管理者権限を失い")
+      expect(Person.exists?(admin.id)).to be(true)
+    end
+
+    it "goes through once the warning is acknowledged" do
+      sign_in_as admin
+
+      delete person_path(admin), params: { confirm_self_demotion: "1" }
+
+      expect(response).to redirect_to(people_path)
+      expect(Person.exists?(admin.id)).to be(false)
+    end
+
+    it "does not warn when someone else is deleted" do
+      sign_in_as admin
+      target = create(:person, roles: %w[gm], display_name: "GM の人")
+
+      delete person_path(target)
+
+      expect(response).to redirect_to(people_path)
+      expect(Person.exists?(target.id)).to be(false)
+    end
+  end
 end

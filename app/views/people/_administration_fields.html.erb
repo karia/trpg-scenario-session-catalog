@@ -1,3 +1,5 @@
+<% roles = local_assigns[:selected_roles] || person.roles %>
+<% group_ids = local_assigns[:selected_group_ids] || person.manual_group_ids %>
 <fieldset class="border border-rule bg-surface p-5">
   <legend class="px-2 font-display text-sm">管理項目</legend>
 
@@ -11,7 +13,7 @@
 
     <% PersonRole::ROLES.each_key do |role| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm">
-        <%= check_box_tag "person[roles][]", role, person.roles.include?(role.to_s), id: "person_roles_#{role}" %>
+        <%= check_box_tag "person[roles][]", role, roles.include?(role.to_s), id: "person_roles_#{role}" %>
         <%= t("people.roles.#{role}") %>
       </label>
     <% end %>
@@ -21,7 +23,8 @@
 
   <div class="mt-4">
     <span class="block text-xs text-muted"><%= Group.model_name.human %></span>
-    <%= form.collection_check_boxes :manual_group_ids, Group.all.to_a, :id, :name do |group| %>
+    <%= form.collection_check_boxes :manual_group_ids, Group.all.to_a, :id, :name,
+          checked: group_ids do |group| %>
       <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= group.check_box %> <%= group.text %></label>
     <% end %>
   </div>
