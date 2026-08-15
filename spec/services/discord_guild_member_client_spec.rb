@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe DiscordGuildMemberClient do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:guild_id) { "12345678901234567#{8}" }
   let(:user_id) { "23456789012345678#{9}" }
 
@@ -35,7 +37,7 @@ RSpec.describe DiscordGuildMemberClient do
   it "suppresses subsequent requests while Discord is rate limited" do
     cache = ActiveSupport::Cache::MemoryStore.new
     response = Net::HTTPTooManyRequests.new("1.1", "429", "Too Many Requests")
-    response.body = '{"retry_after":30}'
+    response.body = '{"retry_after":120}'
     response.instance_variable_set(:@read, true)
     http = instance_double(Net::HTTP)
     allow(Net::HTTP).to receive(:new).and_return(http)
@@ -46,8 +48,30 @@ RSpec.describe DiscordGuildMemberClient do
     client = described_class.new(bot_token: "bot-token", cache:)
 
     expect { client.member?(guild_id, user_id) }.to raise_error(described_class::Error, /429/)
-    expect { client.member?(guild_id, "34567890123456789#{0}") }
-      .to raise_error(described_class::Error, /rate limited/)
+    travel 61.seconds do
+      expect { client.member?(guild_id, "34567890123456789#{0}") }
+        .to raise_error(described_class::Error, /rate limited/)
+    end
+  end
+
+  it "uses the Retry-After header when a 429 body is not JSON" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+    response = Net::HTTPTooManyRequests.new("1.1", "429", "Too Many Requests")
+    response["Retry-After"] = "120"
+    response.body = "not-json"
+    response.instance_variable_set(:@read, true)
+    http = instance_double(Net::HTTP)
+    allow(Net::HTTP).to receive(:new).and_return(http)
+    allow(http).to receive(:use_ssl=)
+    allow(http).to receive(:open_timeout=)
+    allow(http).to receive(:read_timeout=)
+    allow(http).to receive(:request).once.and_return(response)
+    client = described_class.new(bot_token: "bot-token", cache:)
+
+    expect { client.member?(guild_id, user_id) }.to raise_error(described_class::Error, /429/)
+    travel 61.seconds do
+      expect(cache.exist?(described_class::RATE_LIMIT_KEY)).to be(true)
+    end
   end
 
   it "reports a non-member from Discord's 404 response" do

@@ -41,7 +41,7 @@ RSpec.describe "Manage::People" do
       group = create(:group, name: "よく遊ぶ人たち")
 
       post people_path, params: {
-        person: { display_name: "新入り", x_account: "newbie", roles: [ "gm" ], group_ids: [ group.id ] }
+        person: { display_name: "新入り", x_account: "newbie", roles: [ "gm" ], manual_group_ids: [ group.id ] }
       }
 
       person = Person.find_by(display_name: "新入り")
@@ -49,6 +49,19 @@ RSpec.describe "Manage::People" do
       expect(person.roles).to eq([ "gm" ])
       expect(person).to be_player
       expect(person.groups).to eq([ group ])
+    end
+
+    it "turns a selected Discord-managed group into a manual group from person editing" do
+      person = create(:person)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      membership = person.group_memberships.create!(group:, discord_managed: true)
+
+      patch person_path(person), params: {
+        person: { display_name: person.display_name, roles: [], manual_group_ids: [ group.id ] }
+      }
+
+      expect(response).to redirect_to(person_path(person))
+      expect(membership.reload).not_to be_discord_managed
     end
 
     it "carries no explanation under the title" do

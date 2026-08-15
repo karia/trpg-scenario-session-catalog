@@ -148,5 +148,20 @@ RSpec.describe User do
 
       expect { user.sync_discord_groups!(client:) }.to change(GroupMembership, :count).by(-1)
     end
+
+    it "enforces one deadline across all configured guilds" do
+      stub_const("User::DISCORD_SYNC_DEADLINE", 0.01.seconds)
+      user = create(:user, provider: "discord", uid: user_id, person: nil)
+      create(:group, discord_guild_id: "12345678901234567#{8}")
+      create(:group, discord_guild_id: "98765432109876543#{2}")
+      allow(client).to receive(:member?) { sleep 0.02; true }
+
+      started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      user.sync_discord_groups!(client:)
+
+      expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at).to be < 0.04
+      expect(client).to have_received(:member?).once
+      expect(user.reload.person).to be_nil
+    end
   end
 end

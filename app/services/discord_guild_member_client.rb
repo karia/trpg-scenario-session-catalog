@@ -43,9 +43,10 @@ class DiscordGuildMemberClient
     end
 
     def remember_rate_limit(response)
-      retry_after = JSON.parse(response.body).fetch("retry_after", 1).to_f.clamp(1, 60)
+      retry_after = JSON.parse(response.body).fetch("retry_after").to_f
       @cache.write(RATE_LIMIT_KEY, true, expires_in: retry_after.seconds)
-    rescue JSON::ParserError
-      @cache.write(RATE_LIMIT_KEY, true, expires_in: 1.second)
+    rescue JSON::ParserError, KeyError
+      retry_after = response["Retry-After"].to_f
+      @cache.write(RATE_LIMIT_KEY, true, expires_in: [ retry_after, 1 ].max.seconds)
     end
 end

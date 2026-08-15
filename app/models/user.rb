@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  DISCORD_SYNC_DEADLINE = 3.seconds
   PROVIDERS = {
     "google_oauth2" => "Google",
     "discord" => "Discord"
@@ -41,10 +42,11 @@ class User < ApplicationRecord
 
     groups = Group.where.not(discord_guild_id: nil).to_a
     client ||= DiscordGuildMemberClient.new if groups.any?
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 3.seconds
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + DISCORD_SYNC_DEADLINE
     memberships = groups.index_with do |group|
-      Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline && client.member?(group.discord_guild_id, uid)
-    rescue DiscordGuildMemberClient::Error => error
+      remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      remaining.positive? && Timeout.timeout(remaining) { client.member?(group.discord_guild_id, uid) }
+    rescue DiscordGuildMemberClient::Error, Timeout::Error => error
       Rails.logger.warn("Discord guild membership check failed: #{error.class}")
       false
     end

@@ -45,6 +45,19 @@ class Person < ApplicationRecord
 
   def favourite?(scenario) = favorites.exists?(scenario_id: scenario.id)
 
+  def manual_group_ids
+    group_memberships.where(discord_managed: false).pluck(:group_id)
+  end
+
+  def manual_group_ids=(ids)
+    desired_ids = Array(ids).reject(&:blank?).map(&:to_i)
+    group_memberships.where(discord_managed: false).where.not(group_id: desired_ids).destroy_all
+    desired_ids.each do |group_id|
+      membership = group_memberships.find_or_initialize_by(group_id:)
+      membership.update!(discord_managed: false)
+    end
+  end
+
   def self.admins = joins(:person_roles).where(person_roles: { name: PersonRole.names[:admin] })
 
   # has_many への代入は永続レコードだと即座に DB へ反映される。検証で見るため代入前の状態を残す。
