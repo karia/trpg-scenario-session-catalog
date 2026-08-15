@@ -10,14 +10,16 @@ class Scenario < ApplicationRecord
     see_note: 4
   }, validate: { allow_nil: true }
 
+  # sharpen は image_processing 2.0 で既定が外れた。明示すると variant key も変わり、
+  # 1.x 時代に生成済みの画像が再生成されて見た目が揃う。
   has_one_attached :jacket do |attachable|
-    attachable.variant :thumb, resize_to_limit: [ 480, 640 ], format: :webp, saver: { quality: 80 }
-    attachable.variant :cover, resize_to_limit: [ 800, 1200 ], format: :webp, saver: { quality: 85 }
+    attachable.variant :thumb, resize_to_limit: [ 480, 640, { sharpen: true } ], format: :webp, saver: { quality: 80 }
+    attachable.variant :cover, resize_to_limit: [ 800, 1200, { sharpen: true } ], format: :webp, saver: { quality: 85 }
   end
 
   has_one_attached :booth_image do |attachable|
-    attachable.variant :thumb, resize_to_limit: [ 480, 640 ], format: :webp, saver: { quality: 80 }
-    attachable.variant :cover, resize_to_limit: [ 800, 1200 ], format: :webp, saver: { quality: 85 }
+    attachable.variant :thumb, resize_to_limit: [ 480, 640, { sharpen: true } ], format: :webp, saver: { quality: 80 }
+    attachable.variant :cover, resize_to_limit: [ 800, 1200, { sharpen: true } ], format: :webp, saver: { quality: 85 }
   end
 
   has_many :scenario_game_systems, dependent: :destroy
