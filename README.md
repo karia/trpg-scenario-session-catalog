@@ -10,7 +10,8 @@ TRPG のシナリオとセッションのカタログサイト。
 ## 動かす
 
 必要なのは [mise](https://mise.jdx.dev/) と Docker と libvips の3つ。Ruby と Node は mise が入れる。
-libvips は Active Storage の variant 生成に使う。無いと起動時に落ちる（Ubuntu なら `libvips42t64`、macOS なら `brew install vips`）。
+libvips は Active Storage の variant 生成に使う。無いと起動時に落ちる（Debian/Ubuntu なら `libvips-tools`、macOS なら `brew install vips`）。
+本体の package 名は release ごとに変わる（Ubuntu 24.04 は `libvips42t64`、22.04 は `libvips42`）ため、名前が変わらない `libvips-tools` を CI でも使っている。
 
 ```bash
 mise install
