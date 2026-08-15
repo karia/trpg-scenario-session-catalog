@@ -16,13 +16,13 @@
         </span>
       <% end %>
       <% if policy(session).update? || policy(session).destroy? %>
-        <p class="flex flex-wrap items-center justify-end gap-3 px-4 pb-3 text-xs">
+        <div class="flex flex-wrap items-center justify-end gap-3 px-4 pb-3 text-xs">
           <% if policy(session).update? %><%= link_to "編集", edit_play_session_path(session), class: "text-seal" %><% end %>
           <%= render "shared/delete_button", record: session, path: play_session_path(session), label: "削除",
                 aria_label: "#{session.scenario.title} の#{PlaySession.model_name.human}を削除",
                 confirm: "#{session.scenario.title} の#{PlaySession.model_name.human}を削除しますか",
                 class_name: "min-h-6 text-muted" %>
-        </p>
+        </div>
       <% end %>
     </li>
   <% end %>

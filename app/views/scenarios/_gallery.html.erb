@@ -33,12 +33,12 @@
         </dl>
       <% end %>
       <% if policy(scenario).update? || policy(scenario).destroy? %>
-        <p class="flex flex-wrap items-center gap-3 px-4 pb-4 text-xs">
+        <div class="flex flex-wrap items-center gap-3 px-4 pb-4 text-xs">
           <% if policy(scenario).update? %><%= link_to "編集", edit_scenario_path(scenario), data: { turbo_frame: "_top" }, class: "text-seal" %><% end %>
           <%= render "shared/delete_button", record: scenario, path: scenario_path(scenario), label: "削除",
                 aria_label: "#{scenario.title} を削除",
                 confirm: "#{scenario.title} を削除しますか", class_name: "min-h-6 text-muted" %>
-        </p>
+        </div>
       <% end %>
     </li>
   <% end %>

@@ -2,6 +2,11 @@ require "rails_helper"
 
 # 削除は取り返しがつかない。誰に導線が出るか、何が守られるかを画面ごとに固定する。
 RSpec.describe "Deletions" do
+  # Capybara 既定の HTML4 パーサはブラウザと違って p を閉じない。実際の入れ子で見る。
+  def links_beside_delete_button(body, path)
+    Nokogiri::HTML5(body).at_css("form[action='#{path}']").parent.css("> a").map { |link| link["href"] }
+  end
+
   describe "DELETE /scenarios/:id" do
     it "removes a scenario for a GM" do
       sign_in_as create(:person, roles: %w[gm])
@@ -275,6 +280,27 @@ RSpec.describe "Deletions" do
       page = Capybara.string(response.body)
       expect(page).to have_button("ほかの人 を削除")
       expect(page).to have_no_button("管理者 を削除")
+    end
+
+    # button_to は form を出す。form は開いている p を暗黙に閉じるため、
+    # 行を p で囲むとボタンだけが行の外へ飛び出す。
+    it "stays in the same row as the edit link" do
+      sign_in_as create(:person, roles: %w[admin])
+      member = create(:person)
+      play_session = create(:play_session)
+      scenario = play_session.scenario
+
+      get people_path
+      expect(links_beside_delete_button(response.body, person_path(member)))
+        .to include(edit_person_path(member))
+
+      get play_sessions_path
+      expect(links_beside_delete_button(response.body, play_session_path(play_session)))
+        .to include(edit_play_session_path(play_session))
+
+      get root_path(view: "gallery")
+      expect(links_beside_delete_button(response.body, scenario_path(scenario)))
+        .to include(edit_scenario_path(scenario))
     end
 
     it "is present for an admin on the account list, except on their own row" do
