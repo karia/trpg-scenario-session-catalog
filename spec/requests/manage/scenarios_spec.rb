@@ -122,13 +122,15 @@ RSpec.describe "Manage::Scenarios" do
         expect(response.body.index("ま")).to be < response.body.index("あ")
       end
 
-      it "hands each row to the browser with its identifier" do
+      it "hands each row and drag handle to SortableJS" do
         scenario = create(:scenario)
 
         authorized_get scenario_order_index_path
 
-        expect(Capybara.string(response.body))
-          .to have_css(%(tr[draggable="true"][data-sortable-id-param="#{scenario.id}"]))
+        page = Capybara.string(response.body)
+        expect(page).to have_css(%(tr[data-sortable-target="row"][data-sortable-id-param="#{scenario.id}"]))
+        expect(page).to have_css(".sortable-handle")
+        expect(page).to have_no_css("[draggable], [data-action*='dragstart']")
       end
 
       it "saves the new order" do
