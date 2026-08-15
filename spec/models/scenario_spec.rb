@@ -33,9 +33,19 @@ RSpec.describe Scenario do
       %i[jacket booth_image].each do |attachment|
         variants = described_class.reflect_on_attachment(attachment).named_variants
 
-        expect(variants[:thumb].transformations).to include(resize_to_limit: [ 480, 640 ])
-        expect(variants[:cover].transformations).to include(resize_to_limit: [ 800, 1200 ])
+        expect(variants[:thumb].transformations[:resize_to_limit]).to start_with(480, 640)
+        expect(variants[:cover].transformations[:resize_to_limit]).to start_with(800, 1200)
       end
+    end
+
+    # 変換の指定が image_processing に渡らない形だと、宣言時ではなく描画時に初めて落ちる。
+    it "actually processes a variant" do
+      scenario = create(:scenario)
+      scenario.jacket.attach(
+        Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/dot.png"), "image/png")
+      )
+
+      expect { scenario.jacket.variant(:thumb).processed }.not_to raise_error
     end
   end
 

@@ -1,7 +1,7 @@
 class Person < ApplicationRecord
   DISPLAY_NAME_ATTRIBUTE = :display_name
   has_one_attached :icon do |attachable|
-    attachable.variant :thumb, resize_to_fill: [ 160, 160 ], format: :webp, saver: { quality: 80 }
+    attachable.variant :thumb, resize_to_fill: [ 160, 160, { sharpen: true } ], format: :webp, saver: { quality: 80 }
   end
 
   has_many :users, dependent: :nullify
