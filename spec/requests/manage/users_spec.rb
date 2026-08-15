@@ -17,7 +17,7 @@ RSpec.describe "Manage::Users" do
     it "goes through once the warning is acknowledged" do
       user = sign_in_as create(:user, provider: "discord", uid: "1", person: admin)
 
-      patch manage_user_path(user), params: { user: { person_id: "" }, confirm_self_demotion: "1" }
+      patch manage_user_path(user), params: { user: { person_id: "" }, confirm_self_demotion: "admin" }
 
       expect(response).to redirect_to(manage_user_path(user))
       expect(user.reload.person).to be_nil

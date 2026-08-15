@@ -282,11 +282,31 @@ RSpec.describe "People" do
       sign_in_as admin
 
       patch person_path(admin), params: {
-        person: { display_name: "管理者", roles: [ "gm", "" ] }, confirm_self_demotion: "1"
+        person: { display_name: "管理者", roles: [ "gm", "" ] }, confirm_self_demotion: "admin"
       }
 
       expect(response).to redirect_to(person_path(admin))
       expect(admin.reload.roles).to contain_exactly("gm")
+    end
+
+    it "warns again when the form drops a role the warning did not cover" do
+      sign_in_as admin
+
+      patch person_path(admin), params: {
+        person: { display_name: "管理者", roles: [ "" ] }, confirm_self_demotion: "gm"
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("管理者権限を失い")
+      expect(admin.reload.roles).to contain_exactly("admin", "gm")
+    end
+
+    it "carries the acknowledged roles on the re-rendered form" do
+      sign_in_as admin
+
+      patch person_path(admin), params: { person: { display_name: "管理者", roles: [ "gm", "" ] } }
+
+      expect(Capybara.string(response.body).find("#confirm_self_demotion", visible: false).value).to eq("admin")
     end
 
     it "does not warn when the roles are unchanged" do
@@ -339,7 +359,7 @@ RSpec.describe "People" do
     it "goes through once the warning is acknowledged" do
       sign_in_as admin
 
-      delete person_path(admin), params: { confirm_self_demotion: "1" }
+      delete person_path(admin), params: { confirm_self_demotion: "admin" }
 
       expect(response).to redirect_to(people_path)
       expect(Person.exists?(admin.id)).to be(false)

@@ -7,7 +7,7 @@
   <%= accessible_error_summary(@user) %>
   <% if @lost_roles.present? %>
     <%= render "shared/self_demotion_warning", roles: @lost_roles %>
-    <%= hidden_field_tag :confirm_self_demotion, true %>
+    <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>
   <% end %>
 
   <div>

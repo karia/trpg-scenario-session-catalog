@@ -6,7 +6,7 @@
   <%= accessible_error_summary(@person) %>
   <% if @lost_roles.present? %>
     <%= render "shared/self_demotion_warning", roles: @lost_roles %>
-    <%= hidden_field_tag :confirm_self_demotion, true %>
+    <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>
   <% end %>
 
   <fieldset class="border border-rule bg-surface p-5">
