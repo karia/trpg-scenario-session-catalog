@@ -63,6 +63,29 @@ RSpec.describe "Sessions" do
       expect(response).to redirect_to(root_path)
     end
 
+    it "signs in a linked Discord user when fetching guilds fails" do
+      person = create(:person)
+      user = create(:user, provider: "discord", uid: "20000001", person:)
+      allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids)
+        .and_raise(DiscordGuildsClient::Error, "Discord API returned 503")
+
+      sign_in_with_discord
+
+      expect(session[:user_id]).to eq(user.id)
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "signs in an unlinked Discord user when fetching guilds fails" do
+      allow_any_instance_of(DiscordGuildsClient).to receive(:guild_ids)
+        .and_raise(DiscordGuildsClient::Error, "Discord API returned 503")
+
+      sign_in_with_discord
+
+      expect(session[:user_id]).to eq(User.sole.id)
+      expect(User.sole.person).to be_nil
+      expect(response).to redirect_to(root_path)
+    end
+
     it "returns to the URL where sign-in started" do
       sign_in(origin: scenario_path(create(:scenario), view: "cards"))
 
