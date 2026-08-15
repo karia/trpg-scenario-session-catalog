@@ -4,7 +4,7 @@ class Person < ApplicationRecord
     attachable.variant :thumb, resize_to_fill: [ 160, 160 ], format: :webp, saver: { quality: 80 }
   end
 
-  has_one :user, dependent: :nullify
+  has_many :users, dependent: :nullify
   has_many :person_roles, dependent: :destroy
   has_many :aliases, -> { order(:position, :id) }, class_name: "PersonAlias", dependent: :destroy,
     inverse_of: :person

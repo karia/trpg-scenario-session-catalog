@@ -7,9 +7,9 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # 開始は POST 限定（omniauth-rails_csrf_protection）。コールバックは Google からの GET。
+  # 開始は POST 限定（omniauth-rails_csrf_protection）。コールバックは OAuth provider からの GET。
   match "/auth/:provider/callback", to: "sessions#create", via: [ :get, :post ],
-    constraints: { provider: /google_oauth2/ }
+    constraints: { provider: /google_oauth2|discord/ }
   get "/auth/failure", to: "sessions#failure"
   resource :session, only: [ :destroy ]
   resource :registration, only: [ :new ]

@@ -8,15 +8,25 @@ RSpec.describe "Sessions" do
       uid: "10000001",
       info: { email: "karia@example.com", name: "カーリア" }
     )
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord",
+      uid: "20000001",
+      info: { email: "discord@example.com", name: "Discord User" }
+    )
   end
 
   after do
     OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 
   def sign_in(origin: nil)
     post "/auth/google_oauth2", params: { origin: }.compact
+    follow_redirect!
+  end
+  def sign_in_with_discord(origin: nil)
+    post "/auth/discord", params: { origin: }.compact
     follow_redirect!
   end
 
@@ -32,6 +42,13 @@ RSpec.describe "Sessions" do
 
       expect(User.sole.person).to be_nil
       expect(response).to redirect_to(root_path)
+    end
+
+    it "signs in with Discord" do
+      expect { sign_in_with_discord }.to change(User, :count).by(1)
+
+      expect(User.sole).to have_attributes(provider: "discord", uid: "20000001", person: nil)
+      expect(session[:user_id]).to eq(User.sole.id)
     end
 
     it "returns to the URL where sign-in started" do

@@ -11,7 +11,7 @@
 | 管理者専用エリア | `app/controllers/manage/` | グループ、ユーザー、サイト全体設定だけを置く |
 | 認可 | `app/policies/` | 判断はすべてここ。ビューやコントローラに条件を散らさない |
 
-認証は Google のみ。`User` は Google アカウント、`Person` は人物で、1 対 1 で紐づく。
+認証は Google と Discord。`User` は各 provider のアカウント、`Person` は人物で、provider ごとに 1 対 1 で紐づく。
 紐づいていない `User` は「ログイン済みだが公開エリアしか見えない」通常の状態。
 
 ## よく使う手順

@@ -6,7 +6,8 @@ RSpec.describe "The sign-in button" do
 
     expect(response.body).to include(%(href="#{new_registration_path}"))
     expect(response.body).to include(">新規登録</a>")
-    expect(response.body).to include(">ログイン</button>")
+    expect(response.body).to include(">Googleでログイン</button>")
+    expect(response.body).to include(">Discordでログイン</button>")
   end
 
   # Turbo はフォーム送信を fetch に置き換えるため、Google への cross-origin リダイレクトを
@@ -46,6 +47,7 @@ RSpec.describe "The sign-in button" do
     directive = response.headers["Content-Security-Policy"][/form-action [^;]+/]
 
     expect(directive).to include("https://accounts.google.com")
+    expect(directive).to include("https://discord.com")
   end
 
   it "is not shown once signed in" do
@@ -54,6 +56,7 @@ RSpec.describe "The sign-in button" do
     get root_path
 
     expect(response.body).not_to include('action="/auth/google_oauth2"')
+    expect(response.body).not_to include('action="/auth/discord"')
     expect(response.body).not_to include(%(href="#{new_registration_path}"))
   end
 end
