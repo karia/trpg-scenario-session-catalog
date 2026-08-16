@@ -11,6 +11,7 @@ permissions:
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -29,6 +30,7 @@ jobs:
 
   scan_js:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -44,6 +46,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
@@ -73,6 +76,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     services:
       postgres:
@@ -126,6 +130,7 @@ jobs:
   # Dockerfile の破損が main に入ってから分かるのを防ぐ。push はしない。
   image:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
