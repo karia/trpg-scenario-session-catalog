@@ -1,0 +1,9 @@
+<div class="border border-seal bg-surface p-4 text-sm text-seal" role="alert" tabindex="-1" autofocus>
+  <h2 class="font-bold"><%= t("people.self_demotion.title") %></h2>
+  <ul class="mt-2 list-disc pl-5">
+    <% roles.each do |role| %>
+      <li><%= t("people.self_demotion.consequences.#{role}") %></li>
+    <% end %>
+  </ul>
+  <p class="mt-2"><%= t("people.self_demotion.recovery") %></p>
+</div>

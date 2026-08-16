@@ -5,6 +5,10 @@
 
 <%= form_with model: [ :manage, @user ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
   <%= accessible_error_summary(@user) %>
+  <% if @lost_roles.present? %>
+    <%= render "shared/self_demotion_warning", roles: @lost_roles %>
+    <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>
+  <% end %>
 
   <div>
     <%= form.label :person_id, "紐づけ先", class: "block text-xs text-muted" %>
@@ -13,7 +17,8 @@
   </div>
 
   <div class="flex gap-4">
-    <%= form.submit "更新", class: "bg-ink px-5 py-2 text-sm text-paper" %>
+    <%= form.submit @lost_roles.present? ? t("people.self_demotion.continue") : "更新",
+          class: "bg-ink px-5 py-2 text-sm text-paper" %>
     <%= link_to "詳細に戻る", manage_user_path(@user), class: "self-center text-sm text-muted" %>
   </div>
 <% end %>

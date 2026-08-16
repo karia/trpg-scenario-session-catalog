@@ -28,6 +28,18 @@
     </div>
   </div>
 
+  <% if @lost_roles.present? %>
+    <div class="mt-6">
+      <%= render "shared/self_demotion_warning", roles: @lost_roles %>
+      <div class="mt-4 flex gap-4">
+        <%= button_to t("people.self_demotion.continue"), person_path(@person), method: :delete,
+              params: { confirm_self_demotion: @lost_roles.join(",") },
+              class: "bg-seal px-5 py-2 text-sm text-paper" %>
+        <%= link_to t("people.self_demotion.cancel"), person_path(@person), class: "self-center text-sm text-muted" %>
+      </div>
+    </div>
+  <% end %>
+
   <% if @person.visible_aliases.any? %>
     <section class="mt-10">
       <h2 class="font-display text-xl">別名</h2>

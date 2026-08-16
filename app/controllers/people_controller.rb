@@ -17,6 +17,9 @@ class PeopleController < ApplicationController
   def update
     authorize @person, :update?
 
+    @lost_roles = roles_lost_by_role_change
+    return render_role_change_warning if @lost_roles.any?
+
     if @person.update(person_params)
       redirect_to person_path(@person), notice: "プロフィールを更新しました"
     else
@@ -36,6 +39,10 @@ class PeopleController < ApplicationController
 
   def destroy
     authorize @person, :destroy?
+
+    @lost_roles = @person == current_person ? roles_lost_by([]) : []
+    return render :show, status: :unprocessable_content if @lost_roles.any?
+
     @person.destroy!
     redirect_to people_path, notice: "削除しました"
   end
@@ -43,6 +50,21 @@ class PeopleController < ApplicationController
   private
     def set_person
       @person = policy_scope(Person).find(params[:id])
+    end
+
+    def roles_lost_by_role_change
+      return [] unless @person == current_person
+
+      submitted = person_params[:roles]
+      submitted.nil? ? [] : roles_lost_by(submitted)
+    end
+
+    # roles と manual_group_ids は代入した時点で DB に書かれる。確認前なので触らない。
+    def render_role_change_warning
+      @selected_roles = Array(person_params[:roles]).compact_blank
+      @selected_group_ids = Array(person_params[:manual_group_ids]).compact_blank.map(&:to_i)
+      @person.assign_attributes(person_params.except(:roles, :manual_group_ids))
+      render :edit, status: :unprocessable_content
     end
 
     # グループ所属はここでは受け取らない。管理画面（管理者のみ）で扱う。

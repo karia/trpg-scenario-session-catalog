@@ -4,6 +4,10 @@
 
 <%= form_with model: @person, class: "mt-6 space-y-6" do |form| %>
   <%= accessible_error_summary(@person) %>
+  <% if @lost_roles.present? %>
+    <%= render "shared/self_demotion_warning", roles: @lost_roles %>
+    <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>
+  <% end %>
 
   <fieldset class="border border-rule bg-surface p-5">
     <legend class="px-2 font-display text-sm">あなたのこと</legend>
@@ -22,13 +26,15 @@
   <%= render "shared/alias_fields", form: form, display_attribute: :display_name, alias_class: PersonAlias %>
 
   <% if policy(@person).manage? %>
-    <%= render "people/administration_fields", form: form, person: @person %>
+    <%= render "people/administration_fields", form: form, person: @person,
+          selected_roles: @selected_roles, selected_group_ids: @selected_group_ids %>
   <% else %>
     <p class="text-xs text-muted"><%= Group.model_name.human %>の所属は管理者が設定します。</p>
   <% end %>
 
   <div class="flex gap-4">
-    <%= form.submit "保存", class: "cursor-pointer bg-ink px-6 py-2 text-sm text-paper" %>
+    <%= form.submit @lost_roles.present? ? t("people.self_demotion.continue") : "保存",
+          class: "cursor-pointer bg-ink px-6 py-2 text-sm text-paper" %>
     <%= link_to "詳細に戻る", person_path(@person), class: "self-center text-sm text-muted" %>
   </div>
 <% end %>
