@@ -12,6 +12,7 @@ class PersonPolicy < ApplicationPolicy
 
   # 自分を消せる相手がいないため、管理者が 0 人になる経路も生まれない。
   def destroy? = admin? && record != person
+  def offer_destroy? = admin?
 
   class Scope < ApplicationPolicy::Scope
     def resolve

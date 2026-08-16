@@ -16,7 +16,8 @@
         <%= link_to "編集", edit_manage_user_path(user), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
         <%= render "shared/delete_button", record: user, path: manage_user_path(user), label: "削除",
               aria_label: "#{user.email.presence || user.provider_name} を削除",
-              confirm: "#{user.email.presence || user.provider_name} を削除しますか" %>
+              confirm: "#{user.email.presence || user.provider_name} を削除しますか",
+              disabled_aria_label: "ログイン中の#{User.model_name.human}は削除できません" %>
       </span>
     </li>
   <% end %>

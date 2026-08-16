@@ -16,6 +16,10 @@ class ApplicationPolicy
   def edit? = update?
   def destroy? = false
 
+  # 削除の導線を出すかどうか。destroy? より広い相手に true を返すと、
+  # 押せない理由が読める無効なボタンとして出る。
+  def offer_destroy? = destroy?
+
   private
     def admin? = person&.admin?
     def gm? = person&.gm?

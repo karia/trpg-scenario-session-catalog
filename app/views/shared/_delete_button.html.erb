@@ -1,6 +1,10 @@
-<%# locals: (record:, path:, label:, confirm:, aria_label: nil, class_name: "min-h-6 px-1 text-muted", form_class: "inline") %>
+<%# locals: (record:, path:, label:, confirm:, aria_label: nil, disabled_label: nil, disabled_aria_label: nil, class_name: "min-h-6 px-1 text-muted", disabled_class_name: "min-h-6 px-1 text-muted opacity-60 cursor-not-allowed", form_class: "inline") %>
 <% if policy(record).destroy? %>
   <%= button_to label, path, method: :delete,
         form: { class: form_class, data: { turbo_confirm: confirm, turbo_frame: "_top" } },
         aria: { label: aria_label }, class: class_name %>
+<% elsif policy(record).offer_destroy? %>
+  <%= button_tag disabled_label || label, type: "button", disabled: true,
+        title: disabled_aria_label || disabled_label,
+        aria: { label: disabled_aria_label || disabled_label }, class: disabled_class_name %>
 <% end %>

@@ -346,23 +346,23 @@ RSpec.describe "People" do
 
     before { create(:person, roles: %w[admin], display_name: "もうひとりの管理者") }
 
-    it "asks for confirmation and keeps the person" do
+    # 権限を手放す確認ではなく、そもそも消せない。確認を通しても抜けられない。
+    it "is refused outright" do
       sign_in_as admin
 
       delete person_path(admin)
 
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(response.body).to include("管理者権限を失い")
+      expect(response).to have_http_status(:not_found)
       expect(Person.exists?(admin.id)).to be(true)
     end
 
-    it "goes through once the warning is acknowledged" do
+    it "stays refused even with the self demotion confirmation" do
       sign_in_as admin
 
       delete person_path(admin), params: { confirm_self_demotion: "admin" }
 
-      expect(response).to redirect_to(people_path)
-      expect(Person.exists?(admin.id)).to be(false)
+      expect(response).to have_http_status(:not_found)
+      expect(Person.exists?(admin.id)).to be(true)
     end
 
     it "does not warn when someone else is deleted" do

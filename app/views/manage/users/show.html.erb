@@ -8,7 +8,8 @@
       <%= render "shared/delete_button", record: @user, path: manage_user_path(@user),
             label: "この#{User.model_name.human}を削除",
             confirm: "#{@user.email.presence || @user.provider_name} を削除しますか",
-            class_name: "text-sm text-seal" %>
+            disabled_label: "ログイン中の#{User.model_name.human}は削除できません",
+            class_name: "text-sm text-seal", disabled_class_name: "text-sm text-muted cursor-not-allowed" %>
     </div>
   </div>
 

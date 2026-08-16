@@ -192,15 +192,24 @@ RSpec.describe "Deletions" do
       expect(response.body).to include("このセッションを削除")
     end
 
-    it "is present for an admin on another member and absent on themselves" do
+    it "is present for an admin on another member" do
+      sign_in_as create(:person, roles: %w[admin])
+
+      get person_path(create(:person))
+
+      expect(response.body).to include("このメンバーを削除")
+    end
+
+    # 導線ごと消すと、権限が無いのか自分だからなのかが読み手に伝わらない。
+    it "turns into a disabled button on an admin's own page" do
       admin = create(:person, roles: %w[admin])
       sign_in_as admin
 
-      get person_path(create(:person))
-      expect(response.body).to include("このメンバーを削除")
-
       get person_path(admin)
-      expect(response.body).not_to include("このメンバーを削除")
+
+      page = Capybara.string(response.body)
+      expect(page).to have_button("自分自身は削除できません", disabled: true)
+      expect(page).to have_no_button("このメンバーを削除")
     end
 
     it "is absent on a member for a GM" do
@@ -211,14 +220,22 @@ RSpec.describe "Deletions" do
       expect(response.body).not_to include("このメンバーを削除")
     end
 
-    it "is present for an admin on another account and absent on their own" do
-      own = sign_in_as create(:person, roles: %w[admin])
+    it "is present for an admin on another account" do
+      sign_in_as create(:person, roles: %w[admin])
 
       get manage_user_path(create(:user, person: nil))
+
       expect(response.body).to include("このアカウントを削除")
+    end
+
+    it "turns into a disabled button on the account an admin is signed in with" do
+      own = sign_in_as create(:person, roles: %w[admin])
 
       get manage_user_path(own)
-      expect(response.body).not_to include("このアカウントを削除")
+
+      page = Capybara.string(response.body)
+      expect(page).to have_button("ログイン中のアカウントは削除できません", disabled: true)
+      expect(page).to have_no_button("このアカウントを削除")
     end
 
     it "is present for an admin on a group" do
@@ -280,6 +297,7 @@ RSpec.describe "Deletions" do
       page = Capybara.string(response.body)
       expect(page).to have_button("ほかの人 を削除")
       expect(page).to have_no_button("管理者 を削除")
+      expect(page).to have_button("自分自身は削除できません", disabled: true)
     end
 
     # button_to は form を出す。form は開いている p を暗黙に閉じるため、
@@ -312,6 +330,7 @@ RSpec.describe "Deletions" do
       page = Capybara.string(response.body)
       expect(page).to have_button("other@example.com を削除")
       expect(page).to have_no_button("#{own.email} を削除")
+      expect(page).to have_button("ログイン中のアカウントは削除できません", disabled: true)
     end
   end
 end
