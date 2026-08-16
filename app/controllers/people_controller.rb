@@ -39,12 +39,8 @@ class PeopleController < ApplicationController
 
   def destroy
     authorize @person, :destroy?
-
-    @lost_roles = @person == current_person ? roles_lost_by([]) : []
-    return render :show, status: :unprocessable_content if @lost_roles.any?
-
-    @person.destroy!
-    redirect_to people_path, notice: "削除しました"
+    return redirect_to(people_path, notice: "#{@person.display_name} を削除しました") if @person.destroy
+    redirect_to people_path, alert: @person.errors.full_messages.join("、")
   end
 
   private

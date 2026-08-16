@@ -9,9 +9,8 @@
       <span class="flex gap-1 text-xs">
         <%= link_to "詳細", record_path.call(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
         <% if policy(item).update? %><%= link_to "編集", edit_path.call(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %><% end %>
-        <% if policy(item).destroy? %><%= button_to "削除", record_path.call(item), method: :delete,
-              form: { data: { turbo_confirm: "#{item.name} を削除しますか" } },
-              class: "min-h-6 px-1 text-muted" %><% end %>
+        <%= render "shared/delete_button", record: item, path: record_path.call(item), label: "削除",
+              aria_label: "#{item.name} を削除", confirm: "#{item.name} を削除しますか" %>
       </span>
     </li>
   <% end %>

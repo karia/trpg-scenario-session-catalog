@@ -21,24 +21,17 @@
       </p>
     </div>
 
-    <div class="flex gap-3">
+    <div class="flex flex-wrap items-baseline gap-3">
       <% if policy(@person).update? %>
         <%= link_to "編集", edit_person_path(@person), class: "text-sm text-seal" %>
       <% end %>
+      <%= render "shared/delete_button", record: @person, path: person_path(@person),
+            label: "この#{Person.model_name.human}を削除",
+            confirm: "#{@person.display_name} を削除しますか",
+            disabled_label: "自分自身は削除できません",
+            class_name: "text-sm text-seal", disabled_class_name: "text-sm text-muted cursor-not-allowed" %>
     </div>
   </div>
-
-  <% if @lost_roles.present? %>
-    <div class="mt-6">
-      <%= render "shared/self_demotion_warning", roles: @lost_roles %>
-      <div class="mt-4 flex gap-4">
-        <%= button_to t("people.self_demotion.continue"), person_path(@person), method: :delete,
-              params: { confirm_self_demotion: @lost_roles.join(",") },
-              class: "bg-seal px-5 py-2 text-sm text-paper" %>
-        <%= link_to t("people.self_demotion.cancel"), person_path(@person), class: "self-center text-sm text-muted" %>
-      </div>
-    </div>
-  <% end %>
 
   <% if @person.visible_aliases.any? %>
     <section class="mt-10">

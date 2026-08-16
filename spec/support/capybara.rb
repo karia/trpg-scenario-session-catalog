@@ -1,5 +1,8 @@
 require "capybara/rails"
 
+# 一覧の削除ボタンは見出しが「削除」だけになる。読み上げられる名前で引けるようにする。
+Capybara.enable_aria_label = true
+
 Capybara.register_driver :headless_chromium do |app|
   options = Selenium::WebDriver::Chrome::Options.new
   options.binary = ENV.fetch("CHROME_BINARY")

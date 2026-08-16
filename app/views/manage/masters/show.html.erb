@@ -3,9 +3,14 @@
 <article>
   <div class="flex flex-wrap items-baseline justify-between gap-4">
     <h1 class="font-display text-3xl"><%= @record.name %></h1>
-    <% if policy(@record).update? %>
-      <%= link_to "編集", url_for(action: :edit, id: @record), class: "text-sm text-seal" %>
-    <% end %>
+    <div class="flex flex-wrap items-baseline gap-4">
+      <% if policy(@record).update? %>
+        <%= link_to "編集", url_for(action: :edit, id: @record), class: "text-sm text-seal" %>
+      <% end %>
+      <%= render "shared/delete_button", record: @record, path: url_for(action: :show, id: @record),
+            label: "この#{@record.model_name.human}を削除",
+            confirm: "#{@record.name} を削除しますか", class_name: "text-sm text-seal" %>
+    </div>
   </div>
 
   <% if @record.visible_aliases.any? %>

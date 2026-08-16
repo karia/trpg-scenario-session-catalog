@@ -3,7 +3,12 @@
 <article>
   <div class="flex flex-wrap items-baseline justify-between gap-4">
     <h1 class="font-display text-3xl"><%= @record.name %></h1>
-    <%= link_to "編集", edit_manage_group_path(@record), class: "text-sm text-seal" %>
+    <div class="flex flex-wrap items-baseline gap-4">
+      <%= link_to "編集", edit_manage_group_path(@record), class: "text-sm text-seal" %>
+      <%= render "shared/delete_button", record: @record, path: manage_group_path(@record),
+            label: "この#{Group.model_name.human}を削除",
+            confirm: "#{@record.name} を削除しますか", class_name: "text-sm text-seal" %>
+    </div>
   </div>
 
   <dl class="mt-6 grid grid-cols-[10rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 text-sm">

@@ -17,6 +17,8 @@ class Person < ApplicationRecord
   has_many :owned_scenarios, through: :scenario_statuses, source: :scenario
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
+  # 参加記録が残る人は消させない。消すとセッションから参加者が抜け落ちる。
+  has_many :participations, dependent: :restrict_with_error
 
   validates :display_name, presence: true
   validates :icon,

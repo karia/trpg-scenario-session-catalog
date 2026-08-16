@@ -1,7 +1,7 @@
 module Manage
-  # Google アカウントと Person の紐づけだけを扱う。ユーザーの作成と削除はしない。
+  # アカウントと Person の紐づけを扱う。アカウントはログインで生まれるため、ここでは作らない。
   class UsersController < BaseController
-    before_action :set_user, only: %i[show edit update]
+    before_action :set_user, only: %i[show edit update destroy]
 
     def index
       authorize User
@@ -28,6 +28,12 @@ module Manage
       else
         render :edit, status: :unprocessable_content
       end
+    end
+
+    def destroy
+      authorize @user
+      @user.destroy!
+      redirect_to manage_users_path, notice: "#{User.model_name.human}を削除しました"
     end
 
     private
