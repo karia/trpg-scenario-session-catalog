@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Open book">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Open book and six-sided die">
   <rect width="512" height="512" rx="72" fill="#14161c"/>
   <path fill="#eceef2" d="M72 142c67-13 128 3 168 38v204c-43-29-99-41-168-29V142Z"/>
   <path fill="#eceef2" d="M440 142c-67-13-128 3-168 38v204c43-29 99-41 168-29V142Z"/>
