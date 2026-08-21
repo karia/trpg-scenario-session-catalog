@@ -1,3 +1,16 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Open book and six-sided die">
+  <rect width="512" height="512" rx="72" fill="#14161c"/>
+  <path fill="#eceef2" d="M72 142c67-13 128 3 168 38v204c-43-29-99-41-168-29V142Z"/>
+  <path fill="#eceef2" d="M440 142c-67-13-128 3-168 38v204c43-29 99-41 168-29V142Z"/>
+  <path fill="#fff" d="M96 124c62-4 112 13 144 48v184c-39-25-87-34-144-26V124Z"/>
+  <path fill="#fff" d="M416 124c-62-4-112 13-144 48v184c39-25 87-34 144-26V124Z"/>
+  <path fill="#b62b3e" d="m256 190 86 43-86 43-86-43 86-43Z"/>
+  <path fill="#93202f" d="m170 233 86 43v92l-86-43v-92Z"/>
+  <path fill="#681622" d="m342 233-86 43v92l86-43v-92Z"/>
+  <circle cx="256" cy="232" r="15" fill="#eceef2"/>
+  <circle cx="202" cy="271" r="14" fill="#eceef2"/>
+  <circle cx="230" cy="331" r="14" fill="#eceef2"/>
+  <circle cx="309" cy="270" r="14" fill="#eceef2"/>
+  <circle cx="283" cy="330" r="14" fill="#eceef2"/>
+  <circle cx="320" cy="310" r="14" fill="#eceef2"/>
 </svg>
