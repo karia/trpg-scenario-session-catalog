@@ -15,9 +15,11 @@ RSpec.describe "UI design tokens" do
   end
 
   it "provides sufficient contrast for strong outlines and semantic colors" do
-    expect(contrast("#718198", "#12161c")).to be >= 3
-    expect(contrast("#ff8a80", "#050608")).to be >= 4.5
-    expect(contrast("#ffb4ab", "#050608")).to be >= 4.5
+    expect(contrast(token("ui-outline-strong"), token("ui-surface-solid"))).to be >= 3
+    expect(contrast(token("ui-outline-strong"), token("ui-field-solid"))).to be >= 3
+    expect(contrast(token("ui-on-danger"), token("ui-danger"))).to be >= 4.5
+    expect(contrast(token("ui-error"), token("ui-surface-solid"))).to be >= 4.5
+    expect(contrast(token("ui-error"), token("ui-field-solid"))).to be >= 4.5
   end
 
   it "keeps stacking tokens outside Tailwind's theme namespaces" do
@@ -28,6 +30,10 @@ RSpec.describe "UI design tokens" do
   end
 
   private
+    def token(name)
+      stylesheet.match(/--color-#{Regexp.escape(name)}:\s*(#[0-9a-f]{6});/i).captures.first
+    end
+
     def contrast(foreground, background)
       lighter, darker = [ luminance(foreground), luminance(background) ].sort.reverse
       (lighter + 0.05) / (darker + 0.05)
