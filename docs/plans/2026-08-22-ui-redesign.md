@@ -15,7 +15,7 @@
 | 6 | セッション一覧と詳細 | 1、2、4 | 日程、参加者、録画情報が画面幅で再配置される |
 | 7 | セッションの登録と編集 | 1、2 | 日程と参加者の繰り返し入力が狭い画面でも 1 列で操作できる |
 | 8 | 人物と利用登録 | 1、2 | 一覧、詳細、登録、編集がモバイルでも操作できる |
-| 9 | マスター管理 | 1、2、8 | 作者、ゲームシステム、グループの共通テンプレートが新デザインになる |
+| 9 | マスター管理 | 1、2、8 | 作者、ゲームシステム、グループの管理画面が新デザインになる |
 | 10 | ユーザーとサイト設定 | 1、2、8 | 管理画面の一覧、詳細、編集が新デザインになる |
 | 11 | 横断監査と旧資産の削除 | 3〜10 | 旧トークン、旧共有部品、未使用テンプレートが残っていない |
 
@@ -95,6 +95,7 @@
 
 - `app/views/manage/users/index.html.erb`、`show.html.erb`、`edit.html.erb`
 - `app/views/manage/site_settings/show.html.erb`、`edit.html.erb`
+
 `manage/users/edit.html.erb` は `shared/_self_demotion_warning` を使う。タスク 8 で追加した部品へ差し替える。
 
 ### 11. 横断監査と旧資産の削除
@@ -106,7 +107,7 @@
 - `app/views/manage/scenarios/index.html.erb`、`_scenarios.html.erb`、`new.html.erb`
 - `app/views/people/_alias_row.html.erb`
 
-最後の 4 つは今の時点で到達しない。
+後ろの 2 行に挙げた 4 ファイルは、今の時点で到達しない。
 `manage/scenarios` にはルートがなく、`people/_alias_row` は `shared/_alias_fields` が `shared/alias_row` を描画するため呼ばれない。
 `manage/groups/show.html.erb` と `edit.html.erb` は明示的な描画元こそ無いが、`Manage::GroupsController` が暗黙に描画するため残す。
 
