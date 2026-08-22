@@ -16,6 +16,7 @@ RSpec.describe "Browsing scenarios" do
     )
 
     visit root_path
+    expect(page).to be_axe_clean if ENV["CHROME_BINARY"].present?
     expect(page).to have_content("シナリオ一覧")
     expect(page).to have_no_content("★")
 
