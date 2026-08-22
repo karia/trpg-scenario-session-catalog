@@ -87,6 +87,7 @@ group :development do
 end
 
 group :test do
+  gem "axe-core-rspec"
   gem "capybara"
   gem "climate_control"
   gem "selenium-webdriver"

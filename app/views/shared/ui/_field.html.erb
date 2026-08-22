@@ -1,0 +1,19 @@
+<div class="space-y-2">
+  <%= form.label attribute, class: "block text-sm font-bold text-ui-text" do %>
+    <%= label %>
+    <% if required %>
+      <span class="text-ui-error" aria-hidden="true">*</span>
+      <span class="sr-only">必須</span>
+    <% end %>
+  <% end %>
+
+  <% if description.present? %>
+    <p id="<%= description_id %>" class="text-ui-caption text-ui-text-muted"><%= description %></p>
+  <% end %>
+
+  <%= input %>
+
+  <% if error_messages.any? %>
+    <p id="<%= error_id %>" class="text-ui-caption text-ui-error"><%= error_messages.join("、") %></p>
+  <% end %>
+</div>

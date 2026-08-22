@@ -24,14 +24,50 @@
   --color-muted: #5c6472;
   --color-rule: #ccd1d9;
 
+  --color-ui-background: #050608;
+  --color-ui-surface-solid: #12161c;
+  --color-ui-surface: #12161ccc;
+  --color-ui-field-solid: #090c10;
+  --color-ui-field: #090c10cc;
+  --color-ui-subtle: #1a2029;
+  --color-ui-outline: #35404e;
+  --color-ui-outline-strong: #718198;
+  --color-ui-text: #f4f7fb;
+  --color-ui-text-muted: #a5afbd;
+  --color-ui-action: #c7ddf7;
+  --color-ui-action-hover: #dbeaff;
+  --color-ui-action-active: #aec9e8;
+  --color-ui-on-action: #07101a;
+  --color-ui-accent: #9284ff;
+  --color-ui-on-accent: #080612;
+  --color-ui-focus: #a9ceff;
+  --color-ui-danger: #ff8a80;
+  --color-ui-on-danger: #07101a;
+  --color-ui-error: #ffb4ab;
+
+  --radius-ui-surface: 1.875rem;
+  --radius-ui-card: 1.625rem;
+  --radius-ui-control: 0.875rem;
+  --text-ui-caption: 0.8125rem;
+  --text-ui-caption--line-height: 1.25rem;
+  --blur-ui-surface: 20px;
+  --blur-ui-header: 18px;
+  --shadow-ui-surface: 0 1.5rem 4rem rgb(0 0 0 / 35%);
+
   --font-display: "BIZ UDPGothic", sans-serif;
   --font-sans: "BIZ UDPGothic", sans-serif;
   --font-mono: "BIZ UDPGothic", sans-serif;
 }
 
+:root {
+  --z-ui-header: 30;
+  --z-ui-overlay: 40;
+  --z-ui-toast: 50;
+}
+
 @layer base {
   html {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   body {
@@ -46,7 +82,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-seal);
+    outline: 2px solid var(--color-ui-focus);
     outline-offset: 2px;
   }
 }
