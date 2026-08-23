@@ -1,6 +1,6 @@
 module ApplicationHelper
   YOUTUBE_VIDEO_ID = /\A[\w-]{11}\z/
-  # ASCII 限定は意図的。非 ASCII を許すと、URL の直後に空白なしで続く地の文を取り込んで 404 を作る。
+  # 非 ASCII を許すと URL 直後の地の文を取り込むため ASCII 限定。代償として非 ASCII を含む URL は途中で切れる。
   HTTP_URL = URI::DEFAULT_PARSER.make_regexp(%w[http https])
 
   def accessible_error_summary(record)
