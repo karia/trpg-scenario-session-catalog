@@ -1,76 +1,78 @@
 <% content_for :title, "#{@play_session.scenario.title}の#{PlaySession.model_name.human}" %>
+<% content_for :ui_theme, "dark" %>
 
-<article>
-  <nav class="text-xs text-muted">
-    <%= link_to "#{PlaySession.model_name.human}一覧", play_sessions_path, class: "text-muted" %> ／
-    <%= @play_session.scenario.title %>
+<article class="space-y-10">
+  <nav class="text-ui-caption text-ui-text-muted" aria-label="パンくずリスト">
+    <%= link_to "#{PlaySession.model_name.human}一覧", play_sessions_path, class: "text-ui-action underline" %>
+    <span aria-hidden="true">／</span> <span aria-current="page"><%= @play_session.scenario.title %></span>
   </nav>
 
-  <div class="mt-6 flex flex-wrap items-baseline justify-between gap-4">
-    <h1 class="font-display text-3xl leading-tight tracking-wide">
-      <%= link_to @play_session.scenario.title, scenario_path(@play_session.scenario), class: "text-ink" %>
-    </h1>
-    <div class="flex flex-wrap items-baseline gap-4">
-      <% if policy(@play_session).update? %>
-        <%= link_to "編集", edit_play_session_path(@play_session), class: "text-sm text-seal" %>
-      <% end %>
-      <%= render "shared/delete_button", record: @play_session, path: play_session_path(@play_session),
-            label: "この#{PlaySession.model_name.human}を削除",
-            confirm: "#{@play_session.scenario.title} の#{PlaySession.model_name.human}を削除しますか",
-            class_name: "text-sm text-seal" %>
+  <header class="flex flex-wrap items-start justify-between gap-4">
+    <div class="min-w-0">
+      <%= render "shared/ui/page_header", title: @play_session.scenario.title %>
+      <p class="mt-2"><%= link_to "#{Scenario.model_name.human}詳細を見る", scenario_path(@play_session.scenario), class: "inline-flex min-h-11 items-center text-sm font-bold text-ui-action" %></p>
     </div>
-  </div>
+    <div class="flex flex-wrap gap-2">
+      <% if policy(@play_session).update? %><%= ui_button_link("編集", href: edit_play_session_path(@play_session), variant: :secondary, size: :small) %><% end %>
+      <% if policy(@play_session).destroy? %>
+        <%= form_with url: play_session_path(@play_session), method: :delete, data: { turbo_confirm: "#{@play_session.scenario.title} の#{PlaySession.model_name.human}を削除しますか" } do %>
+          <%= ui_button("この#{PlaySession.model_name.human}を削除", variant: :danger, size: :small, type: "submit") %>
+        <% end %>
+      <% end %>
+    </div>
+  </header>
 
-  <dl class="mt-6 grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 font-mono text-sm">
-    <dt class="text-muted">日時</dt>
-    <dd class="space-y-4">
+  <section aria-labelledby="schedule-heading">
+    <h2 id="schedule-heading" class="font-display text-xl font-bold">日時と録画</h2>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
       <% if @play_session.session_schedules.empty? %>
-        日程未定（<%= play_session_status_label(@play_session) %>）
+        <%= render "shared/ui/card" do %><p class="p-5 text-sm text-ui-text-muted">日程未定（<%= play_session_status_label(@play_session) %>）</p><% end %>
       <% end %>
       <% @play_session.session_schedules.each_with_index do |schedule, index| %>
-        <section data-session-schedule>
-          <p><%= play_session_schedule_time(schedule) %><%= "（#{play_session_status_label(@play_session)}）" if index == @play_session.session_schedules.size - 1 %></p>
-          <div class="mt-2 space-y-2 font-sans">
-            <% schedule.recording_links.each do |recording| %>
-              <%= render "shared/video_link", title: "録画", url: recording.url,
-                    link_text: recording.url, rel: "noopener", show_url: false %>
+        <%= render "shared/ui/card" do %>
+          <section class="p-5" data-session-schedule>
+            <p class="font-bold"><%= play_session_schedule_time(schedule) %></p>
+            <% if index == @play_session.session_schedules.size - 1 %><p class="mt-2"><%= render "shared/ui/badge", label: play_session_status_label(@play_session), variant: :accent %></p><% end %>
+            <% if schedule.recording_links.any? %>
+              <div class="mt-4 grid gap-4">
+                <% schedule.recording_links.each do |recording| %><%= render "shared/ui/video_link", title: "録画", url: recording.url, link_text: recording.url, rel: "noopener", show_url: false %><% end %>
+              </div>
             <% end %>
-          </div>
-        </section>
+          </section>
+        <% end %>
       <% end %>
-    </dd>
+    </div>
     <% if @play_session.cocofolia_url.present? && policy(@play_session).show_cocofolia_url? %>
-      <dt class="text-muted">ココフォリア</dt>
-      <dd class="font-sans">
-        <%= link_to @play_session.cocofolia_url, @play_session.cocofolia_url,
-              target: "_blank", rel: "noopener", class: "text-seal" %>
-      </dd>
+      <div class="mt-4 rounded-ui-control border border-ui-outline bg-ui-surface-solid p-4">
+        <p class="text-sm font-bold text-ui-text-muted">ココフォリア</p>
+        <%= link_to @play_session.cocofolia_url, @play_session.cocofolia_url, target: "_blank", rel: "noopener", class: "mt-1 block text-sm text-ui-action" %>
+      </div>
     <% end %>
-  </dl>
+  </section>
 
-  <section class="mt-10">
-    <h2 class="font-display text-xl">参加者</h2>
-    <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
-      <% @play_session.participations.each do |participation| %>
-        <li class="flex flex-wrap items-baseline gap-x-4 gap-y-1 p-3">
-          <span class="w-24 shrink-0 font-mono text-xs text-muted"><%= participation_role_label(participation) %></span>
-          <span class="font-display"><%= participation.person.display_name %></span>
-          <% if participation.character_name.present? %>
-            <span class="text-muted"><%= participation.character_name %></span>
-          <% end %>
-          <% if participation.character_sheet_url.present? %>
-            <%= link_to participation.character_sheet_url, participation.character_sheet_url,
-                  target: "_blank", rel: "noopener", class: "ml-auto text-xs text-seal" %>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
+  <section aria-labelledby="participants-heading">
+    <h2 id="participants-heading" class="font-display text-xl font-bold">参加者</h2>
+    <% if @play_session.participations.any? %>
+      <ul class="mt-4 grid gap-3 md:grid-cols-2">
+        <% @play_session.participations.each do |participation| %>
+          <li><%= render "shared/ui/card" do %>
+            <div class="grid gap-2 p-4 sm:grid-cols-[6rem_minmax(0,1fr)]">
+              <span class="text-ui-caption font-bold text-ui-text-muted"><%= participation_role_label(participation) %></span>
+              <div class="min-w-0">
+                <p class="font-bold"><%= participation.person.display_name %></p>
+                <% if participation.character_name.present? %><p class="mt-1 text-sm text-ui-text-muted"><%= participation.character_name %></p><% end %>
+                <% if participation.character_sheet_url.present? %><%= link_to participation.character_sheet_url, participation.character_sheet_url, target: "_blank", rel: "noopener", class: "mt-2 block text-ui-caption text-ui-action" %><% end %>
+              </div>
+            </div>
+          <% end %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="mt-4"><%= render "shared/ui/empty_state", title: "参加者はまだ登録されていません。" %></div>
+    <% end %>
   </section>
 
   <% if @play_session.note.present? %>
-    <section class="mt-10">
-      <h2 class="font-display text-xl">メモ</h2>
-      <p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@play_session.note) %></p>
-    </section>
+    <section aria-labelledby="note-heading"><h2 id="note-heading" class="font-display text-xl font-bold">メモ</h2><p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@play_session.note) %></p></section>
   <% end %>
 </article>

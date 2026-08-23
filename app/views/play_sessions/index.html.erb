@@ -1,35 +1,22 @@
 <% content_for :title, "#{PlaySession.model_name.human}一覧" %>
+<% content_for :ui_theme, "dark" %>
 
-<h1 class="font-display text-3xl tracking-wide">
-  <%= PlaySession.model_name.human %>一覧<span class="ml-2 text-base text-muted">（全<%= @play_sessions.size %>件）</span>
-</h1>
-<% if policy(PlaySession).create? %><p class="mt-4"><%= link_to "新規登録", new_play_session_path, class: "text-sm text-seal" %></p><% end %>
+<div class="space-y-6">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <%= render "shared/ui/page_header", title: safe_join([
+        "#{PlaySession.model_name.human}一覧",
+        tag.span("（全#{@play_sessions.size}件）", class: "ml-2 text-base font-normal text-ui-text-muted")
+      ]) %>
+    </div>
+    <% if policy(PlaySession).create? %><%= ui_button_link("新規登録", href: new_play_session_path) %><% end %>
+  </div>
 
-<ul class="mt-8 divide-y divide-rule border border-rule bg-surface">
-  <% @play_sessions.each do |session| %>
-    <li>
-      <%= link_to play_session_path(session), class: "flex flex-wrap items-baseline gap-x-4 gap-y-1 p-4 no-underline text-ink hover:bg-paper" do %>
-        <span class="font-mono text-xs text-muted"><%= play_session_schedule(session) %>（<%= play_session_status_label(session) %>）</span>
-        <span class="font-display text-lg"><%= session.scenario.title %></span>
-        <span class="ml-auto text-xs text-muted">
-          <%= session.participations.map { |p| "#{participation_role_label(p)}: #{p.person.display_name}" }.join("、") %>
-        </span>
-      <% end %>
-      <% if policy(session).update? || policy(session).destroy? %>
-        <div class="flex flex-wrap items-center justify-end gap-3 px-4 pb-3 text-xs">
-          <% if policy(session).update? %><%= link_to "編集", edit_play_session_path(session), class: "text-seal" %><% end %>
-          <%= render "shared/delete_button", record: session, path: play_session_path(session), label: "削除",
-                aria_label: "#{session.scenario.title} の#{PlaySession.model_name.human}を削除",
-                confirm: "#{session.scenario.title} の#{PlaySession.model_name.human}を削除しますか",
-                class_name: "min-h-6 text-muted" %>
-        </div>
-      <% end %>
-    </li>
+  <% if @play_sessions.any? %>
+    <ul class="grid gap-4 md:grid-cols-2">
+      <% @play_sessions.each do |play_session| %><li><%= render "shared/ui/play_session_card", play_session: %></li><% end %>
+    </ul>
+  <% else %>
+    <%= render "shared/ui/empty_state", title: "見られる#{PlaySession.model_name.human}がまだありません。" %>
   <% end %>
-</ul>
-
-<% if @play_sessions.empty? %>
-  <p class="mt-8 border border-rule bg-surface p-8 text-center text-sm text-muted">
-    見られる<%= PlaySession.model_name.human %>がまだありません。
-  </p>
-<% end %>
+</div>
