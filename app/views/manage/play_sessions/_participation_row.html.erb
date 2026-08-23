@@ -1,20 +1,18 @@
-<fieldset class="border border-rule bg-paper p-3">
-  <legend class="px-1 text-sm font-bold">参加者 <%= row.index.to_i + 1 %></legend>
-<div class="grid gap-2 sm:grid-cols-[12rem_8rem_1fr_1fr_auto]">
-  <div><%= row.label :person_id, "名前", class: "block text-xs text-muted" %>
-  <%= row.collection_select :person_id, people_for_select, :id, :display_name,
-        { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
-  <div><%= row.label :role, "役割", class: "block text-xs text-muted" %>
-  <%= row.select :role, Participation.roles.keys.map { |k| [ participation_role_label(row.object, role: k), k ] },
-        { include_blank: "選択してください" }, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm",
-        data: { participation_roles_target: "role" } %></div>
-  <div><%= row.label :character_name, "キャラクター名", class: "block text-xs text-muted" %>
-  <%= row.text_field :character_name, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
-  <div><%= row.label :character_sheet_url, "キャラクターシートURL", class: "block text-xs text-muted" %>
-  <%= row.url_field :character_sheet_url, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %></div>
-  <label class="inline-flex min-h-6 items-center gap-1 self-end text-xs text-muted">
-    <%= row.check_box :_destroy %> 外す
-  </label>
-  <%= row.hidden_field :id if row.object.persisted? %>
-</div>
+<fieldset class="rounded-ui-control border border-ui-outline p-4">
+  <legend class="px-2 text-sm font-bold text-ui-text">参加者 <%= row.index.to_i + 1 %></legend>
+  <div class="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(10rem,1fr)_minmax(8rem,0.7fr)_minmax(10rem,1fr)_minmax(14rem,1.3fr)_auto] xl:items-end">
+    <%= ui_field(row, :person_id, label: "名前") do |field| %>
+      <%= ui_select(row, :person_id, people_for_select.map { |person| [ person.display_name, person.id ] },
+            include_blank: "選択してください", described_by: field[:described_by]) %>
+    <% end %>
+    <%= ui_field(row, :role, label: "役割") do |field| %>
+      <%= ui_select(row, :role, Participation.roles.keys.map { |role| [ participation_role_label(row.object, role:), role ] },
+            include_blank: "選択してください", described_by: field[:described_by],
+            data: { participation_roles_target: "role" }) %>
+    <% end %>
+    <%= ui_field(row, :character_name, label: "キャラクター名") do |field| %><%= ui_input(row, :character_name, described_by: field[:described_by]) %><% end %>
+    <%= ui_field(row, :character_sheet_url, label: "キャラクターシートURL") do |field| %><%= ui_input(row, :character_sheet_url, type: :url, described_by: field[:described_by]) %><% end %>
+    <%= ui_checkbox(row, :_destroy, label: "外す") %>
+    <%= row.hidden_field :id if row.object.persisted? %>
+  </div>
 </fieldset>

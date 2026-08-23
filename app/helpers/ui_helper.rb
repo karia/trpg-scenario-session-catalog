@@ -15,7 +15,9 @@ module UiHelper
     search: :search_field,
     telephone: :telephone_field,
     url: :url_field,
-    number: :number_field
+    number: :number_field,
+    date: :date_field,
+    time: :time_field
   }.freeze
 
   CONTROL_CLASSES = "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text placeholder:text-ui-text-muted focus:border-ui-focus focus:outline-none focus:ring-2 focus:ring-ui-focus/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-ui-error aria-invalid:ring-1 aria-invalid:ring-ui-error".freeze
@@ -130,8 +132,10 @@ module UiHelper
     render "shared/ui/error_summary", record:
   end
 
-  def ui_repeatable_fields(form, association:, legend:, hint:, row_partial:, new_record:, add_label: "行を足す")
-    render "shared/ui/repeatable_fields", form:, association:, legend:, hint:, row_partial:, new_record:, add_label:
+  def ui_repeatable_fields(form, association:, legend:, hint:, row_partial:, new_record:, add_label: "行を足す",
+    row_local: :link, token: "NEW_RECORD")
+    render "shared/ui/repeatable_fields", form:, association:, legend:, hint:, row_partial:, new_record:, add_label:,
+      row_local:, token:
   end
 
   private

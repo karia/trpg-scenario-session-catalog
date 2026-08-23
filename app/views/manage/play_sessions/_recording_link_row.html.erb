@@ -1,10 +1,5 @@
-<fieldset class="flex flex-wrap items-end gap-3">
+<fieldset class="grid min-w-0 gap-4 rounded-ui-control border border-ui-outline p-4 md:grid-cols-[minmax(12rem,1fr)_auto] md:items-end">
   <legend class="sr-only">録画リンク <%= recording_form.index.to_i + 1 %></legend>
-  <div class="min-w-64 grow">
-  <%= recording_form.label :url, "録画URL", class: "block text-xs text-muted" %>
-  <%= recording_form.url_field :url, class: "mt-1 w-full border border-rule bg-surface px-3 py-2 text-sm" %>
-  </div>
-  <% if recording_form.object.persisted? %>
-    <label class="text-xs text-muted"><%= recording_form.check_box :_destroy %> 削除</label>
-  <% end %>
+  <%= ui_field(recording_form, :url, label: "録画URL", required: true) do |field| %><%= ui_input(recording_form, :url, type: :url, required: true, described_by: field[:described_by]) %><% end %>
+  <% if recording_form.object.persisted? %><%= ui_checkbox(recording_form, :_destroy, label: "削除") %><% end %>
 </fieldset>
