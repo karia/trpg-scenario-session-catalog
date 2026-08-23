@@ -1,10 +1,10 @@
 <% content_for :title, "#{Scenario.model_name.human}の並び順" %>
-<h1 class="font-display text-2xl"><%= Scenario.model_name.human %>の並び順</h1>
-<p class="mt-2 text-sm text-muted">行をドラッグするか↑↓を押すと保存されます。この並びが「GMのおすすめ順」になります。</p>
-<div class="mt-6 overflow-x-auto" role="region" aria-label="<%= Scenario.model_name.human %>の並び順と操作" tabindex="0">
-  <table class="w-full min-w-3xl border border-rule bg-surface text-sm">
-    <thead><tr><th scope="col" class="p-3">並び順</th><th scope="col" class="p-3"><%= Scenario.model_name.human %></th><th scope="col" class="p-3">操作</th></tr></thead>
+<% content_for :ui_theme, "dark" %>
+<div class="space-y-6">
+  <%= render "shared/ui/page_header", title: "#{Scenario.model_name.human}の並び順" %>
+  <p class="max-w-3xl text-sm text-ui-text-muted">カードをドラッグするか、上へ・下へボタンを押すと保存されます。この並びが「GMのおすすめ順」になります。</p>
+  <section aria-label="<%= Scenario.model_name.human %>の並び順と操作">
     <%= render "scenario_order/scenarios", scenarios: @scenarios %>
-  </table>
+  </section>
 </div>
-<div class="fixed right-6 bottom-6" role="status" aria-live="polite" data-controller="toast" data-action="sortable:saved@window->toast#show"></div>
+<div class="fixed right-4 bottom-4 z-[var(--z-ui-toast)] sm:right-6 sm:bottom-6" role="status" aria-live="polite" data-controller="toast" data-action="sortable:saved@window->toast#show"></div>

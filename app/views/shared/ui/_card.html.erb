@@ -1,0 +1,7 @@
+<% variants = {
+  default: "rounded-ui-card border border-ui-outline bg-ui-surface-solid supports-[backdrop-filter:blur(1px)]:bg-ui-surface supports-[backdrop-filter:blur(1px)]:backdrop-blur-ui-surface",
+  interactive: "rounded-ui-card border border-ui-outline bg-ui-surface-solid transition-colors hover:border-ui-outline-strong supports-[backdrop-filter:blur(1px)]:bg-ui-surface supports-[backdrop-filter:blur(1px)]:backdrop-blur-ui-surface"
+} %>
+<%= tag.div id: local_assigns[:id], data: local_assigns.fetch(:data, {}), class: variants.fetch(local_assigns.fetch(:variant, :default)) do %>
+  <%= yield %>
+<% end %>

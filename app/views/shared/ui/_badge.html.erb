@@ -1,0 +1,2 @@
+<% variants = { neutral: "border-ui-outline-strong bg-ui-subtle text-ui-text", accent: "border-ui-accent bg-ui-accent/15 text-ui-text" } %>
+<span class="inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-ui-caption font-bold <%= variants.fetch(local_assigns.fetch(:variant, :neutral)) %>"><%= label %></span>

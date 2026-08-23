@@ -20,15 +20,15 @@ RSpec.describe "Accessibility" do
     )
   end
 
-  it "makes the scenario management table reflow and names every column" do
+  it "makes scenario ordering a named card list with labelled controls" do
     sign_in_as create(:person, roles: %w[gm])
     create(:scenario)
 
     get scenario_order_index_path
 
     page = Capybara.string(response.body)
-    expect(page).to have_css('[role="region"][aria-label="シナリオの並び順と操作"][tabindex="0"] table')
-    expect(page).to have_css('th[scope="col"]', text: "操作")
+    expect(page).to have_css('section[aria-label="シナリオの並び順と操作"] #scenario_order')
+    expect(page).to have_css('button[aria-label$="を1つ上へ"]')
   end
 
   it "keeps labels visible for repeated session fields" do

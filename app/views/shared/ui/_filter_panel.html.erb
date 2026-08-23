@@ -1,0 +1,6 @@
+<details class="group rounded-ui-surface border border-ui-outline bg-ui-surface-solid supports-[backdrop-filter:blur(1px)]:bg-ui-surface supports-[backdrop-filter:blur(1px)]:backdrop-blur-ui-surface">
+  <summary class="flex min-h-11 cursor-pointer items-center justify-between px-4 py-3 text-sm font-bold text-ui-text marker:content-none">
+    <%= title %><span aria-hidden="true" class="text-ui-text-muted group-open:rotate-180">⌄</span>
+  </summary>
+  <div class="hidden space-y-5 border-t border-ui-outline px-4 py-5 group-open:block md:px-6"><%= yield %></div>
+</details>

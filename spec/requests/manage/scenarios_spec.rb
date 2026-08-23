@@ -128,7 +128,7 @@ RSpec.describe "Manage::Scenarios" do
         authorized_get scenario_order_index_path
 
         page = Capybara.string(response.body)
-        expect(page).to have_css(%(tr[data-sortable-target="row"][data-sortable-id-param="#{scenario.id}"]))
+        expect(page).to have_css(%([data-sortable-target="row"][data-sortable-id-param="#{scenario.id}"]))
         expect(page).to have_css(".sortable-handle")
         expect(page).to have_no_css("[draggable], [data-action*='dragstart']")
       end
