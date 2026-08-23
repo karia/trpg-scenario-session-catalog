@@ -19,7 +19,7 @@ RSpec.describe "Responsive user and site-setting screens" do
       page.current_window.resize_to(width, 900)
       paths.each do |path|
         visit path
-        expect(page).to have_css('main[data-ui-theme="dark"]')
+        expect(page).to have_css("body.bg-ui-background.text-ui-text")
         expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
         expect(page).to be_axe_clean
       end

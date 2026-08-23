@@ -9,7 +9,6 @@ RSpec.describe "Accessibility" do
     expect(page).to have_css('nav[aria-label="主要"]')
     expect(page).to have_css('main#main-content[tabindex="-1"]')
     expect(page).to have_css("body.bg-ui-background.text-ui-text")
-    expect(page).to have_css("main[data-ui-theme]")
   end
 
 
@@ -68,14 +67,5 @@ RSpec.describe "Accessibility" do
     page = Capybara.string(response.body)
     expect(page).to have_css('a[data-error-attribute="purchase_links.url"]')
     expect(page).to have_css('[id$="_url_error"][data-error-attribute="url"]', visible: :all)
-  end
-
-  it "renders form-wide errors without a dead field link" do
-    record = build(:play_session)
-    record.errors.add(:base, "同じ人を複数の行に指定できません")
-
-    summary = Capybara.string(ApplicationController.helpers.accessible_error_summary(record))
-    expect(summary).to have_text("同じ人を複数の行に指定できません")
-    expect(summary).to have_no_link
   end
 end

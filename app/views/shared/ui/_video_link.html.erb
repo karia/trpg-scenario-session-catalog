@@ -6,9 +6,9 @@
   </div>
 <% else %>
   <div class="grid gap-1">
-    <%= link_to link_text, url, target: "_blank", rel:, class: "font-bold text-ui-action" %>
+    <%= link_to link_text, url, target: "_blank", rel:, class: "inline-flex min-h-11 justify-self-start items-center font-bold text-ui-action" %>
     <% if show_url %>
-      <%= link_to url, url, target: "_blank", rel:, class: "text-ui-caption text-ui-text-muted" %>
+      <%= link_to url, url, target: "_blank", rel:, class: "inline-flex min-h-11 justify-self-start items-center text-ui-caption text-ui-text-muted" %>
     <% end %>
   </div>
 <% end %>

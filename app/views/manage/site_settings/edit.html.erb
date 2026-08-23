@@ -1,10 +1,9 @@
 <% content_for :title, SiteSetting.model_name.human %>
-<% content_for :ui_theme, "dark" %>
 
 <div class="space-y-6">
   <%= render "shared/ui/page_header", title: SiteSetting.model_name.human %>
   <%= form_with model: @site_setting, url: manage_site_setting_path, method: :patch, class: "space-y-6" do |form| %>
-    <%= accessible_error_summary(@site_setting) %>
+    <%= ui_error_summary(@site_setting) %>
     <div class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
       <%= ui_field(form, :google_analytics_measurement_id, label: "Google Analytics 測定 ID", description: "未入力にすると Google Analytics を無効にします。") do |field| %><%= ui_input(form, :google_analytics_measurement_id, described_by: field[:described_by], placeholder: "G-XXXXXXXXXX", autocomplete: "off") %><% end %>
     </div>

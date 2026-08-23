@@ -1,5 +1,5 @@
 <%= form_with model: person, class: "space-y-6" do |form| %>
-  <%= accessible_error_summary(person) %>
+  <%= ui_error_summary(person) %>
   <section class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
     <div class="grid gap-5 sm:grid-cols-2">
       <%= ui_field(form, :display_name, label: "表示名", required: true) do |field| %><%= ui_input(form, :display_name, described_by: field[:described_by], required: true) %><% end %>

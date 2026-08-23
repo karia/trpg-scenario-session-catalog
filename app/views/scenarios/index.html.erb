@@ -1,6 +1,5 @@
 <% list_title = @owner ? "#{@owner.display_name}が所持するTRPG#{Scenario.model_name.human}一覧" : "#{Scenario.model_name.human}一覧" %>
 <% content_for :title, list_title %>
-<% content_for :ui_theme, "dark" %>
 
 <%= turbo_frame_tag "scenario_list", data: { turbo_action: "advance" } do %>
   <div class="space-y-6">
@@ -8,14 +7,16 @@
       <div class="space-y-3">
         <%= render "shared/ui/page_header", title: list_title %>
         <p class="text-sm text-ui-text-muted" role="status">全<%= @scenarios.size %>件</p>
-        <% if policy(Scenario).create? %><%= link_to "新規登録", new_scenario_path, data: { turbo_frame: "_top" }, class: "inline-flex min-h-11 items-center font-bold text-ui-action" %><% end %>
       </div>
-      <nav class="flex rounded-ui-control border border-ui-outline-strong bg-ui-field-solid p-1 text-sm" aria-label="表示の切り替え">
-        <% [ [ "table", "表形式" ], [ "gallery", "ジャケット" ] ].each do |view, label| %>
-          <%= link_to label, root_path(@listing.params(view:)), aria: { current: ("page" if @listing.view == view) },
-                class: "inline-flex min-h-11 items-center rounded-[0.65rem] px-3 font-bold no-underline #{@listing.view == view ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" %>
-        <% end %>
-      </nav>
+      <div class="flex flex-wrap items-center gap-3">
+        <% if policy(Scenario).create? %><%= ui_button_link("新規登録", href: new_scenario_path, data: { turbo_frame: "_top" }) %><% end %>
+        <nav class="flex rounded-ui-control border border-ui-outline-strong bg-ui-field-solid p-1 text-sm" aria-label="表示の切り替え">
+          <% [ [ "table", "表形式" ], [ "gallery", "ジャケット" ] ].each do |view, label| %>
+            <%= link_to label, root_path(@listing.params(view:)), aria: { current: ("page" if @listing.view == view) },
+                  class: "inline-flex min-h-11 items-center rounded-[0.65rem] px-3 font-bold no-underline #{@listing.view == view ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" %>
+          <% end %>
+        </nav>
+      </div>
     </div>
 
     <%= render "shared/ui/filter_panel", title: "絞り込み#{'（適用中）' if @listing.filtered?}" do %>

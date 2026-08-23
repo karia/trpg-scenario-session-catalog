@@ -25,7 +25,7 @@ RSpec.describe "Responsive play session forms" do
       [ 320, 768, 1280 ].each do |width|
         page.current_window.resize_to(width, 1000)
         visit path
-        expect(page).to have_css('main[data-ui-theme="dark"]')
+        expect(page).to have_css("body.bg-ui-background.text-ui-text")
         expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
         expect(page).to be_axe_clean
         expect(all('[data-nested-form-target="anchor"]', visible: :all).length).to be >= 3 if path == edit_play_session_path(play_session)

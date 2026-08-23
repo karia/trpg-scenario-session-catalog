@@ -3,25 +3,6 @@ module ApplicationHelper
   # 非 ASCII を許すと URL 直後の地の文を取り込むため ASCII 限定。代償として非 ASCII を含む URL は途中で切れる。
   HTTP_URL = URI::DEFAULT_PARSER.make_regexp(%w[http https])
 
-  def accessible_error_summary(record)
-    return unless record.errors.any?
-
-    content_tag(:div, class: "border border-seal bg-surface p-4 text-sm text-seal", role: "alert",
-      tabindex: "-1", data: { controller: "error-summary" }) do
-      safe_join([
-        content_tag(:h2, "入力内容を確認してください", class: "font-bold"),
-        content_tag(:ul, class: "mt-2 list-disc pl-5") do
-          safe_join(record.errors.map do |error|
-            message = error.full_message
-            next content_tag(:li, message) if error.attribute == :base
-
-            content_tag(:li, link_to(message, "#", class: "underline", data: { error_attribute: error.attribute }))
-          end)
-        end
-      ])
-    end
-  end
-
   def auto_link_urls(text)
     cursor = 0
     fragments = text.to_s.to_enum(:scan, HTTP_URL).map do

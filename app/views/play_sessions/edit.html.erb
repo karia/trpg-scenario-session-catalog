@@ -1,4 +1,3 @@
 <% content_for :title, "#{PlaySession.model_name.human}の編集" %>
-<% content_for :ui_theme, "dark" %>
 <%= render "shared/ui/page_header", title: "#{PlaySession.model_name.human}の編集" %>
 <%= render "manage/play_sessions/form", play_session: @play_session %>

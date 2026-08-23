@@ -1,10 +1,9 @@
 <% content_for :title, "#{@record.name} の編集" %>
-<% content_for :ui_theme, "dark" %>
 
 <div class="space-y-6">
   <%= render "shared/ui/page_header", title: "#{@record.name} の編集" %>
   <%= form_with model: @record, class: "space-y-6" do |form| %>
-    <%= accessible_error_summary(@record) %>
+    <%= ui_error_summary(@record) %>
     <%= render "shared/ui/alias_fields", form:, display_attribute: :name, alias_class: @record.class.reflect_on_association(:aliases).klass %>
 
     <% if @record.is_a?(GameSystem) %>

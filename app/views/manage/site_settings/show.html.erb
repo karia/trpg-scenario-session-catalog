@@ -1,5 +1,4 @@
 <% content_for :title, SiteSetting.model_name.human %>
-<% content_for :ui_theme, "dark" %>
 
 <article class="space-y-6">
   <div class="flex flex-wrap items-end justify-between gap-4"><%= render "shared/ui/page_header", title: SiteSetting.model_name.human %><%= ui_button_link("編集", href: edit_manage_site_setting_path, variant: :secondary) %></div>

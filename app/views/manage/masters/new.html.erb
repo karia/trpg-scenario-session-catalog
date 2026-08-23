@@ -1,9 +1,8 @@
 <% content_for :title, "#{@record.model_name.human}の新規登録" %>
-<% content_for :ui_theme, "dark" %>
 <div class="space-y-6">
   <%= render "shared/ui/page_header", title: "#{@record.model_name.human}の新規登録" %>
   <%= form_with model: @record, class: "space-y-6" do |form| %>
-    <%= accessible_error_summary(@record) %>
+    <%= ui_error_summary(@record) %>
     <%= render "shared/ui/card" do %><div class="p-5 sm:p-6"><%= ui_field(form, :name, label: "名前", required: true) do |field| %><%= ui_input(form, :name, described_by: field[:described_by], required: true) %><% end %></div><% end %>
     <div class="flex flex-wrap gap-3"><%= ui_button("登録", type: "submit") %><%= ui_button_link("一覧に戻る", href: polymorphic_path(@record.class), variant: :secondary) %></div>
   <% end %>

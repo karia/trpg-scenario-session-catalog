@@ -17,13 +17,6 @@
 }
 
 @theme {
-  --color-ink: #14161c;
-  --color-paper: #eceef2;
-  --color-surface: #ffffff;
-  --color-seal: #93202f;
-  --color-muted: #5c6472;
-  --color-rule: #ccd1d9;
-
   --color-ui-background: #050608;
   --color-ui-surface-solid: #12161c;
   --color-ui-surface: #12161ccc;
@@ -71,8 +64,8 @@
   }
 
   body {
-    background-color: var(--color-paper);
-    color: var(--color-ink);
+    background-color: var(--color-ui-background);
+    color: var(--color-ui-text);
     font-family: var(--font-sans);
   }
 
@@ -85,10 +78,4 @@
     outline: 2px solid var(--color-ui-focus);
     outline-offset: 2px;
   }
-}
-
-/* 伏せられた領域。準備情報とセッション履歴に使う。 */
-@utility redacted {
-  background-color: var(--color-ink);
-  color: var(--color-paper);
 }

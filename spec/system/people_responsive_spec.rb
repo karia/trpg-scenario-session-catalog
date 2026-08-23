@@ -28,7 +28,7 @@ RSpec.describe "Responsive people and registration screens" do
       page.current_window.resize_to(width, 900)
       [ people_path, person_path(person), new_person_path, edit_person_path(person) ].each do |path|
         visit path
-        expect(page).to have_css('main[data-ui-theme="dark"]')
+        expect(page).to have_css("body.bg-ui-background.text-ui-text")
         expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
         expect(page).to be_axe_clean
       end

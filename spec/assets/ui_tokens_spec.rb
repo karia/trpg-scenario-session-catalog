@@ -3,15 +3,14 @@ require "rails_helper"
 RSpec.describe "UI design tokens" do
   let(:stylesheet) { Rails.root.join("app/assets/tailwind/application.css").read }
 
-  it "keeps the legacy colors unchanged during migration" do
-    expect(stylesheet).to include(
-      "--color-ink: #14161c;",
-      "--color-paper: #eceef2;",
-      "--color-surface: #ffffff;",
-      "--color-seal: #93202f;",
-      "--color-muted: #5c6472;",
-      "--color-rule: #ccd1d9;"
-    )
+  it "no longer carries the colors of the light design" do
+    expect(stylesheet).not_to match(/--color-(ink|paper|surface|seal|muted|rule):/)
+  end
+
+  it "paints the dark ground in the base layer so no render path falls back to light" do
+    base = stylesheet[/@layer base \{.*?^\}/m]
+
+    expect(base).to include("background-color: var(--color-ui-background);", "color: var(--color-ui-text);")
   end
 
   it "provides sufficient contrast for strong outlines and semantic colors" do

@@ -26,7 +26,7 @@ RSpec.describe "Responsive play session screens" do
       page.current_window.resize_to(width, 900)
       { list: play_sessions_path, detail: play_session_path(play_session) }.each do |screen, path|
         visit path
-        expect(page).to have_css('main[data-ui-theme="dark"]')
+        expect(page).to have_css("body.bg-ui-background.text-ui-text")
         expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
         expect(page).to be_axe_clean
         save_screenshot("play-session-#{screen}-#{width}.png") if ENV["VISUAL_REVIEW"]

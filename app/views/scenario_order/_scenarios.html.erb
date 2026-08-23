@@ -10,7 +10,7 @@
         <div class="flex flex-wrap gap-2 sm:justify-end">
           <%= form_with url: move_scenario_order_path(scenario, direction: "up"), method: :patch do %><%= ui_button("上へ", variant: :secondary, size: :small, type: "submit", disabled: index.zero?, aria: { label: "#{scenario.title}を1つ上へ" }) %><% end %>
           <%= form_with url: move_scenario_order_path(scenario, direction: "down"), method: :patch do %><%= ui_button("下へ", variant: :secondary, size: :small, type: "submit", disabled: index == scenarios.length - 1, aria: { label: "#{scenario.title}を1つ下へ" }) %><% end %>
-          <%= link_to "編集", edit_scenario_path(scenario), class: "inline-flex min-h-11 items-center px-2 text-sm font-bold text-ui-action" %>
+          <%= ui_button_link("編集", href: edit_scenario_path(scenario), variant: :secondary, size: :small) %>
         </div>
       </article>
     <% end %>
