@@ -1,0 +1,8 @@
+<% variants = {
+  notice: { role: "status", classes: "border-ui-outline-strong bg-ui-surface-solid text-ui-text" },
+  error: { role: "alert", classes: "border-ui-error bg-ui-surface-solid text-ui-error" }
+} %>
+<% presentation = variants.fetch(variant) %>
+<div class="rounded-ui-control border px-4 py-3 text-sm <%= presentation[:classes] %>" role="<%= presentation[:role] %>">
+  <%= message %>
+</div>

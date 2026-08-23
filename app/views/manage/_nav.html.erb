@@ -1,8 +1,6 @@
-<nav class="border-b border-rule bg-surface" aria-label="管理">
-  <div class="mx-auto flex max-w-5xl flex-wrap gap-x-5 gap-y-2 px-5 py-3 text-xs">
-    <span class="font-display text-muted">管理</span>
-    <%= link_to Group.model_name.human, manage_groups_path, class: manage_nav_class(manage_groups_path) %>
-    <%= link_to User.model_name.human, manage_users_path, class: manage_nav_class(manage_users_path) %>
-    <%= link_to SiteSetting.model_name.human, manage_site_setting_path, class: manage_nav_class(manage_site_setting_path) %>
-  </div>
-</nav>
+<% items = [
+  { label: Group.model_name.human, path: manage_groups_path, current: request.path.start_with?(manage_groups_path) },
+  { label: User.model_name.human, path: manage_users_path, current: request.path.start_with?(manage_users_path) },
+  { label: SiteSetting.model_name.human, path: manage_site_setting_path, current: request.path.start_with?(manage_site_setting_path) }
+] %>
+<%= render "shared/ui/navigation", label: "管理", items:, variant: :bar %>
