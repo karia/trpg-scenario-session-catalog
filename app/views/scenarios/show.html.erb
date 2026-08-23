@@ -1,5 +1,4 @@
 <% content_for :title, @scenario.title %>
-<% content_for :ui_theme, "dark" %>
 <% set_meta_tags description: scenario_description(@scenario), og: { title: @scenario.title, description: scenario_description(@scenario), type: "article" } %>
 <% content_for :head, scenario_json_ld(@scenario) %>
 

@@ -9,7 +9,6 @@ RSpec.describe "Accessibility" do
     expect(page).to have_css('nav[aria-label="主要"]')
     expect(page).to have_css('main#main-content[tabindex="-1"]')
     expect(page).to have_css("body.bg-ui-background.text-ui-text")
-    expect(page).to have_css("main[data-ui-theme]")
   end
 
 

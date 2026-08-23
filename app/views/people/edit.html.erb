@@ -1,5 +1,4 @@
 <% content_for :title, "#{@person.display_name} のプロフィール編集" %>
-<% content_for :ui_theme, "dark" %>
 
 <div class="space-y-6">
   <%= render "shared/ui/page_header", title: (policy(@person).manage? ? "#{Person.model_name.human}の編集" : "プロフィールの編集") %>

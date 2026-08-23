@@ -30,7 +30,7 @@ RSpec.describe "Responsive master management screens" do
       page.current_window.resize_to(width, 900)
       paths.each do |path|
         visit path
-        expect(page).to have_css('main[data-ui-theme="dark"]'), path
+        expect(page).to have_css("body.bg-ui-background.text-ui-text"), path
         expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true), path
         expect(page).to be_axe_clean
       end

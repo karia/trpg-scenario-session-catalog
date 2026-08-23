@@ -1,5 +1,4 @@
 <% content_for :title, "#{@user.provider_name} #{User.model_name.human}の編集" %>
-<% content_for :ui_theme, "dark" %>
 
 <div class="space-y-6">
   <div><%= render "shared/ui/page_header", title: "#{@user.provider_name} #{User.model_name.human}の編集" %><p class="mt-2 break-all font-mono text-sm text-ui-text-muted"><%= @user.email.presence || "メールアドレス不明" %></p></div>

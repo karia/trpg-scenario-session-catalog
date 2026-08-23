@@ -1,6 +1,5 @@
 <% list_title = @owner ? "#{@owner.display_name}が所持するTRPG#{Scenario.model_name.human}一覧" : "#{Scenario.model_name.human}一覧" %>
 <% content_for :title, list_title %>
-<% content_for :ui_theme, "dark" %>
 
 <%= turbo_frame_tag "scenario_list", data: { turbo_action: "advance" } do %>
   <div class="space-y-6">

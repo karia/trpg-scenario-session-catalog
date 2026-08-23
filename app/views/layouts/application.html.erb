@@ -103,10 +103,7 @@
       </div>
     <% end %>
 
-    <% ui_theme = content_for(:ui_theme).presence || "legacy" %>
-    <% content_classes = ui_theme == "dark" ? "" : "bg-paper text-ink" %>
-    <main id="main-content" tabindex="-1" data-ui-theme="<%= ui_theme %>"
-          class="mx-auto w-full max-w-5xl grow px-4 py-8 sm:px-6 sm:py-10 <%= content_classes %>">
+    <main id="main-content" tabindex="-1" class="mx-auto w-full max-w-5xl grow px-4 py-8 sm:px-6 sm:py-10">
       <%= yield %>
     </main>
 

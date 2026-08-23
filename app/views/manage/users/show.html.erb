@@ -1,5 +1,4 @@
 <% content_for :title, @user.email.presence || "#{@user.provider_name} #{User.model_name.human}" %>
-<% content_for :ui_theme, "dark" %>
 
 <article class="space-y-6">
   <div class="flex flex-wrap items-end justify-between gap-4">
