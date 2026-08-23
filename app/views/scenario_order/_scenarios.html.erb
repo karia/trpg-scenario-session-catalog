@@ -1,9 +1,18 @@
-<tbody id="scenario_order" data-controller="sortable" data-sortable-url-value="<%= reorder_scenario_order_index_path %>" data-sortable-saved-message-value="保存しました" data-sortable-failed-message-value="保存できませんでした">
-  <% scenarios.each do |scenario| %>
-    <tr class="border-b border-rule last:border-b-0" data-sortable-target="row" data-sortable-id-param="<%= scenario.id %>">
-      <td class="p-3"><span class="sortable-handle cursor-move touch-none text-muted select-none" aria-hidden="true">⠿</span> <%= button_to "↑", move_scenario_order_path(scenario, direction: "up"), method: :patch, form: { class: "inline" }, aria: { label: "#{scenario.title}を1つ上へ" } %> <%= button_to "↓", move_scenario_order_path(scenario, direction: "down"), method: :patch, form: { class: "inline" }, aria: { label: "#{scenario.title}を1つ下へ" } %></td>
-      <td class="p-3 font-display"><%= link_to scenario.title, scenario_path(scenario), class: "text-seal" %></td>
-      <td class="p-3 text-right text-xs"><%= link_to "編集", edit_scenario_path(scenario), class: "text-seal" %></td>
-    </tr>
+<div id="scenario_order" class="grid gap-3" data-controller="sortable" data-sortable-url-value="<%= reorder_scenario_order_index_path %>" data-sortable-saved-message-value="保存しました" data-sortable-failed-message-value="保存できませんでした">
+  <% scenarios.each_with_index do |scenario, index| %>
+    <%= render "shared/ui/card", variant: :interactive, data: { sortable_target: "row", sortable_id_param: scenario.id } do %>
+      <article class="grid gap-3 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+        <div class="flex items-center gap-2">
+          <span class="sortable-handle inline-flex min-h-11 min-w-11 cursor-move touch-none items-center justify-center text-xl text-ui-text-muted select-none" aria-hidden="true">⠿</span>
+          <span class="text-ui-caption text-ui-text-muted"><span class="sr-only">現在の並び順:</span><%= index + 1 %></span>
+        </div>
+        <h2 class="font-display text-base font-bold"><%= link_to scenario.title, scenario_path(scenario), class: "text-ui-text hover:text-ui-action" %></h2>
+        <div class="flex flex-wrap gap-2 sm:justify-end">
+          <%= form_with url: move_scenario_order_path(scenario, direction: "up"), method: :patch do %><%= ui_button("上へ", variant: :secondary, size: :small, type: "submit", disabled: index.zero?, aria: { label: "#{scenario.title}を1つ上へ" }) %><% end %>
+          <%= form_with url: move_scenario_order_path(scenario, direction: "down"), method: :patch do %><%= ui_button("下へ", variant: :secondary, size: :small, type: "submit", disabled: index == scenarios.length - 1, aria: { label: "#{scenario.title}を1つ下へ" }) %><% end %>
+          <%= link_to "編集", edit_scenario_path(scenario), class: "inline-flex min-h-11 items-center px-2 text-sm font-bold text-ui-action" %>
+        </div>
+      </article>
+    <% end %>
   <% end %>
-</tbody>
+</div>

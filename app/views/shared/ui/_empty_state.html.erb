@@ -1,0 +1,6 @@
+<%= render "shared/ui/card" do %>
+  <div class="px-5 py-10 text-center sm:px-8">
+    <h2 class="font-display text-lg font-bold text-ui-text"><%= title %></h2>
+    <% if local_assigns[:description].present? %><p class="mt-2 text-sm text-ui-text-muted"><%= description %></p><% end %>
+  </div>
+<% end %>
