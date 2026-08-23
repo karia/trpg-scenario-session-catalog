@@ -33,3 +33,10 @@ repos:
         language: system
         pass_filenames: false
         types: [ ruby ]
+
+      - id: ghalint
+        name: ghalint
+        entry: mise exec -- ghalint run
+        language: system
+        pass_filenames: false
+        files: ^\.github/workflows/.*\.ya?ml$
