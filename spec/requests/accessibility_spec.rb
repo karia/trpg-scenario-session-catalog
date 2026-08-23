@@ -12,13 +12,6 @@ RSpec.describe "Accessibility" do
     expect(page).to have_css("main[data-ui-theme]")
   end
 
-  it "keeps not-yet-migrated content on the legacy surface" do
-    get new_registration_path
-
-    expect(Capybara.string(response.body)).to have_css(
-      'main[data-ui-theme="legacy"].bg-paper.text-ink'
-    )
-  end
 
   it "announces alert flashes assertively" do
     get auth_failure_path

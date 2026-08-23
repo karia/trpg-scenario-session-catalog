@@ -1,0 +1,13 @@
+<div data-controller="video-disclosure" data-action="turbo:before-cache@document->video-disclosure#reset">
+  <%= ui_button(open_label, variant: :secondary, data: {
+    video_disclosure_target: "openButton", action: "video-disclosure#open"
+  }, aria: { controls: content_id, expanded: false }) %>
+  <div id="<%= content_id %>" hidden data-video-disclosure-target="content"
+       class="mt-3 rounded-ui-control border border-ui-outline bg-ui-surface-solid p-4 sm:p-5">
+    <%= yield %>
+    <div class="mt-5 border-t border-ui-outline pt-4">
+      <%= ui_button(close_label, variant: :secondary, size: :small,
+        data: { video_disclosure_target: "closeButton", action: "video-disclosure#close" }) %>
+    </div>
+  </div>
+</div>

@@ -1,40 +1,32 @@
 <% content_for :title, @record.name %>
+<% content_for :ui_theme, "dark" %>
 
-<article>
-  <div class="flex flex-wrap items-baseline justify-between gap-4">
-    <h1 class="font-display text-3xl"><%= @record.name %></h1>
-    <div class="flex flex-wrap items-baseline gap-4">
-      <% if policy(@record).update? %>
-        <%= link_to "編集", url_for(action: :edit, id: @record), class: "text-sm text-seal" %>
-      <% end %>
-      <%= render "shared/delete_button", record: @record, path: url_for(action: :show, id: @record),
-            label: "この#{@record.model_name.human}を削除",
-            confirm: "#{@record.name} を削除しますか", class_name: "text-sm text-seal" %>
+<article class="space-y-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <%= render "shared/ui/page_header", title: @record.name %>
+    <div class="flex flex-wrap gap-2">
+      <% if policy(@record).update? %><%= ui_button_link("編集", href: url_for(action: :edit, id: @record), variant: :secondary, size: :small) %><% end %>
+      <% if policy(@record).destroy? %><%= form_with url: url_for(action: :show, id: @record), method: :delete, data: { turbo_confirm: "#{@record.name} を削除しますか" } do %><%= ui_button("この#{@record.model_name.human}を削除", variant: :danger, size: :small, type: "submit") %><% end %><% end %>
     </div>
   </div>
 
-  <% if @record.visible_aliases.any? %>
-    <p class="mt-3 text-sm text-muted">別名: <%= @record.visible_aliases.map(&:name).join("、") %></p>
-  <% end %>
-
-  <% if @record.is_a?(GameSystem) %>
-    <p class="mt-3 text-sm text-muted"><%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>の呼称: <%= @record.game_master_label.presence || "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}（未指定）" %></p>
+  <%= render "shared/ui/card" do %>
+    <dl class="grid gap-4 p-5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:p-6">
+      <dt class="font-bold text-ui-text-muted">別名</dt><dd class="break-words"><%= @record.visible_aliases.map(&:name).join("、").presence || "未設定" %></dd>
+      <% if @record.is_a?(GameSystem) %><dt class="font-bold text-ui-text-muted"><%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>の呼称</dt><dd><%= @record.game_master_label.presence || "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}（未指定）" %></dd><% end %>
+    </dl>
   <% end %>
 
   <% if @record.respond_to?(:scenarios) %>
-    <section class="mt-8">
-      <h2 class="font-display text-xl"><%= Scenario.model_name.human %></h2>
+    <section class="space-y-3">
+      <h2 class="font-display text-xl font-bold"><%= Scenario.model_name.human %></h2>
       <% if @record.scenarios.any? %>
-        <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
-          <% @record.scenarios.order(:title).each do |scenario| %>
-            <li class="p-3"><%= link_to scenario.title, scenario_path(scenario), class: "text-seal" %></li>
-          <% end %>
-        </ul>
+        <%= render "shared/ui/card" do %><ul class="divide-y divide-ui-outline"><% @record.scenarios.order(:title).each do |scenario| %><li><%= link_to scenario.title, scenario_path(scenario), class: "flex min-h-11 items-center break-words px-4 py-3 font-bold text-ui-action sm:px-5" %></li><% end %></ul><% end %>
       <% else %>
-        <p class="mt-3 text-sm text-muted">まだありません。</p>
+        <%= render "shared/ui/empty_state", title: "まだありません。" %>
       <% end %>
     </section>
   <% end %>
 
-  <p class="mt-8"><%= link_to "一覧に戻る", url_for(action: :index), class: "text-sm text-muted" %></p>
+  <div><%= ui_button_link("一覧に戻る", href: url_for(action: :index), variant: :secondary) %></div>
 </article>

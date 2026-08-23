@@ -1,124 +1,58 @@
 <% content_for :title, @scenario.title %>
-<% set_meta_tags description: scenario_description(@scenario),
-     og: { title: @scenario.title, description: scenario_description(@scenario), type: "article" } %>
+<% content_for :ui_theme, "dark" %>
+<% set_meta_tags description: scenario_description(@scenario), og: { title: @scenario.title, description: scenario_description(@scenario), type: "article" } %>
 <% content_for :head, scenario_json_ld(@scenario) %>
 
 <article>
-  <nav class="text-xs text-muted">
-    <%= link_to "#{Scenario.model_name.human}一覧", root_path, class: "text-muted" %> ／ <%= @scenario.title %>
+  <nav class="text-ui-caption text-ui-text-muted" aria-label="パンくずリスト">
+    <%= link_to "#{Scenario.model_name.human}一覧", root_path, class: "text-ui-action" %>
+    <span aria-hidden="true">／</span> <span aria-current="page"><%= @scenario.title %></span>
   </nav>
-
-  <div class="mt-6 grid gap-8 sm:grid-cols-[16rem_1fr]">
-    <div class="aspect-3/4 overflow-hidden border border-rule bg-surface">
+  <div class="mt-6 grid gap-6 md:grid-cols-[minmax(13rem,18rem)_minmax(0,1fr)] md:gap-8">
+    <div class="mx-auto aspect-3/4 w-full max-w-72 overflow-hidden rounded-ui-card border border-ui-outline bg-ui-field-solid md:mx-0">
       <% if @scenario.jacket.attached? %>
-        <%= image_tag @scenario.jacket.variant(:cover), alt: "#{@scenario.title} のジャケット画像",
-              class: "h-full w-full object-contain" %>
+        <%= image_tag @scenario.jacket.variant(:cover), alt: "#{@scenario.title} のジャケット画像", class: "h-full w-full object-contain" %>
       <% elsif @scenario.booth_image.attached? %>
-        <%= image_tag @scenario.booth_image.variant(:cover), alt: "#{@scenario.title} のBOOTH商品画像",
-              class: "h-full w-full object-contain" %>
-      <% else %>
-        <span class="flex h-full items-center justify-center font-display text-sm text-muted">画像なし</span>
-      <% end %>
+        <%= image_tag @scenario.booth_image.variant(:cover), alt: "#{@scenario.title} のBOOTH商品画像", class: "h-full w-full object-contain" %>
+      <% else %><span class="flex h-full items-center justify-center text-sm text-ui-text-muted">画像なし</span><% end %>
     </div>
-
-    <div>
-      <h1 class="font-display text-3xl leading-tight tracking-wide"><%= @scenario.title %></h1>
-      <p class="mt-2 text-sm text-muted">
-        <%= @scenario.authors.map(&:name).join("、").presence || "#{Author.model_name.human}未設定" %>
-      </p>
-
-      <div class="mt-3 flex flex-wrap items-center gap-4">
+    <div class="min-w-0">
+      <h1 class="font-display text-3xl font-bold leading-tight tracking-wide"><%= @scenario.title %></h1>
+      <p class="mt-2 text-sm text-ui-text-muted"><%= @scenario.authors.map(&:name).join("、").presence || "#{Author.model_name.human}未設定" %></p>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
         <%= render "scenarios/favorite_button", scenario: @scenario %>
-        <% if policy(@scenario).update? %>
-          <%= link_to "編集", edit_scenario_path(@scenario), class: "text-sm text-seal" %>
+        <% if policy(@scenario).update? %><%= ui_button_link("編集", href: edit_scenario_path(@scenario), variant: :secondary, size: :small) %><% end %>
+        <% if policy(@scenario).destroy? %>
+          <%= form_with url: scenario_path(@scenario), method: :delete, data: { turbo_confirm: "#{@scenario.title} を削除しますか" } do %>
+            <%= ui_button("削除", variant: :danger, size: :small, type: "submit", aria: { label: "この#{Scenario.model_name.human}を削除" }) %>
+          <% end %>
         <% end %>
-        <%= render "shared/delete_button", record: @scenario, path: scenario_path(@scenario),
-              label: "この#{Scenario.model_name.human}を削除",
-              confirm: "#{@scenario.title} を削除しますか", class_name: "text-sm text-seal" %>
       </div>
-
-      <dl class="mt-6 grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 font-mono text-sm">
-        <dt class="text-muted"><%= GameSystem.model_name.human %></dt>
-        <dd class="font-sans"><%= @scenario.game_systems.map(&:name).join("／").presence || "未設定" %></dd>
-        <dt class="text-muted"><%= @scenario.game_master_label %>経験</dt>
-        <dd class="font-sans"><%= @scenario.gm_experienced? ? "☑#{@scenario.game_master_label}経験あり" : "#{@scenario.game_master_label}経験なし" %></dd>
-        <dt class="text-muted">人数</dt>
-        <dd><%= player_count_label(@scenario) %></dd>
-        <dt class="text-muted">目安時間</dt>
-        <dd><%= duration_label(@scenario) %></dd>
-      </dl>
-      <p class="mt-3 text-xs text-muted">
-        この情報は<%= @scenario.game_master_label %>が独自判断で記載しており、<%= Scenario.model_name.human %>公式の案内と異なる場合があります
-      </p>
+      <div class="mt-6 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5">
+        <%= render "shared/ui/definition_list", items: [
+          { term: GameSystem.model_name.human, description: @scenario.game_systems.map(&:name).join("／").presence || "未設定" },
+          { term: "#{@scenario.game_master_label}経験", description: @scenario.gm_experienced? ? "☑#{@scenario.game_master_label}経験あり" : "#{@scenario.game_master_label}経験なし" },
+          { term: "人数", description: player_count_label(@scenario) }, { term: "目安時間", description: duration_label(@scenario) }
+        ] %>
+        <p class="mt-4 border-t border-ui-outline pt-4 text-ui-caption text-ui-text-muted">この情報は<%= @scenario.game_master_label %>が独自判断で記載しており、<%= Scenario.model_name.human %>公式の案内と異なる場合があります</p>
+      </div>
     </div>
   </div>
-
-  <% if @scenario.synopsis.present? %>
-    <section class="mt-10">
-      <h2 class="font-display text-xl">あらすじ</h2>
-      <p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@scenario.synopsis) %></p>
-    </section>
-  <% end %>
-
-  <% if @scenario.recommendation_note.present? && policy(@scenario).show_recommendation_note? %>
-    <section class="mt-10">
-      <h2 class="font-display text-xl"><%= @scenario.game_master_label %>からのオススメポイント</h2>
-      <p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@scenario.recommendation_note) %></p>
-    </section>
-  <% end %>
-
+  <% if @scenario.synopsis.present? %><section class="mt-10"><h2 class="font-display text-xl font-bold">あらすじ</h2><p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@scenario.synopsis) %></p></section><% end %>
+  <% if @scenario.recommendation_note.present? && policy(@scenario).show_recommendation_note? %><section class="mt-10"><h2 class="font-display text-xl font-bold"><%= @scenario.game_master_label %>からのオススメポイント</h2><p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@scenario.recommendation_note) %></p></section><% end %>
   <%= render "scenarios/gm_supplementary_info", scenario: @scenario %>
-
   <% if @scenario.purchase_links.any? %>
-    <section class="mt-10">
-      <h2 class="font-display text-xl">入手先</h2>
-      <ul class="mt-3 space-y-1 text-sm">
-        <% @scenario.purchase_links.each do |link| %>
-          <li>
-            <% if link.url.present? %>
-              <%= link_to link.label, link.url, target: "_blank", rel: "noopener nofollow", class: "text-seal" %>
-              <%= link_to link.url, link.url, target: "_blank", rel: "noopener nofollow",
-                    class: "font-mono text-xs text-muted" %>
-            <% else %>
-              <span><%= link.label %></span>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    </section>
+    <section class="mt-10"><h2 class="font-display text-xl font-bold">入手先</h2><ul class="mt-4 grid gap-3 text-sm">
+      <% @scenario.purchase_links.each do |link| %><li class="rounded-ui-control border border-ui-outline bg-ui-surface-solid p-4"><% if link.url.present? %><div class="grid gap-1"><%= link_to link.label, link.url, target: "_blank", rel: "noopener nofollow", class: "font-bold text-ui-action" %><%= link_to link.url, link.url, target: "_blank", rel: "noopener nofollow", class: "text-ui-caption text-ui-text-muted" %></div><% else %><span><%= link.label %></span><% end %></li><% end %>
+    </ul></section>
   <% end %>
-
   <% if @scenario.stream_links.any? %>
-    <section class="mt-10">
-      <h2 class="font-display text-xl">おすすめの配信</h2>
-      <div class="mt-3" data-controller="video-disclosure"
-           data-action="turbo:before-cache@document->video-disclosure#reset">
-        <button type="button" aria-controls="scenario_<%= @scenario.id %>_streams" aria-expanded="false"
-                data-video-disclosure-target="openButton" data-action="video-disclosure#open"
-                class="border border-rule bg-surface px-4 py-2 text-sm text-seal">
-          おすすめ配信を開く
-        </button>
-        <div id="scenario_<%= @scenario.id %>_streams" hidden data-video-disclosure-target="content"
-             class="border border-rule bg-surface p-4">
-          <ul class="space-y-1 text-sm">
-            <% @scenario.stream_links.each do |link| %>
-              <li class="space-y-2">
-                <%= render "shared/video_link", title: link.label.presence || link.url, url: link.url,
-                      link_text: link.label.presence || link.url, rel: "noopener nofollow", show_url: true %>
-              </li>
-            <% end %>
-          </ul>
-          <div class="mt-4 border-t border-rule pt-3 text-right">
-            <button type="button" data-video-disclosure-target="closeButton" data-action="video-disclosure#close"
-                    class="border border-rule bg-paper px-4 py-2 text-sm text-seal">
-              おすすめ配信を閉じる
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section class="mt-10"><h2 class="font-display text-xl font-bold">おすすめの配信</h2><div class="mt-4">
+      <%= render "shared/ui/disclosure", open_label: "おすすめ配信を開く", close_label: "おすすめ配信を閉じる", content_id: "scenario_#{@scenario.id}_streams" do %>
+        <ul class="grid gap-4"><% @scenario.stream_links.each do |link| %><li><%= render "shared/ui/video_link", title: link.label.presence || link.url, url: link.url, link_text: link.label.presence || link.url, rel: "noopener nofollow", show_url: true %></li><% end %></ul>
+      <% end %>
+    </div></section>
   <% end %>
-
   <%= render "scenarios/play_session_history", scenario: @scenario %>
   <%= render "scenarios/preparation_note", scenario: @scenario %>
 </article>

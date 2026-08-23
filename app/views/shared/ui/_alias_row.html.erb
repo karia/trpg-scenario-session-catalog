@@ -1,0 +1,16 @@
+<fieldset class="grid gap-3 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]" data-nested-form-target="aliasRow">
+  <legend class="px-2 text-sm font-bold text-ui-text">別名 <%= row.index.to_i + 1 %></legend>
+  <% selection_key = row.object.selection_key.presence || row.object.id || row.index %>
+  <%= ui_field(row, :name, label: "名前") do |field| %>
+    <%= ui_input(row, :name, described_by: field[:described_by], data: { alias_name: true, selection_key: selection_key }) %>
+  <% end %>
+  <label class="inline-flex min-h-11 items-center gap-2 text-sm text-ui-text"><%= row.check_box :visible, data: { alias_visible: true }, class: "size-5 accent-ui-action" %> 表示</label>
+  <label class="inline-flex min-h-11 items-center gap-2 text-sm text-ui-text"><%= row.check_box :_destroy, data: { alias_destroy: true }, class: "size-5 accent-ui-danger" %> 削除</label>
+  <%= row.hidden_field :id if row.object.persisted? %>
+  <%= row.hidden_field :selection_key, value: selection_key %>
+  <% if row.object.respond_to?(:context) %>
+    <div class="sm:col-start-1">
+      <%= ui_field(row, :context, label: "使用場所") do |field| %><%= ui_input(row, :context, described_by: field[:described_by]) %><% end %>
+    </div>
+  <% end %>
+</fieldset>
