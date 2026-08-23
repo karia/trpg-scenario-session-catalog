@@ -1,10 +1,6 @@
 module ScenariosHelper
   UNSET = "未設定".freeze
 
-  def list_view_class(name, current)
-    name == current ? "font-bold text-ink no-underline" : "text-seal"
-  end
-
   def scenario_order_options(listing)
     choices = ScenarioListing::ORDERS.keys.map { |key| [ t("scenarios.orders.#{key}"), key ] }
 
