@@ -14,8 +14,11 @@ module UiHelper
     password: :password_field,
     search: :search_field,
     telephone: :telephone_field,
-    url: :url_field
+    url: :url_field,
+    number: :number_field
   }.freeze
+
+  CONTROL_CLASSES = "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text placeholder:text-ui-text-muted focus:border-ui-focus focus:outline-none focus:ring-2 focus:ring-ui-focus/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-ui-error aria-invalid:ring-1 aria-invalid:ring-ui-error".freeze
 
   def ui_button(label, variant: :primary, size: :medium, type: "button", disabled: false, id: nil, data: {}, aria: {})
     render "shared/ui/button",
@@ -63,7 +66,7 @@ module UiHelper
   end
 
   def ui_input(form, attribute, type: :text, described_by: nil, disabled: false, required: false, id: nil,
-    placeholder: nil, autocomplete: nil, inputmode: nil, data: {}, aria: {})
+    placeholder: nil, autocomplete: nil, inputmode: nil, min: nil, max: nil, step: nil, data: {}, aria: {})
     error_id = form.field_id(attribute, :error) if form.object&.errors&.[](attribute)&.any?
     aria = aria.to_h.stringify_keys
     aria["describedby"] = [ aria["describedby"], described_by, error_id ].compact.flat_map { |ids| ids.to_s.split }.uniq.join(" ").presence
@@ -73,12 +76,15 @@ module UiHelper
       required:,
       data:,
       aria:,
-      class: "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text placeholder:text-ui-text-muted focus:border-ui-focus focus:outline-none focus:ring-2 focus:ring-ui-focus/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-ui-error aria-invalid:ring-1 aria-invalid:ring-ui-error"
+      class: CONTROL_CLASSES
     }
     input_options[:id] = id if id
     input_options[:placeholder] = placeholder if placeholder
     input_options[:autocomplete] = autocomplete if autocomplete
     input_options[:inputmode] = inputmode if inputmode
+    input_options[:min] = min if min
+    input_options[:max] = max if max
+    input_options[:step] = step if step
 
     render "shared/ui/input",
       form:,
@@ -86,4 +92,56 @@ module UiHelper
       input_method: INPUT_TYPES.fetch(type),
       input_options:
   end
+
+  def ui_textarea(form, attribute, described_by: nil, rows: 4, required: false, disabled: false, id: nil, data: {}, aria: {})
+    options = ui_control_options(form, attribute, described_by:, required:, disabled:, id:, data:, aria:)
+    render "shared/ui/textarea", form:, attribute:, rows:, input_options: options
+  end
+
+  def ui_select(form, attribute, choices, described_by: nil, include_blank: nil, required: false, disabled: false,
+    id: nil, data: {}, aria: {})
+    options = ui_control_options(form, attribute, described_by:, required:, disabled:, id:, data:, aria:)
+    render "shared/ui/select", form:, attribute:, choices:, select_options: { include_blank: }, input_options: options
+  end
+
+  def ui_checkbox(form, attribute, label:, checked_value: "1", unchecked_value: "0", disabled: false, id: nil,
+    data: {}, aria: {})
+    render "shared/ui/checkbox", form:, attribute:, label:, checked_value:, unchecked_value:, disabled:, id:, data:, aria:
+  end
+
+  def ui_collection_checkboxes(form, attribute, collection, value_method:, text_method:)
+    form.collection_check_boxes(attribute, collection, value_method, text_method) do |builder|
+      render "shared/ui/collection_checkbox", builder:
+    end
+  end
+
+  def ui_file_input(form, attribute, accept:, described_by: nil)
+    error_id = form.field_id(attribute, :error) if form.object&.errors&.[](attribute)&.any?
+    form.file_field attribute, accept:, data: { ui_error_id: error_id }.compact,
+      aria: { describedby: [ described_by, error_id ].compact.join(" ").presence },
+      class: "block min-h-11 w-full cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-field-solid text-sm text-ui-text file:mr-3 file:min-h-11 file:border-0 file:bg-ui-subtle file:px-3 file:py-2 file:font-bold file:text-ui-text hover:file:bg-ui-action hover:file:text-ui-on-action"
+  end
+
+  def ui_radio(name, value, label:, checked:, id:, required: false, disabled: false, data: {}, aria: {})
+    render "shared/ui/radio", name:, value:, label:, checked:, id:, required:, disabled:, data:, aria:
+  end
+
+  def ui_error_summary(record)
+    render "shared/ui/error_summary", record:
+  end
+
+  def ui_repeatable_fields(form, association:, legend:, hint:, row_partial:, new_record:, add_label: "行を足す")
+    render "shared/ui/repeatable_fields", form:, association:, legend:, hint:, row_partial:, new_record:, add_label:
+  end
+
+  private
+    def ui_control_options(form, attribute, described_by:, required:, disabled:, id:, data:, aria:)
+      error_id = form.field_id(attribute, :error) if form.object&.errors&.[](attribute)&.any?
+      aria = aria.to_h.stringify_keys
+      aria["describedby"] = [ aria["describedby"], described_by, error_id ].compact.flat_map { |ids| ids.to_s.split }.uniq.join(" ").presence
+      data = data.to_h.merge(ui_error_id: error_id).compact
+      options = { required:, disabled:, data:, aria:, class: CONTROL_CLASSES }
+      options[:id] = id if id
+      options
+    end
 end

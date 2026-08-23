@@ -1,0 +1,7 @@
+<%= form.label attribute, value: checked_value,
+      class: "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-ui-control px-2 py-2 text-sm text-ui-text hover:bg-ui-subtle" do %>
+  <%= form.check_box attribute, { disabled:, id:, data:, aria:,
+        class: "size-5 shrink-0 accent-ui-action focus:ring-2 focus:ring-ui-focus disabled:cursor-not-allowed disabled:opacity-50" },
+        checked_value, unchecked_value %>
+  <span><%= label %></span>
+<% end %>
