@@ -55,9 +55,9 @@
     <% end %>
 
     <% if @scenarios.any? %>
-      <%= form_with url: root_path, method: :get, class: "grid gap-2 sm:ml-auto sm:grid-cols-[auto_minmax(12rem,auto)_auto] sm:items-center" do |form| %>
+      <%= form_with url: root_path, method: :get, class: "grid gap-2 sm:grid-cols-[auto_minmax(12rem,24rem)_auto] sm:items-center sm:justify-end" do |form| %>
         <% @listing.params(order: nil).each do |key, value| %><% Array(value).each do |item| %><%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %><% end %><% end %>
-        <%= label_tag :order, "並び順", class: "text-sm font-bold text-ui-text" %><%= select_tag :order, scenario_order_options(@listing), class: "min-h-11 min-w-0 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text" %><%= ui_button("並べ替える", type: "submit") %>
+        <%= label_tag :order, "並び順", class: "text-sm font-bold text-ui-text" %><%= select_tag :order, scenario_order_options(@listing), class: "min-h-11 min-w-0 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text" %><%= ui_button("並べ替える", size: :small, type: "submit") %>
       <% end %>
       <%= render "scenarios/#{@listing.view}", scenarios: @scenarios %>
     <% else %>

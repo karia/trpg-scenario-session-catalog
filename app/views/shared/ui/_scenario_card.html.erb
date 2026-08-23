@@ -34,7 +34,7 @@
     <% end %>
     <% if policy(scenario).update? || policy(scenario).destroy? %>
       <div class="mt-auto flex flex-wrap items-center gap-2 border-t border-ui-outline px-4 py-3">
-        <% if policy(scenario).update? %><%= link_to "編集", edit_scenario_path(scenario), data: { turbo_frame: "_top" }, class: "inline-flex min-h-11 items-center px-2 text-sm font-bold text-ui-action" %><% end %>
+        <% if policy(scenario).update? %><%= ui_button_link("編集", href: edit_scenario_path(scenario), variant: :secondary, size: :small, data: { turbo_frame: "_top" }) %><% end %>
         <% if policy(scenario).destroy? %><%= form_with url: scenario_path(scenario), method: :delete, data: { turbo_confirm: "#{scenario.title} を削除しますか" } do %><%= ui_button("削除", variant: :danger, size: :small, type: "submit", aria: { label: "#{scenario.title} を削除" }) %><% end %><% end %>
       </div>
     <% end %>

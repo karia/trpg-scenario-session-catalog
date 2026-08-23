@@ -7,6 +7,8 @@ RSpec.describe "Responsive scenario lists" do
     author = create(:author, name: "長い名前の作者")
     scenario = create(:scenario, title: "狭い画面でも読める長いシナリオ名", player_count_min: 2,
       duration_min_hours: 3, game_systems: [ create(:game_system, name: "長い名前のゲームシステム") ], authors: [ author ])
+    scenario.purchase_links.create!(label: "BOOTH", url: "https://example.com/booth")
+    scenario.purchase_links.create!(label: "TALTO", url: "https://example.com/talto")
     admin = create(:person, roles: %w[admin])
     user = create(:user, person: admin)
     OmniAuth.config.test_mode = true
@@ -44,6 +46,23 @@ RSpec.describe "Responsive scenario lists" do
 
     visit root_path
     click_button "Googleでログイン"
+    [ 320, 1280 ].each do |width|
+      page.current_window.resize_to(width, 900)
+      visit root_path
+      expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
+      expect(page).to have_link("編集", visible: :visible)
+      expect(page).to have_button("削除", visible: :visible)
+      expect(page).to be_axe_clean
+      save_screenshot("scenario-actions-#{width}.png") if ENV["VISUAL_REVIEW"]
+    end
+
+    sort_button = find_button("並べ替える")
+    expect(page.evaluate_script("getComputedStyle(arguments[0]).paddingLeft", sort_button)).to eq("12px")
+    expect(sort_button.rect.width).to be < 160
+    purchase_links = all("td div.gap-x-2 a", visible: :visible)
+    expect(purchase_links.map(&:text)).to include("BOOTH", "TALTO")
+    expect(page.evaluate_script("getComputedStyle(arguments[0].parentElement).columnGap", purchase_links.first)).to eq("8px")
+
     [ 320, 768, 1280 ].each do |width|
       page.current_window.resize_to(width, 900)
       visit scenario_order_index_path
