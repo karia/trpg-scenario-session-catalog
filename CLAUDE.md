@@ -119,3 +119,4 @@ TDD、commit の分け方、pre-commit の扱いは [README の「変更を出�
 - 編集画面から離れるリンクは「詳細に戻る」のように遷移先を明記する。未保存の新規作成画面では一覧へ戻す
 - 画面の部品を自前で書く前に、既存のライブラリを探す（ADR-0001 の「自前実装は避ける」）。importmap でも `bin/importmap pin <名前>` で npm のパッケージが入る。CSP が外部ホストのスクリプトを許していないため CDN からは読めないが、pin したものは `vendor/javascript/` に落ちるので自ホストから配れる
 - 部分更新は Turbo Frame と Turbo Stream で書く。素の `fetch` を足す前に、`favorites_controller.rb` の `turbo_stream.replace` を見る
+- `auto_link_urls` の URL 検出を非 ASCII へ広げない。広げると `https://example.com/pathです` のように空白を挟まず続く地の文を URL へ取り込み、確実に壊れたリンクになる。ASCII 限定でも `https://ja.wikipedia.org/wiki/日本` は `.../wiki/` へ切り詰められ、IDN は `href="https://"` になる。どちらも壊れるので、起きにくいほうを選んでいる。自由記述に URL はほぼ書かれず（URL は `PurchaseLink` などの専用カラムへ入る）、本番の非空フィールド 132 件のうち `http` を含むものは 0 件だった。リンクを作らずプレーンテキストにする案は採らない
