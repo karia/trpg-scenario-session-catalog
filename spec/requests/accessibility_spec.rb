@@ -8,13 +8,16 @@ RSpec.describe "Accessibility" do
     expect(page).to have_link("本文へ移動", href: "#main-content")
     expect(page).to have_css('nav[aria-label="主要"]')
     expect(page).to have_css('main#main-content[tabindex="-1"]')
+    expect(page).to have_css("body.bg-ui-background.text-ui-text")
   end
 
   it "announces alert flashes assertively" do
     get auth_failure_path
 
     follow_redirect!
-    expect(Capybara.string(response.body)).to have_css('[role="alert"]', text: "ログインできませんでした")
+    expect(Capybara.string(response.body)).to have_css(
+      '[role="alert"].border-ui-error.text-ui-error', text: "ログインできませんでした"
+    )
   end
 
   it "makes the scenario management table reflow and names every column" do

@@ -42,7 +42,9 @@ RSpec.describe "Manage navigation" do
     it "does not render a second management header" do
       get manage_groups_path
 
-      expect(Capybara.string(response.body)).to have_no_css('nav[aria-label="管理"]')
+      page = Capybara.string(response.body)
+      expect(page).to have_css('body[data-layout="manage"]')
+      expect(page).to have_no_css('nav[aria-label="管理"]')
     end
   end
 
@@ -75,6 +77,7 @@ RSpec.describe "Manage navigation" do
       page = Capybara.string(response.body)
       expect(page).to have_css('button[aria-controls="account-menu"][aria-expanded="false"]', text: "メニュー")
       expect(page).to have_css('nav#account-menu[hidden][aria-label="アカウントメニュー"]', visible: :all)
+      expect(page).to have_css("nav#account-menu.rounded-ui-control.bg-ui-surface-solid", visible: :all)
       expect(response.body.index(person.display_name)).to be < response.body.index("account-menu")
       expect(response.body.index("ログアウト")).to be < response.body.index("account-menu")
     end

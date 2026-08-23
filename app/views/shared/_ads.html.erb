@@ -1,4 +1,8 @@
 <% if show_ads? %>
-  <script async crossorigin="anonymous"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= ENV["ADSENSE_CLIENT_ID"] %>"></script>
+  <aside class="border-t border-ui-outline-strong bg-ui-background px-4 py-6 sm:px-6" aria-label="広告">
+    <div class="mx-auto max-w-5xl overflow-hidden rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid p-4">
+      <script async crossorigin="anonymous"
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= ENV["ADSENSE_CLIENT_ID"] %>"></script>
+    </div>
+  </aside>
 <% end %>

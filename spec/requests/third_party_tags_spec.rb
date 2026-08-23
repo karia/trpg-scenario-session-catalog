@@ -12,6 +12,7 @@ RSpec.describe "Third party tags" do
 
     expect(response.body).to include("googletagmanager.com/gtag/js?id=G-TEST123")
     expect(response.body).to include("adsbygoogle.js?client=ca-pub-test")
+    expect(Capybara.string(response.body)).to have_css('aside[aria-label="広告"].border-ui-outline-strong')
   end
 
   it "does not render analytics when the measurement ID is empty" do

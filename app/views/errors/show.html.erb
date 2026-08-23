@@ -1,8 +1,9 @@
 <% content_for :title, message %>
 
-<div class="mx-auto max-w-xl py-12 text-center">
-  <h1 class="font-display text-3xl text-ink"><%= message %></h1>
+<div class="mx-auto w-full max-w-xl rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-6 text-center shadow-ui-surface sm:p-10">
+  <%= render "shared/ui/page_header", title: message, align: :center %>
   <p class="mt-8">
-    <%= link_to "トップページに戻る", root_path, class: "text-seal underline" %>
+    <%= link_to "トップページに戻る", root_path,
+      class: "inline-flex min-h-11 items-center rounded-ui-control bg-ui-action px-4 py-2 text-sm font-bold text-ui-on-action no-underline hover:bg-ui-action-hover" %>
   </p>
 </div>

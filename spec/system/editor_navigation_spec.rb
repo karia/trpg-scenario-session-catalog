@@ -19,10 +19,13 @@ RSpec.describe "Editor navigation" do
 
     visit root_path
     click_button "Googleでログイン"
+    expect(page).to be_axe_clean.excluding("#main-content") if ENV["CHROME_BINARY"].present?
     save_screenshot("editor-scenarios.png") if ENV["VISUAL_REVIEW"]
     if ENV["CHROME_BINARY"]
       click_button "メニュー"
       expect(page).to have_css('#account-menu:not([hidden])')
+      expect(page).to have_css('button[aria-controls="account-menu"][aria-expanded="true"]', text: "メニュー")
+      expect(page).to be_axe_clean.excluding("#main-content")
       menu_geometry = page.evaluate_script(<<~JS)
         (() => {
           const button = document.querySelector('[aria-controls="account-menu"]')
