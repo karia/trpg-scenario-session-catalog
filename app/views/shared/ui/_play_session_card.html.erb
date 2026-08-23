@@ -1,0 +1,22 @@
+<%= render "shared/ui/card", variant: :interactive do %>
+  <article class="flex h-full flex-col">
+    <%= link_to play_session_path(play_session), class: "block space-y-3 p-5 no-underline" do %>
+      <div class="flex flex-wrap items-center gap-2">
+        <%= render "shared/ui/badge", label: play_session_status_label(play_session), variant: :accent %>
+        <span class="text-ui-caption text-ui-text-muted"><%= play_session_schedule(play_session) %></span>
+      </div>
+      <h2 class="font-display text-lg font-bold leading-snug text-ui-text"><%= play_session.scenario.title %></h2>
+      <p class="text-ui-caption text-ui-text-muted"><%= play_session.participations.map { |participation| "#{participation_role_label(participation)}: #{participation.person.display_name}" }.join("、") %></p>
+    <% end %>
+    <% if policy(play_session).update? || policy(play_session).destroy? %>
+      <div class="mt-auto flex flex-wrap items-center gap-2 border-t border-ui-outline px-5 py-4">
+        <% if policy(play_session).update? %><%= ui_button_link("編集", href: edit_play_session_path(play_session), variant: :secondary, size: :small) %><% end %>
+        <% if policy(play_session).destroy? %>
+          <%= form_with url: play_session_path(play_session), method: :delete, data: { turbo_confirm: "#{play_session.scenario.title} の#{PlaySession.model_name.human}を削除しますか" } do %>
+            <%= ui_button("削除", variant: :danger, size: :small, type: "submit", aria: { label: "#{play_session.scenario.title} の#{PlaySession.model_name.human}を削除" }) %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </article>
+<% end %>

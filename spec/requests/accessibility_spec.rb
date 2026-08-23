@@ -13,8 +13,9 @@ RSpec.describe "Accessibility" do
   end
 
   it "keeps not-yet-migrated content on the legacy surface" do
-    sign_in_as create(:person)
-    get play_sessions_path
+    # 最後まで移行されない画面を指す。全画面の移行が済んだらこの example ごと消す。
+    sign_in_as create(:person, roles: %w[gm])
+    get new_play_session_path
 
     expect(Capybara.string(response.body)).to have_css(
       'main[data-ui-theme="legacy"].bg-paper.text-ink'
