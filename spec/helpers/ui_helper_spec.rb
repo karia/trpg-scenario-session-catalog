@@ -112,5 +112,14 @@ RSpec.describe UiHelper, type: :helper do
       expect(summary).to have_css('[role="alert"][data-controller="error-summary"]')
       expect(summary).to have_css('a[data-error-attribute="title"]', text: scenario.errors.full_messages.first)
     end
+
+    it "renders form-wide errors without a dead field link" do
+      play_session = PlaySession.new
+      play_session.errors.add(:base, "同じ人を複数の行に指定できません")
+      summary = Capybara.string(helper.ui_error_summary(play_session))
+
+      expect(summary).to have_text("同じ人を複数の行に指定できません")
+      expect(summary).to have_no_link
+    end
   end
 end

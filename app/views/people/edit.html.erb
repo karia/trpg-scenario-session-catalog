@@ -4,7 +4,7 @@
 <div class="space-y-6">
   <%= render "shared/ui/page_header", title: (policy(@person).manage? ? "#{Person.model_name.human}の編集" : "プロフィールの編集") %>
   <%= form_with model: @person, class: "space-y-6" do |form| %>
-    <%= accessible_error_summary(@person) %>
+    <%= ui_error_summary(@person) %>
     <% if @lost_roles.present? %>
       <%= render "shared/ui/self_demotion_warning", roles: @lost_roles %>
       <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>

@@ -4,7 +4,7 @@
 <div class="space-y-6">
   <%= render "shared/ui/page_header", title: "#{@record.name} の編集" %>
   <%= form_with model: [ :manage, @record ], class: "space-y-6" do |form| %>
-    <%= accessible_error_summary(@record) %>
+    <%= ui_error_summary(@record) %>
     <%= render "shared/ui/card" do %><div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6"><%= ui_field(form, :name, label: "名前", required: true) do |field| %><%= ui_input(form, :name, described_by: field[:described_by], required: true) %><% end %><%= ui_field(form, :discord_guild_id, label: "DiscordサーバーID", description: "未設定ならDiscordからの自動参加を行いません。") do |field| %><%= ui_input(form, :discord_guild_id, described_by: field[:described_by], inputmode: "numeric", autocomplete: "off") %><% end %></div><% end %>
     <fieldset class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6"><legend class="px-2 font-display text-lg font-bold">手動で所属させる人物</legend><p class="text-ui-caption text-ui-text-muted">Discordから自動所属した人物を選ぶと、退会後も残る手動所属へ切り替えます。</p><div class="mt-4 grid gap-2 sm:grid-cols-2"><%= form.collection_check_boxes :manual_person_ids, Person.order(:display_name), :id, :display_name do |b| %><%= b.label class: "flex min-h-11 min-w-0 items-center gap-3 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-sm" do %><%= b.check_box class: "size-5 shrink-0 accent-ui-action" %><span class="min-w-0 break-words"><%= b.text %></span><% end %><% end %></div></fieldset>
     <div class="flex flex-wrap gap-3"><%= ui_button("更新", type: "submit") %><%= ui_button_link("詳細に戻る", href: manage_group_path(@record), variant: :secondary) %></div>
