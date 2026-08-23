@@ -115,6 +115,9 @@
 
 各移行 PR で次を行う。
 
+移行した画面のトップレベルテンプレートでは、`content_for :ui_theme, "dark"` を設定する。
+同時に、その画面を legacy content contrast の監査対象から外し、画面全体の axe 検査へ移す。
+
 1. `bin/rspec` と `prek run --all-files`
 2. 対象画面の system spec に axe のチェックを入れ、コントラストとラベルの関連付けを機械で確認する
 3. 320px、768px、1280px 相当の幅で、横方向のはみ出し、読み順、タップ領域を目視する
