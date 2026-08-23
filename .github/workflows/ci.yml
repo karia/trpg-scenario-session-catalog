@@ -87,12 +87,15 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
+      # rubocop が落ちても後続の結果を潰さないよう、失敗時も続行する。
       - name: Run the remaining prek hooks
+        if: '!cancelled()'
         run: prek run --all-files --skip rubocop --skip gitleaks
 
       # prek の gitleaks は entry が --staged 固定で、ステージが空の CI では
       # 常に 0 件になる。作業ツリー全体を対象に別途走らせる。
       - name: Scan the working tree for secrets
+        if: '!cancelled()'
         run: gitleaks dir . --redact
 
   test:
