@@ -88,7 +88,12 @@ jobs:
         run: bin/rubocop -f github
 
       - name: Run the remaining prek hooks
-        run: prek run --all-files --skip rubocop
+        run: prek run --all-files --skip rubocop --skip gitleaks
+
+      # prek の gitleaks は entry が --staged 固定で、ステージが空の CI では
+      # 常に 0 件になる。作業ツリー全体を対象に別途走らせる。
+      - name: Scan the working tree for secrets
+        run: gitleaks dir . --redact
 
   test:
     runs-on: ubuntu-latest
