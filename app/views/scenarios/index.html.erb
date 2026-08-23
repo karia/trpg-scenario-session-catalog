@@ -17,7 +17,7 @@
       </nav>
     </div>
 
-    <%= render "shared/ui/filter_panel", title: "絞り込み" do %>
+    <%= render "shared/ui/filter_panel", title: "絞り込み#{'（適用中）' if @listing.filtered?}" do %>
       <fieldset>
         <legend class="text-sm font-bold text-ui-text">人数</legend>
         <div class="mt-2 flex flex-wrap gap-2">
@@ -42,7 +42,7 @@
         <label class="block text-sm font-bold text-ui-text" for="author_name"><%= Author.model_name.human %></label>
         <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
           <div class="flex min-w-0 flex-wrap gap-2">
-            <% @listing.authors.each do |author| %><span class="inline-flex min-h-11 items-center gap-1 rounded-full border border-ui-outline-strong bg-ui-subtle px-3 text-sm"><%= author.name %><%= link_to "×", root_path(@listing.params(author_ids: @listing.authors.without(author).map(&:id).presence)), aria: { label: "#{author.name}を解除" }, class: "inline-flex min-h-7 min-w-7 items-center justify-center text-ui-action no-underline" %></span><% end %>
+            <% @listing.authors.each do |author| %><span class="inline-flex min-h-11 items-center rounded-full border border-ui-outline-strong bg-ui-subtle pl-3 text-sm"><%= author.name %><%= link_to "×", root_path(@listing.params(author_ids: @listing.authors.without(author).map(&:id).presence)), aria: { label: "#{author.name}を解除" }, class: "inline-flex min-h-11 min-w-11 items-center justify-center text-ui-action no-underline" %></span><% end %>
             <%= text_field_tag :author_name, (@listing.author_name if @listing.author_name_error?), list: "author-suggestions", autocomplete: "off", placeholder: "#{Author.model_name.human}名を入力", aria: { label: "#{Author.model_name.human}を追加", describedby: "author-help#{' author-error' if @listing.author_name_error?}", invalid: ("true" if @listing.author_name_error?) }, data: { action: "change->author-filter#submit" }, class: "min-h-11 min-w-0 flex-1 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text placeholder:text-ui-text-muted aria-invalid:border-ui-error" %>
           </div>
           <%= ui_button("追加", variant: :secondary, type: "submit") %>

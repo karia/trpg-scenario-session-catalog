@@ -91,7 +91,7 @@ RSpec.describe "The scenario list" do
       get root_path
 
       page = Capybara.string(response.body)
-      expect(page).to have_css("ul.md\\:hidden dl", visible: :all)
+      expect(page).to have_css("ul.lg\\:hidden dl", visible: :all)
       expect(page).to have_css("table", visible: :all)
 
       get root_path(view: "gallery")

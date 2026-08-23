@@ -1,10 +1,10 @@
-<ul class="mt-4 grid gap-4 md:hidden">
+<ul class="mt-4 grid gap-4 lg:hidden">
   <% scenarios.each do |scenario| %>
     <li><%= render "shared/ui/scenario_card", scenario:, owner: @owner, presentation: :details %></li>
   <% end %>
 </ul>
 
-<div class="mt-4 hidden overflow-hidden rounded-ui-card border border-ui-outline bg-ui-surface-solid md:block">
+<div class="mt-4 hidden overflow-hidden rounded-ui-card border border-ui-outline bg-ui-surface-solid lg:block">
   <table class="w-full text-sm">
     <caption class="sr-only">絞り込み条件に一致した<%= Scenario.model_name.human %></caption>
     <thead class="border-b border-ui-outline text-left text-ui-caption text-ui-text-muted">
