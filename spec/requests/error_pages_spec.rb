@@ -14,7 +14,10 @@ RSpec.describe "Error pages" do
 
     expect(response).to have_http_status(:not_found)
     expect(response.body).to include("ページが見つかりませんでした")
-    expect(Capybara.string(response.body)).to have_link("トップページに戻る", href: root_path)
+    page = Capybara.string(response.body)
+    expect(page).to have_css("body.bg-ui-background.text-ui-text")
+    expect(page).to have_css("h1.text-ui-text", text: "ページが見つかりませんでした")
+    expect(page).to have_link("トップページに戻る", href: root_path)
     expect(response).not_to be_redirect
   end
 
