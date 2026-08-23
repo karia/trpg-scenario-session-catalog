@@ -29,20 +29,22 @@ RSpec.describe "The player role on the manage screen" do
     expect(person.reload.roles).to eq([ "gm" ])
   end
 
-  # フォームにも「プレイヤー」の文字があるため、一覧行の書式ごと確かめる。
   it "lists プレイヤー as a role for everyone on the member index" do
     person
 
     get people_path
 
-    expect(response.body).to include("権限: プレイヤー")
+    card = Capybara.string(response.body).find("article", text: person.display_name)
+    expect(card).to have_css("dt", text: "権限")
+    expect(card).to have_css("dd", text: "プレイヤー", exact_text: true)
   end
 
   it "lists the stored roles after プレイヤー" do
-    create(:person, display_name: "GM の人", roles: %w[gm])
+    gm = create(:person, display_name: "GM の人", roles: %w[gm])
 
     get people_path
 
-    expect(response.body).to include("権限: プレイヤー、GM")
+    card = Capybara.string(response.body).find("article", text: gm.display_name)
+    expect(card).to have_css("dd", text: "プレイヤー、GM", exact_text: true)
   end
 end

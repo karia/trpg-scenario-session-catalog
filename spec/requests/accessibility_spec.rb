@@ -13,7 +13,8 @@ RSpec.describe "Accessibility" do
   end
 
   it "keeps not-yet-migrated content on the legacy surface" do
-    get new_registration_path
+    sign_in_as create(:person)
+    get play_sessions_path
 
     expect(Capybara.string(response.body)).to have_css(
       'main[data-ui-theme="legacy"].bg-paper.text-ink'

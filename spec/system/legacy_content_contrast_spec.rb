@@ -4,10 +4,6 @@ RSpec.describe "Legacy content contrast" do
   it "keeps every not-yet-migrated screen accessible on its legacy surface" do
     skip "Chrome is required for axe checks" unless ENV["CHROME_BINARY"].present?
 
-    visit new_registration_path
-    expect(page).to have_css('main[data-ui-theme="legacy"].bg-paper.text-ink')
-    expect(page).to be_axe_clean
-
     admin = create(:person, roles: %w[admin gm])
     current_user = create(:user, person: admin)
     person = create(:person)
@@ -28,7 +24,6 @@ RSpec.describe "Legacy content contrast" do
     legacy_paths = [
       scenario_path(scenario), new_scenario_path, edit_scenario_path(scenario),
       play_sessions_path, play_session_path(play_session), new_play_session_path, edit_play_session_path(play_session),
-      people_path, person_path(person), new_person_path, edit_person_path(person),
       authors_path, author_path(author), new_author_path, edit_author_path(author),
       game_systems_path, game_system_path(game_system), new_game_system_path, edit_game_system_path(game_system),
       manage_groups_path, manage_group_path(group), edit_manage_group_path(group),

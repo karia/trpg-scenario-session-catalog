@@ -1,54 +1,15 @@
-<%= form_with model: person, class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
+<%= form_with model: person, class: "space-y-6" do |form| %>
   <%= accessible_error_summary(person) %>
-
-  <div class="grid gap-4 sm:grid-cols-2">
-    <div>
-      <%= form.label :display_name, "表示名", class: "block text-xs text-muted" %>
-      <%= form.text_field :display_name, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+  <section class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
+    <div class="grid gap-5 sm:grid-cols-2">
+      <%= ui_field(form, :display_name, label: "表示名", required: true) do |field| %><%= ui_input(form, :display_name, described_by: field[:described_by], required: true) %><% end %>
+      <%= ui_field(form, :x_account, label: "X のアカウント名") do |field| %><%= ui_input(form, :x_account, described_by: field[:described_by]) %><% end %>
+      <div class="sm:col-span-2"><%= form.label :icon, "アイコン", class: "mb-1 block text-sm font-bold" %><%= form.file_field :icon, accept: "image/png,image/jpeg,image/webp", class: "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-sm" %></div>
     </div>
-    <div>
-      <%= form.label :x_account, "X のアカウント名", class: "block text-xs text-muted" %>
-      <%= form.text_field :x_account, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
-    </div>
-  </div>
-
-  <div>
-    <%= form.label :icon, "アイコン", class: "block text-xs text-muted" %>
-    <%= form.file_field :icon, accept: "image/png,image/jpeg,image/webp", class: "mt-1 text-sm" %>
-  </div>
-
-  <div>
-    <span class="block text-xs text-muted">権限</span>
-
-    <%# プレイヤーは全員が持つ。付け外しできないことを画面でも示す。 %>
-    <label class="mr-4 inline-flex items-center gap-1 text-sm text-muted">
-      <%= check_box_tag "person_roles_player_display", "player", true,
-            disabled: true, id: "person_roles_player" %>
-      <%= t("people.roles.player") %>
-    </label>
-
-    <% PersonRole::ROLES.each_key do |role| %>
-      <label class="mr-4 inline-flex items-center gap-1 text-sm">
-        <%= check_box_tag "person[roles][]", role, person.roles.include?(role.to_s), id: "person_roles_#{role}" %>
-        <%= t("people.roles.#{role}") %>
-      </label>
-    <% end %>
-    <%= hidden_field_tag "person[roles][]", "" %>
-
-    <p class="mt-1 text-xs text-muted">プレイヤーはログインした全員が持ちます。外せません。</p>
-  </div>
-
-  <div>
-    <span class="block text-xs text-muted"><%= Group.model_name.human %></span>
-    <%= form.collection_check_boxes :manual_group_ids, Group.all.to_a, :id, :name do |b| %>
-      <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= b.check_box %> <%= b.text %></label>
-    <% end %>
-  </div>
-
-  <div class="flex gap-4">
-    <%= form.submit person.persisted? ? "更新" : "追加", class: "bg-ink px-5 py-2 text-sm text-paper" %>
-    <%= link_to person.persisted? ? "詳細に戻る" : "一覧に戻る",
-          person.persisted? ? person_path(person) : people_path,
-          class: "self-center text-sm text-muted" %>
+  </section>
+  <%= render "people/administration_fields", form:, person: %>
+  <div class="flex flex-wrap gap-3">
+    <%= ui_button(person.persisted? ? "更新" : "追加", type: "submit") %>
+    <%= ui_button_link(person.persisted? ? "詳細に戻る" : "一覧に戻る", href: (person.persisted? ? person_path(person) : people_path), variant: :secondary) %>
   </div>
 <% end %>

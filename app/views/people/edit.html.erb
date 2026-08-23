@@ -1,40 +1,36 @@
 <% content_for :title, "#{@person.display_name} のプロフィール編集" %>
+<% content_for :ui_theme, "dark" %>
 
-<h1 class="font-display text-2xl"><%= policy(@person).manage? ? "#{Person.model_name.human}の編集" : "プロフィールの編集" %></h1>
+<div class="space-y-6">
+  <%= render "shared/ui/page_header", title: (policy(@person).manage? ? "#{Person.model_name.human}の編集" : "プロフィールの編集") %>
+  <%= form_with model: @person, class: "space-y-6" do |form| %>
+    <%= accessible_error_summary(@person) %>
+    <% if @lost_roles.present? %>
+      <%= render "shared/ui/self_demotion_warning", roles: @lost_roles %>
+      <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>
+    <% end %>
 
-<%= form_with model: @person, class: "mt-6 space-y-6" do |form| %>
-  <%= accessible_error_summary(@person) %>
-  <% if @lost_roles.present? %>
-    <%= render "shared/self_demotion_warning", roles: @lost_roles %>
-    <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>
-  <% end %>
-
-  <fieldset class="border border-rule bg-surface p-5">
-    <legend class="px-2 font-display text-sm">あなたのこと</legend>
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div>
-        <%= form.label :x_account, "X のアカウント名（@ は不要）", class: "block text-xs text-muted" %>
-        <%= form.text_field :x_account, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+    <fieldset class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
+      <legend class="px-2 font-display text-lg font-bold">あなたのこと</legend>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <%= ui_field(form, :x_account, label: "X のアカウント名（@ は不要）") do |field| %><%= ui_input(form, :x_account, described_by: field[:described_by], autocomplete: "username") %><% end %>
+        <div class="sm:col-span-2">
+          <%= form.label :icon, "アイコン", class: "mb-1 block text-sm font-bold" %>
+          <%= form.file_field :icon, accept: "image/png,image/jpeg,image/webp", class: "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-sm file:mr-3 file:rounded-ui-control file:border-0 file:bg-ui-subtle file:px-3 file:py-1 file:text-ui-text" %>
+        </div>
       </div>
-      <div class="sm:col-span-2">
-        <%= form.label :icon, "アイコン", class: "block text-xs text-muted" %>
-        <%= form.file_field :icon, accept: "image/png,image/jpeg,image/webp", class: "mt-1 text-sm" %>
-      </div>
+    </fieldset>
+
+    <%= render "shared/ui/alias_fields", form:, display_attribute: :display_name, alias_class: PersonAlias %>
+    <% if policy(@person).manage? %>
+      <%= render "people/administration_fields", form:, person: @person, selected_roles: @selected_roles, selected_group_ids: @selected_group_ids %>
+    <% else %>
+      <p class="text-ui-caption text-ui-text-muted"><%= Group.model_name.human %>の所属は管理者が設定します。</p>
+    <% end %>
+
+    <div class="flex flex-wrap gap-3">
+      <%= ui_button(@lost_roles.present? ? t("people.self_demotion.continue") : "保存", type: "submit") %>
+      <%= ui_button_link("詳細に戻る", href: person_path(@person), variant: :secondary) %>
     </div>
-  </fieldset>
-
-  <%= render "shared/alias_fields", form: form, display_attribute: :display_name, alias_class: PersonAlias %>
-
-  <% if policy(@person).manage? %>
-    <%= render "people/administration_fields", form: form, person: @person,
-          selected_roles: @selected_roles, selected_group_ids: @selected_group_ids %>
-  <% else %>
-    <p class="text-xs text-muted"><%= Group.model_name.human %>の所属は管理者が設定します。</p>
   <% end %>
-
-  <div class="flex gap-4">
-    <%= form.submit @lost_roles.present? ? t("people.self_demotion.continue") : "保存",
-          class: "cursor-pointer bg-ink px-6 py-2 text-sm text-paper" %>
-    <%= link_to "詳細に戻る", person_path(@person), class: "self-center text-sm text-muted" %>
-  </div>
-<% end %>
+</div>
