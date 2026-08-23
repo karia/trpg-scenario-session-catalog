@@ -53,7 +53,7 @@ RSpec.describe "Manage masters" do
       get public_send(edit_path, record), headers: headers
 
       page = Capybara.string(response.body)
-      expect(page).to have_css("input.w-full", count: 2)
+      expect(page).to have_css("fieldset:first-of-type input.w-full", count: 2)
       expect(page).to have_css("input[type=checkbox][disabled]", count: 2)
       expect(page).to have_no_css("input[type=radio]")
       expect(page).to have_select("#{factory}[display_alias_key]", options: [ "既存（現在の表示名）", "別名" ])

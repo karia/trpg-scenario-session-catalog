@@ -1,17 +1,27 @@
 <% content_for :title, title %>
-<h1 class="font-display text-2xl"><%= title %></h1>
-<% if local_assigns[:new_path] && policy(records.model).create? %><p class="mt-4"><%= link_to "新規登録", new_path, class: "text-sm text-seal" %></p><% end %>
+<% content_for :ui_theme, "dark" %>
 
-<ul class="mt-6 divide-y divide-rule border border-rule bg-surface text-sm">
-  <% records.each do |item| %>
-    <li class="flex items-center justify-between p-3">
-      <span><%= item.name %></span>
-      <span class="flex gap-1 text-xs">
-        <%= link_to "詳細", record_path.call(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %>
-        <% if policy(item).update? %><%= link_to "編集", edit_path.call(item), class: "inline-flex min-h-6 items-center px-1 text-seal" %><% end %>
-        <%= render "shared/delete_button", record: item, path: record_path.call(item), label: "削除",
-              aria_label: "#{item.name} を削除", confirm: "#{item.name} を削除しますか" %>
-      </span>
-    </li>
+<div class="space-y-6">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <%= render "shared/ui/page_header", title: %>
+    <% if local_assigns[:new_path] && policy(records.model).create? %><%= ui_button_link("新規登録", href: new_path) %><% end %>
+  </div>
+  <% if records.any? %>
+    <ul class="grid gap-3">
+      <% records.each do |item| %>
+        <li><%= render "shared/ui/card" do %>
+          <div class="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <p class="min-w-0 break-words font-bold text-ui-text"><%= item.name %></p>
+            <div class="flex flex-wrap gap-2">
+              <%= ui_button_link("詳細", href: record_path.call(item), variant: :secondary, size: :small) %>
+              <% if policy(item).update? %><%= ui_button_link("編集", href: edit_path.call(item), variant: :secondary, size: :small) %><% end %>
+              <% if policy(item).destroy? %><%= form_with url: record_path.call(item), method: :delete, data: { turbo_confirm: "#{item.name} を削除しますか" } do %><%= ui_button("削除", variant: :danger, size: :small, type: "submit", aria: { label: "#{item.name} を削除" }) %><% end %><% end %>
+            </div>
+          </div>
+        <% end %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render "shared/ui/empty_state", title: "まだ登録されていません。", description: local_assigns[:new_path] ? "新規登録から追加できます。" : nil %>
   <% end %>
-</ul>
+</div>
