@@ -1,34 +1,18 @@
 <% content_for :title, @user.email.presence || "#{@user.provider_name} #{User.model_name.human}" %>
+<% content_for :ui_theme, "dark" %>
 
-<article>
-  <div class="flex flex-wrap items-baseline justify-between gap-4">
-    <h1 class="font-display text-2xl"><%= @user.email.presence || "メールアドレス不明" %></h1>
-    <div class="flex flex-wrap items-baseline gap-4">
-      <%= link_to "編集", edit_manage_user_path(@user), class: "text-sm text-seal" %>
-      <%= render "shared/delete_button", record: @user, path: manage_user_path(@user),
-            label: "この#{User.model_name.human}を削除",
-            confirm: "#{@user.email.presence || @user.provider_name} を削除しますか",
-            disabled_label: "ログイン中の#{User.model_name.human}は削除できません",
-            class_name: "text-sm text-seal", disabled_class_name: "text-sm text-muted cursor-not-allowed" %>
-    </div>
+<article class="space-y-6">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="min-w-0 break-all"><%= render "shared/ui/page_header", title: (@user.email.presence || "メールアドレス不明") %></div>
+    <div class="flex flex-wrap gap-2"><%= ui_button_link("編集", href: edit_manage_user_path(@user), variant: :secondary, size: :small) %>
+      <% if policy(@user).destroy? %><%= form_with url: manage_user_path(@user), method: :delete, data: { turbo_confirm: "#{@user.email.presence || @user.provider_name} を削除しますか" } do %><%= ui_button("この#{User.model_name.human}を削除", variant: :danger, size: :small, type: "submit") %><% end %>
+      <% elsif policy(@user).offer_destroy? %><%= ui_button("ログイン中の#{User.model_name.human}は削除できません", variant: :secondary, size: :small, disabled: true) %><% end %></div>
   </div>
-
-  <dl class="mt-6 grid grid-cols-[7rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 text-sm">
-    <dt class="text-muted">ログイン方法</dt>
-    <dd><%= @user.provider_name %></dd>
-    <dt class="text-muted">表示名</dt>
-    <dd><%= @user.name.presence || "不明" %></dd>
-    <dt class="text-muted">初回ログイン</dt>
-    <dd><%= l @user.created_at, format: :short %></dd>
-    <dt class="text-muted">紐づけ先</dt>
-    <dd>
-      <% if @user.person %>
-        <%= link_to @user.person.display_name, person_path(@user.person), class: "text-seal" %>
-      <% else %>
-        未紐づけ
-      <% end %>
-    </dd>
+  <dl class="grid gap-x-5 gap-y-3 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
+    <dt class="text-ui-text-muted">ログイン方法</dt><dd><%= @user.provider_name %></dd>
+    <dt class="text-ui-text-muted">表示名</dt><dd><%= @user.name.presence || "不明" %></dd>
+    <dt class="text-ui-text-muted">初回ログイン</dt><dd><%= l @user.created_at, format: :short %></dd>
+    <dt class="text-ui-text-muted">紐づけ先</dt><dd><% if @user.person %><%= link_to @user.person.display_name, person_path(@user.person), class: "text-ui-action" %><% else %>未紐づけ<% end %></dd>
   </dl>
-
-  <p class="mt-8"><%= link_to "一覧に戻る", manage_users_path, class: "text-sm text-muted" %></p>
+  <%= ui_button_link("一覧に戻る", href: manage_users_path, variant: :secondary) %>
 </article>

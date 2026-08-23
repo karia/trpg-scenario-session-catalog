@@ -1,65 +1,42 @@
 <% content_for :title, @person.display_name %>
+<% content_for :ui_theme, "dark" %>
 
-<article>
-  <div class="flex flex-wrap items-start gap-6">
-    <span class="size-24 shrink-0 overflow-hidden rounded-full border border-rule bg-surface">
-      <% if @person.icon.attached? %>
-        <%= image_tag @person.icon.variant(:thumb), alt: "", class: "size-full object-cover" %>
-      <% end %>
+<article class="space-y-8">
+  <header class="grid gap-6 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start sm:p-7">
+    <span class="size-24 overflow-hidden rounded-full border border-ui-outline-strong bg-ui-field-solid">
+      <% if @person.icon.attached? %><%= image_tag @person.icon.variant(:thumb), alt: "", class: "size-full object-cover" %><% end %>
     </span>
-
-    <div class="grow">
-      <h1 class="font-display text-3xl tracking-wide"><%= @person.display_name %></h1>
-      <% if @person.x_account.present? %>
-        <p class="mt-1 text-sm">
-          <%= link_to "@#{@person.x_account}", "https://x.com/#{@person.x_account}",
-                target: "_blank", rel: "noopener", class: "text-seal" %>
-        </p>
-      <% end %>
-      <p class="mt-2 text-xs text-muted">
-        <%= Group.model_name.human %>: <%= @person.groups.map(&:name).join("、").presence || "なし" %>
-      </p>
+    <div class="min-w-0 space-y-2">
+      <%= render "shared/ui/page_header", title: @person.display_name %>
+      <% if @person.x_account.present? %><p><%= link_to "@#{@person.x_account}", "https://x.com/#{@person.x_account}", target: "_blank", rel: "noopener", class: "inline-flex min-h-11 items-center text-ui-action" %></p><% end %>
+      <p class="text-ui-caption text-ui-text-muted"><%= Group.model_name.human %>: <%= @person.groups.map(&:name).join("、").presence || "なし" %></p>
     </div>
-
-    <div class="flex flex-wrap items-baseline gap-3">
-      <% if policy(@person).update? %>
-        <%= link_to "編集", edit_person_path(@person), class: "text-sm text-seal" %>
+    <div class="flex flex-wrap gap-2">
+      <% if policy(@person).update? %><%= ui_button_link("編集", href: edit_person_path(@person), variant: :secondary, size: :small) %><% end %>
+      <% if policy(@person).destroy? %>
+        <%= form_with url: person_path(@person), method: :delete, data: { turbo_confirm: "#{@person.display_name} を削除しますか" } do %><%= ui_button("この#{Person.model_name.human}を削除", variant: :danger, size: :small, type: "submit") %><% end %>
+      <% elsif policy(@person).offer_destroy? %>
+        <%= ui_button("自分自身は削除できません", variant: :secondary, size: :small, disabled: true) %>
       <% end %>
-      <%= render "shared/delete_button", record: @person, path: person_path(@person),
-            label: "この#{Person.model_name.human}を削除",
-            confirm: "#{@person.display_name} を削除しますか",
-            disabled_label: "自分自身は削除できません",
-            class_name: "text-sm text-seal", disabled_class_name: "text-sm text-muted cursor-not-allowed" %>
     </div>
-  </div>
+  </header>
 
   <% if @person.visible_aliases.any? %>
-    <section class="mt-10">
-      <h2 class="font-display text-xl">別名</h2>
-      <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
-        <% @person.visible_aliases.each do |person_alias| %>
-          <li class="flex items-baseline gap-4 p-3">
-            <span class="font-display"><%= person_alias.name %></span>
-            <span class="text-xs text-muted"><%= person_alias.context %></span>
-          </li>
-        <% end %>
+    <section class="space-y-3" aria-labelledby="aliases-heading">
+      <h2 id="aliases-heading" class="font-display text-xl font-bold">別名</h2>
+      <ul class="divide-y divide-ui-outline rounded-ui-card border border-ui-outline bg-ui-surface-solid">
+        <% @person.visible_aliases.each do |person_alias| %><li class="grid gap-1 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]"><span class="font-bold"><%= person_alias.name %></span><span class="text-ui-caption text-ui-text-muted"><%= person_alias.context %></span></li><% end %>
       </ul>
     </section>
   <% end %>
 
-  <section class="mt-10">
-    <h2 class="font-display text-xl">お気に入り<%= Scenario.model_name.human %></h2>
+  <section class="space-y-3" aria-labelledby="favorites-heading">
+    <h2 id="favorites-heading" class="font-display text-xl font-bold">お気に入り<%= Scenario.model_name.human %></h2>
     <% favorites = @person.favorite_scenarios.order(:title) %>
     <% if favorites.any? %>
-      <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
-        <% favorites.each do |scenario| %>
-          <li class="p-3">
-            <%= link_to scenario.title, scenario_path(scenario), class: "text-seal" %>
-          </li>
-        <% end %>
-      </ul>
+      <ul class="grid gap-3 sm:grid-cols-2"><% favorites.each do |scenario| %><li><%= render "shared/ui/card" do %><%= link_to scenario.title, scenario_path(scenario), class: "flex min-h-11 items-center p-4 font-bold text-ui-action" %><% end %></li><% end %></ul>
     <% else %>
-      <p class="mt-3 text-sm text-muted">まだありません。</p>
+      <%= render "shared/ui/empty_state", title: "お気に入り#{Scenario.model_name.human}はまだありません。" %>
     <% end %>
   </section>
 </article>

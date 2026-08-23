@@ -1,13 +1,7 @@
 <% content_for :title, SiteSetting.model_name.human %>
+<% content_for :ui_theme, "dark" %>
 
-<article>
-  <div class="flex flex-wrap items-baseline justify-between gap-4">
-    <h1 class="font-display text-2xl"><%= SiteSetting.model_name.human %></h1>
-    <%= link_to "編集", edit_manage_site_setting_path, class: "text-sm text-seal" %>
-  </div>
-
-  <dl class="mt-6 grid grid-cols-[12rem_1fr] gap-x-4 gap-y-2 border-t border-rule pt-4 text-sm">
-    <dt class="text-muted">Google Analytics 測定 ID</dt>
-    <dd><%= @site_setting.google_analytics_measurement_id.presence || "無効" %></dd>
-  </dl>
+<article class="space-y-6">
+  <div class="flex flex-wrap items-end justify-between gap-4"><%= render "shared/ui/page_header", title: SiteSetting.model_name.human %><%= ui_button_link("編集", href: edit_manage_site_setting_path, variant: :secondary) %></div>
+  <dl class="grid gap-x-5 gap-y-3 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 text-sm sm:grid-cols-[14rem_minmax(0,1fr)]"><dt class="text-ui-text-muted">Google Analytics 測定 ID</dt><dd class="break-all font-mono"><%= @site_setting.google_analytics_measurement_id.presence || "無効" %></dd></dl>
 </article>

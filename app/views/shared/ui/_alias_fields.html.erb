@@ -1,0 +1,27 @@
+<fieldset class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
+  <legend class="px-2 font-display text-lg font-bold text-ui-text">名前</legend>
+  <p class="text-ui-caption text-ui-text-muted">表示名は一覧や詳細で使われ、常に公開されます。</p>
+
+  <div class="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
+    <%= ui_field(form, display_attribute, label: "現在の表示名") do |field| %><%= ui_input(form, display_attribute, described_by: field[:described_by]) %><% end %>
+    <label class="inline-flex min-h-11 items-center gap-2 text-sm text-ui-text-muted"><%= check_box_tag nil, nil, true, disabled: true, class: "size-5" %> 表示</label>
+    <label class="inline-flex min-h-11 items-center gap-2 text-sm text-ui-text-muted"><%= check_box_tag nil, nil, false, disabled: true, class: "size-5" %> 削除</label>
+  </div>
+
+  <div class="mt-4 space-y-4" data-controller="nested-form" data-action="input->nested-form#syncAliasOptions change->nested-form#syncAliasOptions">
+    <template data-nested-form-target="template">
+      <%= form.fields_for :aliases, alias_class.new, child_index: "NEW_RECORD" do |row| %><%= render "shared/ui/alias_row", form:, row: %><% end %>
+    </template>
+    <%= form.fields_for :aliases do |row| %><%= render "shared/ui/alias_row", form:, row: %><% end %>
+    <div data-nested-form-target="anchor"></div>
+    <%= ui_button("名前を足す", variant: :secondary, size: :small, data: { action: "nested-form#add" }) %>
+
+    <div class="pt-2">
+      <%= form.label :display_alias_key, "表示名", class: "mb-1 block text-sm font-bold text-ui-text" %>
+      <%= form.select :display_alias_key,
+            [ [ "#{form.object.public_send(display_attribute)}（現在の表示名）", "" ] ] + form.object.aliases.map { |item| [ item.name, item.selection_key.presence || item.id ] }, {},
+            class: "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text",
+            data: { nested_form_target: "aliasSelect", base_label: "#{form.object.public_send(display_attribute)}（現在の表示名）" } %>
+    </div>
+  </div>
+</fieldset>

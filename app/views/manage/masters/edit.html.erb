@@ -1,23 +1,16 @@
 <% content_for :title, "#{@record.name} の編集" %>
+<% content_for :ui_theme, "dark" %>
 
-<h1 class="font-display text-2xl"><%= @record.name %> の編集</h1>
+<div class="space-y-6">
+  <%= render "shared/ui/page_header", title: "#{@record.name} の編集" %>
+  <%= form_with model: @record, class: "space-y-6" do |form| %>
+    <%= accessible_error_summary(@record) %>
+    <%= render "shared/ui/alias_fields", form:, display_attribute: :name, alias_class: @record.class.reflect_on_association(:aliases).klass %>
 
-<%= form_with model: @record, class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
-  <%= accessible_error_summary(@record) %>
+    <% if @record.is_a?(GameSystem) %>
+      <%= render "shared/ui/card" do %><div class="p-5 sm:p-6"><%= ui_field(form, :game_master_label, label: "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}の呼称", description: "未指定の場合は「#{GameSystem::DEFAULT_GAME_MASTER_LABEL}」と表示します。") do |field| %><div class="max-w-48"><%= ui_input(form, :game_master_label, described_by: field[:described_by], placeholder: GameSystem::DEFAULT_GAME_MASTER_LABEL) %></div><% end %></div><% end %>
+    <% end %>
 
-  <%= render "shared/alias_fields", form: form, display_attribute: :name,
-        alias_class: @record.class.reflect_on_association(:aliases).klass %>
-
-  <% if @record.is_a?(GameSystem) %>
-    <div>
-      <%= form.label :game_master_label, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}の呼称", class: "block text-xs text-muted" %>
-      <%= form.text_field :game_master_label, placeholder: GameSystem::DEFAULT_GAME_MASTER_LABEL, class: "mt-1 w-32 border border-rule bg-paper px-3 py-2 text-sm" %>
-      <p class="mt-1 text-xs text-muted">未指定の場合は「<%= GameSystem::DEFAULT_GAME_MASTER_LABEL %>」と表示します。</p>
-    </div>
+    <div class="flex flex-wrap gap-3"><%= ui_button("更新", type: "submit") %><%= ui_button_link("詳細に戻る", href: url_for(action: :show, id: @record), variant: :secondary) %></div>
   <% end %>
-
-  <div class="flex gap-4">
-    <%= form.submit "更新", class: "bg-ink px-5 py-2 text-sm text-paper" %>
-    <%= link_to "詳細に戻る", url_for(action: :show, id: @record), class: "self-center text-sm text-muted" %>
-  </div>
-<% end %>
+</div>
