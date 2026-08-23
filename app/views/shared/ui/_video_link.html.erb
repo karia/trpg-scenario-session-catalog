@@ -1,0 +1,14 @@
+<% if (embed_url = youtube_embed_url(url)) %>
+  <div class="aspect-video overflow-hidden rounded-ui-control bg-black">
+    <%= tag.iframe title:, src: embed_url, class: "h-full w-full", loading: "lazy",
+          allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
+          allowfullscreen: true %>
+  </div>
+<% else %>
+  <div class="grid gap-1">
+    <%= link_to link_text, url, target: "_blank", rel:, class: "font-bold text-ui-action" %>
+    <% if show_url %>
+      <%= link_to url, url, target: "_blank", rel:, class: "text-ui-caption text-ui-text-muted" %>
+    <% end %>
+  </div>
+<% end %>
