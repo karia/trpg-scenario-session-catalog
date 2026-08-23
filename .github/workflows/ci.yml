@@ -26,9 +26,6 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
 
@@ -59,6 +56,9 @@ jobs:
       contents: read
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
+      # フックは mise exec 越しに ruby を呼ぶ。mise の ruby は ruby-build で
+      # ソースからビルドされるため、setup-ruby が入れた PATH 上の ruby へ委ねる。
+      MISE_DISABLE_TOOLS: ruby,node
     steps:
       - name: Checkout code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -70,6 +70,9 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Set up mise
+        uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
+
       - name: Prepare RuboCop cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         env:
@@ -80,11 +83,12 @@ jobs:
           restore-keys: |
             rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
 
+      # rubocop だけ prek から外すのは、-f github の行アノテーションを PR に出すため。
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
-      - name: Lint ERB templates
-        run: bundle exec erb_lint --lint-all
+      - name: Run the remaining prek hooks
+        run: prek run --all-files --skip rubocop
 
   test:
     runs-on: ubuntu-latest
