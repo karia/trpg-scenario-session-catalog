@@ -1,13 +1,12 @@
 <% if policy(scenario).show_gm_supplementary_info? %>
-  <section class="mt-10">
-    <h2 class="font-display text-xl"><%= scenario.game_master_label %>からの補足情報</h2>
-    <dl class="mt-3 grid grid-cols-[10rem_1fr] gap-x-4 gap-y-2 text-sm">
-      <dt class="text-muted">参加可能キャラの制限</dt>
-      <dd><%= auto_link_urls(scenario.character_restriction.presence || "制限なし") %></dd>
-      <dt class="text-muted">キャラシ提出期限</dt>
-      <dd><%= character_sheet_deadline_label(scenario) %></dd>
-      <dt class="text-muted">キャラシ提出期限の補足</dt>
-      <dd><%= auto_link_urls(scenario.character_sheet_deadline_note.presence || "補足なし") %></dd>
-    </dl>
+  <section class="mt-10 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
+    <h2 class="font-display text-xl font-bold"><%= scenario.game_master_label %>からの補足情報</h2>
+    <div class="mt-4">
+      <%= render "shared/ui/definition_list", items: [
+        { term: "参加可能キャラの制限", description: auto_link_urls(scenario.character_restriction.presence || "制限なし") },
+        { term: "キャラシ提出期限", description: character_sheet_deadline_label(scenario) },
+        { term: "キャラシ提出期限の補足", description: auto_link_urls(scenario.character_sheet_deadline_note.presence || "補足なし") }
+      ] %>
+    </div>
   </section>
 <% end %>

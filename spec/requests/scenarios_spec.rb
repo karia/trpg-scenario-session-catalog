@@ -134,7 +134,7 @@ RSpec.describe "Scenarios" do
       expect(page).to have_css(hidden_embed, visible: :all)
       expect(page).to have_button("おすすめ配信を開く")
       expect(page).to have_button("おすすめ配信を閉じる", visible: :all)
-      expect(page).to have_css('[data-video-disclosure-target="content"].bg-surface', visible: :all)
+      expect(page).to have_css('[data-video-disclosure-target="content"].bg-ui-surface-solid', visible: :all)
       expect(page).to have_css('[data-controller="video-disclosure"]' \
         '[data-action*="turbo:before-cache@document->video-disclosure#reset"]')
       expect(page).to have_css('[data-video-disclosure-target="closeButton"]', visible: :all)
