@@ -24,6 +24,7 @@ RSpec.describe "Legacy content contrast" do
 
     visit root_path
     click_button "Googleでログイン"
+    expect(page).to have_link(admin.display_name, href: person_path(admin))
 
     legacy_paths = [
       scenario_path(scenario), new_scenario_path, edit_scenario_path(scenario),
