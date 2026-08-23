@@ -1,24 +1,15 @@
 <% content_for :title, "#{@user.provider_name} #{User.model_name.human}の編集" %>
+<% content_for :ui_theme, "dark" %>
 
-<h1 class="font-display text-2xl"><%= @user.provider_name %> <%= User.model_name.human %>の編集</h1>
-<p class="mt-2 font-mono text-xs"><%= @user.email.presence || "メールアドレス不明" %></p>
-
-<%= form_with model: [ :manage, @user ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
-  <%= accessible_error_summary(@user) %>
-  <% if @lost_roles.present? %>
-    <%= render "shared/self_demotion_warning", roles: @lost_roles %>
-    <%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %>
+<div class="space-y-6">
+  <div><%= render "shared/ui/page_header", title: "#{@user.provider_name} #{User.model_name.human}の編集" %><p class="mt-2 break-all font-mono text-sm text-ui-text-muted"><%= @user.email.presence || "メールアドレス不明" %></p></div>
+  <%= form_with model: [ :manage, @user ], class: "space-y-6" do |form| %>
+    <%= accessible_error_summary(@user) %>
+    <% if @lost_roles.present? %><%= render "shared/ui/self_demotion_warning", roles: @lost_roles %><%= hidden_field_tag :confirm_self_demotion, @lost_roles.join(",") %><% end %>
+    <div class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
+      <%= form.label :person_id, "紐づけ先", class: "mb-1 block text-sm font-bold" %>
+      <%= form.collection_select :person_id, Person.order(:display_name), :id, :display_name, { include_blank: "未紐づけ" }, class: "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text" %>
+    </div>
+    <div class="flex flex-wrap gap-3"><%= ui_button(@lost_roles.present? ? t("people.self_demotion.continue") : "更新", type: "submit") %><%= ui_button_link("詳細に戻る", href: manage_user_path(@user), variant: :secondary) %></div>
   <% end %>
-
-  <div>
-    <%= form.label :person_id, "紐づけ先", class: "block text-xs text-muted" %>
-    <%= form.collection_select :person_id, Person.order(:display_name), :id, :display_name,
-          { include_blank: "未紐づけ" }, class: "mt-1 border border-rule bg-paper px-3 py-2 text-sm" %>
-  </div>
-
-  <div class="flex gap-4">
-    <%= form.submit @lost_roles.present? ? t("people.self_demotion.continue") : "更新",
-          class: "bg-ink px-5 py-2 text-sm text-paper" %>
-    <%= link_to "詳細に戻る", manage_user_path(@user), class: "self-center text-sm text-muted" %>
-  </div>
-<% end %>
+</div>

@@ -27,9 +27,7 @@ RSpec.describe "Legacy content contrast" do
       play_sessions_path, play_session_path(play_session), new_play_session_path, edit_play_session_path(play_session),
       authors_path, author_path(author), new_author_path, edit_author_path(author),
       game_systems_path, game_system_path(game_system), new_game_system_path, edit_game_system_path(game_system),
-      manage_groups_path, manage_group_path(group), edit_manage_group_path(group),
-      manage_users_path, manage_user_path(user), edit_manage_user_path(user),
-      manage_site_setting_path, edit_manage_site_setting_path
+      manage_groups_path, manage_group_path(group), edit_manage_group_path(group)
     ]
 
     legacy_paths.each do |path|
