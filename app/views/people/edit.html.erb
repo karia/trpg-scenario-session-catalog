@@ -14,10 +14,7 @@
       <legend class="px-2 font-display text-lg font-bold">あなたのこと</legend>
       <div class="grid gap-5 sm:grid-cols-2">
         <%= ui_field(form, :x_account, label: "X のアカウント名（@ は不要）") do |field| %><%= ui_input(form, :x_account, described_by: field[:described_by], autocomplete: "username") %><% end %>
-        <div class="sm:col-span-2">
-          <%= form.label :icon, "アイコン", class: "mb-1 block text-sm font-bold" %>
-          <%= form.file_field :icon, accept: "image/png,image/jpeg,image/webp", class: "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-sm file:mr-3 file:rounded-ui-control file:border-0 file:bg-ui-subtle file:px-3 file:py-1 file:text-ui-text" %>
-        </div>
+        <div class="sm:col-span-2"><%= ui_field(form, :icon, label: "アイコン") do |field| %><%= form.file_field :icon, accept: "image/png,image/jpeg,image/webp", aria: { describedby: field[:described_by] }, data: { ui_error_id: (form.field_id(:icon, :error) if @person.errors[:icon].any?) }, class: "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-sm file:mr-3 file:rounded-ui-control file:border-0 file:bg-ui-subtle file:px-3 file:py-1 file:text-ui-text aria-invalid:border-ui-error aria-invalid:ring-1 aria-invalid:ring-ui-error" %><% end %></div>
       </div>
     </fieldset>
 

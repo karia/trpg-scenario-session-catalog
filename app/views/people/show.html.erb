@@ -2,7 +2,7 @@
 <% content_for :ui_theme, "dark" %>
 
 <article class="space-y-8">
-  <header class="grid gap-6 rounded-ui-panel border border-ui-outline bg-ui-surface-solid p-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start sm:p-7">
+  <header class="grid gap-6 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start sm:p-7">
     <span class="size-24 overflow-hidden rounded-full border border-ui-outline-strong bg-ui-field-solid">
       <% if @person.icon.attached? %><%= image_tag @person.icon.variant(:thumb), alt: "", class: "size-full object-cover" %><% end %>
     </span>
