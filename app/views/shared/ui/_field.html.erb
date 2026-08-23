@@ -14,6 +14,6 @@
   <%= input %>
 
   <% if error_messages.any? %>
-    <p id="<%= error_id %>" class="text-ui-caption text-ui-error"><%= error_messages.join("、") %></p>
+    <p id="<%= error_id %>" class="text-ui-caption text-ui-error" data-error-attribute="<%= attribute %>"><%= error_messages.join("、") %></p>
   <% end %>
 </div>

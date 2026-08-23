@@ -20,7 +20,6 @@ RSpec.describe "Legacy content contrast" do
     expect(page).to have_link(admin.display_name, href: person_path(admin))
 
     legacy_paths = [
-      new_scenario_path, edit_scenario_path(scenario),
       new_play_session_path, edit_play_session_path(play_session)
     ]
 

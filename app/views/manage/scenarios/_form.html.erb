@@ -1,133 +1,48 @@
-<%= form_with model: scenario, class: "mt-6 space-y-8" do |form| %>
-  <%= accessible_error_summary(scenario) %>
-
-  <fieldset class="border border-rule bg-surface p-5">
-    <legend class="px-2 font-display text-sm">基本</legend>
-
-    <div class="space-y-4">
-      <div>
-        <%= form.label :title, "#{Scenario.model_name.human}名", class: "block text-xs text-muted" %>
-        <%= form.text_field :title, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-
-      <div>
-        <%= form.label :game_system_ids, GameSystem.model_name.human, class: "block text-xs text-muted" %>
-        <%= form.collection_check_boxes :game_system_ids, GameSystem.all, :id, :name do |b| %>
-          <label class="mr-4 inline-flex items-center gap-1 text-sm">
-            <%= b.check_box %> <%= b.text %>
-          </label>
-        <% end %>
-      </div>
-
-      <div>
-        <%= form.label :author_ids, Author.model_name.human, class: "block text-xs text-muted" %>
-        <%= form.collection_check_boxes :author_ids, Author.all, :id, :name do |b| %>
-          <label class="mr-4 inline-flex items-center gap-1 text-sm">
-            <%= b.check_box %> <%= b.text %>
-          </label>
-        <% end %>
-      </div>
-
-      <div>
-        <%= form.label :jacket, "ジャケット画像", class: "block text-xs text-muted" %>
-        <%= form.file_field :jacket, accept: "image/png,image/jpeg,image/webp", class: "mt-1 text-sm" %>
-      </div>
+<%= form_with model: scenario, class: "mt-8 space-y-8" do |form| %>
+  <%= ui_error_summary(scenario) %>
+  <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
+    <legend class="px-2 font-display text-lg font-bold text-ui-text">基本</legend>
+    <div class="space-y-5">
+      <%= ui_field(form, :title, label: "#{Scenario.model_name.human}名", required: true) do |field| %><%= ui_input(form, :title, described_by: field[:described_by], required: true) %><% end %>
+      <fieldset><legend class="text-sm font-bold text-ui-text"><%= GameSystem.model_name.human %></legend><div class="mt-2 flex flex-wrap gap-2"><%= ui_collection_checkboxes(form, :game_system_ids, GameSystem.all, value_method: :id, text_method: :name) %></div></fieldset>
+      <fieldset><legend class="text-sm font-bold text-ui-text"><%= Author.model_name.human %></legend><div class="mt-2 flex flex-wrap gap-2"><%= ui_collection_checkboxes(form, :author_ids, Author.all, value_method: :id, text_method: :name) %></div></fieldset>
+      <%= ui_field(form, :jacket, label: "ジャケット画像") do |field| %><%= ui_file_input(form, :jacket, accept: "image/png,image/jpeg,image/webp", described_by: field[:described_by]) %><% end %>
     </div>
   </fieldset>
 
-  <fieldset class="border border-rule bg-surface p-5">
-    <legend class="px-2 font-display text-sm">遊ぶときの条件</legend>
-
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div>
-        <%= form.label :player_count_min, "PL人数（最小・必須）", class: "block text-xs text-muted" %>
-        <%= form.number_field :player_count_min, min: 1, required: true,
-              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div>
-        <%= form.label :player_count_max, "PL人数（最大）", class: "block text-xs text-muted" %>
-        <p class="text-xs text-muted">人数が固定なら最小と同じ値を入れる。上限が無ければ空欄。</p>
-        <%= form.number_field :player_count_max, min: 1, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div>
-        <%= form.label :duration_min_hours, "目安時間（時間・最小）", class: "block text-xs text-muted" %>
-        <%= form.number_field :duration_min_hours, step: 0.5, min: 0.5,
-              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div>
-        <%= form.label :duration_max_hours, "目安時間（時間・最大）", class: "block text-xs text-muted" %>
-        <%= form.number_field :duration_max_hours, step: 0.5, min: 0.5,
-              class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div>
-        <%= form.label :character_restriction, "参加可能キャラの制限", class: "block text-xs text-muted" %>
-        <%= form.text_field :character_restriction, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div>
-        <%= form.label :character_sheet_deadline_note, "キャラシ提出期限の補足", class: "block text-xs text-muted" %>
-        <p class="text-xs text-muted">選択肢に当てはまらない場合はここに書く。書くと選択肢より優先して表示される。</p>
-        <%= form.text_field :character_sheet_deadline_note, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-      <div>
-        <%= form.label :character_sheet_deadline, "キャラシ提出期限", class: "block text-xs text-muted" %>
-        <%= form.select :character_sheet_deadline,
-              Scenario.character_sheet_deadlines.keys.map { |k| [ t("scenarios.character_sheet_deadlines.#{k}"), k ] },
-              { include_blank: "未設定" }, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
+  <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
+    <legend class="px-2 font-display text-lg font-bold text-ui-text">遊ぶときの条件</legend>
+    <div class="grid gap-5 md:grid-cols-2">
+      <%= ui_field(form, :player_count_min, label: "PL人数（最小）", required: true) do |field| %><%= ui_input(form, :player_count_min, type: :number, min: 1, required: true, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :player_count_max, label: "PL人数（最大）", description: "人数が固定なら最小と同じ値を入れます。上限が無ければ空欄にします。") do |field| %><%= ui_input(form, :player_count_max, type: :number, min: 1, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :duration_min_hours, label: "目安時間（時間・最小）") do |field| %><%= ui_input(form, :duration_min_hours, type: :number, step: 0.5, min: 0.5, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :duration_max_hours, label: "目安時間（時間・最大）") do |field| %><%= ui_input(form, :duration_max_hours, type: :number, step: 0.5, min: 0.5, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :character_restriction, label: "参加可能キャラの制限") do |field| %><%= ui_input(form, :character_restriction, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :character_sheet_deadline_note, label: "キャラシ提出期限の補足", description: "選択肢に当てはまらない場合に書きます。入力すると選択肢より優先して表示されます。") do |field| %><%= ui_input(form, :character_sheet_deadline_note, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :character_sheet_deadline, label: "キャラシ提出期限") do |field| %><%= ui_select(form, :character_sheet_deadline, Scenario.character_sheet_deadlines.keys.map { |key| [ t("scenarios.character_sheet_deadlines.#{key}"), key ] }, include_blank: "未設定", described_by: field[:described_by]) %><% end %>
     </div>
   </fieldset>
 
-  <fieldset class="border border-rule bg-surface p-5">
-    <legend class="px-2 font-display text-sm">評価と本文</legend>
-
-    <div class="space-y-4">
-      <% [ [ :gm_experienced, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}経験" ],
-           [ :pl_experienced, "PL経験" ], [ :read, "シナリオ既読" ] ].each do |attribute, label| %>
-        <fieldset>
-          <legend class="text-xs text-muted"><%= label %></legend>
-          <div class="mt-1 flex gap-4 text-sm">
-            <label class="inline-flex items-center gap-2">
-              <%= radio_button_tag "scenario_status[#{attribute}]", "1", @scenario_status.public_send(attribute), required: true %> あり
-            </label>
-            <label class="inline-flex items-center gap-2">
-              <%= radio_button_tag "scenario_status[#{attribute}]", "0", !@scenario_status.public_send(attribute), required: true %> なし
-            </label>
-          </div>
-        </fieldset>
+  <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
+    <legend class="px-2 font-display text-lg font-bold text-ui-text">評価と本文</legend>
+    <div class="space-y-5">
+      <% [ [ :gm_experienced, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}経験" ], [ :pl_experienced, "PL経験" ], [ :read, "シナリオ既読" ] ].each do |attribute, label| %>
+        <fieldset><legend class="text-sm font-bold text-ui-text"><%= label %></legend><div class="mt-1 flex flex-wrap gap-2">
+          <%= ui_radio "scenario_status[#{attribute}]", "1", label: "あり", checked: @scenario_status.public_send(attribute), id: "scenario_status_#{attribute}_yes", required: true %>
+          <%= ui_radio "scenario_status[#{attribute}]", "0", label: "なし", checked: !@scenario_status.public_send(attribute), id: "scenario_status_#{attribute}_no", required: true %>
+        </div></fieldset>
       <% end %>
-
-      <p class="text-xs text-muted">
-        並び順は<%= link_to "#{Scenario.model_name.human}の並び順", scenario_order_index_path, class: "text-seal" %>で決めます。
-      </p>
-
-      <div>
-        <%= form.label :synopsis, "あらすじ", class: "block text-xs text-muted" %>
-        <%= form.text_area :synopsis, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-
-      <div>
-        <%= form.label :recommendation_note, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}からのオススメポイント", class: "block text-xs text-muted" %>
-        <p class="text-xs text-muted"><%= Person.model_name.human %>にだけ見せる。未登録のログインユーザーと未ログインには出さない。</p>
-        <%= form.text_area :recommendation_note, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
-
-      <div>
-        <%= form.label :preparation_note, "#{Scenario.model_name.human}準備情報", class: "block text-xs text-muted" %>
-        <p class="text-xs text-muted">ネタバレを含む。公開エリアには出さない。</p>
-        <%= form.text_area :preparation_note, rows: 4, class: "mt-1 w-full border border-rule bg-paper px-3 py-2" %>
-      </div>
+      <p class="text-ui-caption text-ui-text-muted">並び順は<%= link_to "#{Scenario.model_name.human}の並び順", scenario_order_index_path, class: "text-ui-action underline" %>で決めます。</p>
+      <%= ui_field(form, :synopsis, label: "あらすじ") do |field| %><%= ui_textarea(form, :synopsis, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :recommendation_note, label: "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}からのオススメポイント", description: "#{Person.model_name.human}にだけ見せます。未登録のログインユーザーと未ログインには表示しません。") do |field| %><%= ui_textarea(form, :recommendation_note, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :preparation_note, label: "#{Scenario.model_name.human}準備情報", description: "ネタバレを含みます。公開エリアには表示しません。") do |field| %><%= ui_textarea(form, :preparation_note, described_by: field[:described_by]) %><% end %>
     </div>
   </fieldset>
 
-  <%= render "manage/scenarios/link_fields", form: form, association: :purchase_links, legend: "入手先",
-        hint: "URL は空でもよい。書籍付属など購入方法を書く場合に使う。" %>
-  <%= render "manage/scenarios/link_fields", form: form, association: :stream_links, legend: "おすすめの配信",
-        hint: "URL は必須。" %>
-
-  <div class="flex gap-4">
-    <%= form.submit "保存", class: "bg-ink px-6 py-2 text-sm text-paper" %>
-    <%= link_to scenario.persisted? ? "詳細に戻る" : "一覧に戻る",
-          scenario.persisted? ? scenario_path(scenario) : scenarios_path,
-          class: "self-center text-sm text-muted" %>
+  <%= render "manage/scenarios/link_fields", form:, association: :purchase_links, legend: "入手先", hint: "URLは空でも構いません。書籍付属など購入方法を書く場合に使います。" %>
+  <%= render "manage/scenarios/link_fields", form:, association: :stream_links, legend: "おすすめの配信", hint: "URLは必須です。" %>
+  <div class="flex flex-wrap items-center gap-3">
+    <%= ui_button "保存", type: "submit" %>
+    <%= ui_button_link scenario.persisted? ? "詳細に戻る" : "一覧に戻る", href: scenario.persisted? ? scenario_path(scenario) : scenarios_path, variant: :secondary %>
   </div>
 <% end %>

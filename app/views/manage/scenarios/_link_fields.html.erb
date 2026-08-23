@@ -1,20 +1,2 @@
-<fieldset class="border border-rule bg-surface p-5">
-  <legend class="px-2 font-display text-sm"><%= legend %></legend>
-  <p class="text-xs text-muted"><%= hint %></p>
-
-  <div class="mt-3 space-y-3" data-controller="nested-form" data-nested-form-association-value="<%= association %>">
-    <template data-nested-form-target="template">
-      <%= form.fields_for association, association.to_s.classify.constantize.new, child_index: "NEW_RECORD" do |link| %>
-        <%= render "manage/scenarios/link_row", link: link %>
-      <% end %>
-    </template>
-
-    <%= form.fields_for association do |link| %>
-      <%= render "manage/scenarios/link_row", link: link %>
-    <% end %>
-
-    <div data-nested-form-target="anchor"></div>
-
-    <button type="button" data-action="nested-form#add" class="text-sm text-seal">行を足す</button>
-  </div>
-</fieldset>
+<%= ui_repeatable_fields form, association:, legend:, hint:, row_partial: "manage/scenarios/link_row",
+      new_record: association.to_s.classify.constantize.new %>
