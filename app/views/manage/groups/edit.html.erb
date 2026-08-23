@@ -1,33 +1,12 @@
 <% content_for :title, "#{@record.name} の編集" %>
+<% content_for :ui_theme, "dark" %>
 
-<h1 class="font-display text-2xl"><%= @record.name %> の編集</h1>
-
-<%= form_with model: [ :manage, @record ], class: "mt-6 space-y-4 border border-rule bg-surface p-5" do |form| %>
-  <%= accessible_error_summary(@record) %>
-
-  <div>
-    <%= form.label :name, "名前", class: "block text-xs text-muted" %>
-    <%= form.text_field :name, class: "mt-1 w-64 border border-rule bg-paper px-3 py-2 text-sm" %>
-  </div>
-
-  <div>
-    <%= form.label :discord_guild_id, "DiscordサーバーID", class: "block text-xs text-muted" %>
-    <%= form.text_field :discord_guild_id, inputmode: "numeric", autocomplete: "off",
-          aria: { describedby: "discord-guild-id-help" },
-          class: "mt-1 w-64 border border-rule bg-paper px-3 py-2 font-mono text-sm" %>
-    <p id="discord-guild-id-help" class="mt-1 text-xs text-muted">未設定ならDiscordからの自動参加を行いません。</p>
-  </div>
-
-  <div>
-    <span class="block text-xs text-muted">手動で所属させる人物</span>
-    <%= form.collection_check_boxes :manual_person_ids, Person.order(:display_name), :id, :display_name do |b| %>
-      <label class="mr-4 inline-flex items-center gap-1 text-sm"><%= b.check_box %> <%= b.text %></label>
-    <% end %>
-    <p class="mt-1 text-xs text-muted">Discordから自動所属した人物を選ぶと、退会後も残る手動所属へ切り替えます。</p>
-  </div>
-
-  <div class="flex gap-4">
-    <%= form.submit "更新", class: "bg-ink px-5 py-2 text-sm text-paper" %>
-    <%= link_to "詳細に戻る", manage_group_path(@record), class: "self-center text-sm text-muted" %>
-  </div>
-<% end %>
+<div class="space-y-6">
+  <%= render "shared/ui/page_header", title: "#{@record.name} の編集" %>
+  <%= form_with model: [ :manage, @record ], class: "space-y-6" do |form| %>
+    <%= accessible_error_summary(@record) %>
+    <%= render "shared/ui/card" do %><div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6"><%= ui_field(form, :name, label: "名前", required: true) do |field| %><%= ui_input(form, :name, described_by: field[:described_by], required: true) %><% end %><%= ui_field(form, :discord_guild_id, label: "DiscordサーバーID", description: "未設定ならDiscordからの自動参加を行いません。") do |field| %><%= ui_input(form, :discord_guild_id, described_by: field[:described_by], inputmode: "numeric", autocomplete: "off") %><% end %></div><% end %>
+    <fieldset class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6"><legend class="px-2 font-display text-lg font-bold">手動で所属させる人物</legend><p class="text-ui-caption text-ui-text-muted">Discordから自動所属した人物を選ぶと、退会後も残る手動所属へ切り替えます。</p><div class="mt-4 grid gap-2 sm:grid-cols-2"><%= form.collection_check_boxes :manual_person_ids, Person.order(:display_name), :id, :display_name do |b| %><%= b.label class: "flex min-h-11 min-w-0 items-center gap-3 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-sm" do %><%= b.check_box class: "size-5 shrink-0 accent-ui-action" %><span class="min-w-0 break-words"><%= b.text %></span><% end %><% end %></div></fieldset>
+    <div class="flex flex-wrap gap-3"><%= ui_button("更新", type: "submit") %><%= ui_button_link("詳細に戻る", href: manage_group_path(@record), variant: :secondary) %></div>
+  <% end %>
+</div>

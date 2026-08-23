@@ -1,3 +1,6 @@
 <% content_for :title, "#{Person.model_name.human}の新規登録" %>
-<h1 class="font-display text-2xl"><%= Person.model_name.human %>の新規登録</h1>
-<%= render "manage/people/form", person: @person %>
+<% content_for :ui_theme, "dark" %>
+<div class="space-y-6">
+  <%= render "shared/ui/page_header", title: "#{Person.model_name.human}の新規登録" %>
+  <%= render "manage/people/form", person: @person %>
+</div>

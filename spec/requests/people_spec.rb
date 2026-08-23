@@ -199,6 +199,9 @@ RSpec.describe "People" do
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(person.reload.icon).not_to be_attached
+      document = Capybara.string(response.body)
+      expect(document).to have_css('input[name="person[icon]"][aria-invalid="true"][aria-describedby="person_icon_error"]')
+      expect(document).to have_css("#person_icon_error.text-ui-error")
 
       get people_path
       expect(response).to have_http_status(:ok)
