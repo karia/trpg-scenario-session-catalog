@@ -1,12 +1,15 @@
 require "rails_helper"
 
 # 個別の spec は自分の画面しか見ないため、画面をまたいで初めて分かる差異はここで固定する。
+module CrossScreenAudit
+end
+
 RSpec.describe "Cross-screen audit" do
-  INTERACTIVE = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex]:not([tabindex="-1"])'.freeze
+  CrossScreenAudit::INTERACTIVE = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex]:not([tabindex="-1"])'.freeze
 
   # 共通部品は focus-visible:outline-none と ring を組み合わせるため、outline だけを見ると取りこぼす。
   # 日時入力のカレンダーボタンはブラウザのシャドウDOM側にあり、:focus が host に当たらない。ここは browser が描く。
-  FOCUS_INDICATOR = <<~JS.freeze
+  CrossScreenAudit::FOCUS_INDICATOR = <<~JS.freeze
     (() => {
       const active = document.activeElement
       if (!active || active === document.body || active === document.documentElement) return null
@@ -22,7 +25,7 @@ RSpec.describe "Cross-screen audit" do
   JS
 
   # WCAG 2.5.8 は地の文に埋まったリンクを対象から外す。ADR の 44px は自主基準なので同じ免除を置く。
-  SMALL_TARGETS = <<~JS.freeze
+  CrossScreenAudit::SMALL_TARGETS = <<~JS.freeze
     (() => {
       const shown = (el) => {
         const rect = el.getBoundingClientRect()
@@ -36,7 +39,7 @@ RSpec.describe "Cross-screen audit" do
         const wrapper = label.getBoundingClientRect()
         return { width: Math.max(own.width, wrapper.width), height: Math.max(own.height, wrapper.height) }
       }
-      return Array.from(document.querySelectorAll(#{INTERACTIVE.dump}))
+      return Array.from(document.querySelectorAll(#{CrossScreenAudit::INTERACTIVE.dump}))
         .filter(shown)
         .filter((el) => !(el.tagName === "A" && getComputedStyle(el).display === "inline"))
         .filter((el) => { const rect = box(el); return rect.width < 44 || rect.height < 44 })
@@ -49,10 +52,10 @@ RSpec.describe "Cross-screen audit" do
   JS
 
   # 共通部品が付ける形の指紋だけを見る。色は variant ごとに変わるので見ない。
-  SHARED_BUTTON_SHAPE = "inline-flex min-h-11 items-center justify-center gap-2 rounded-ui-control border".freeze
-  ACTION_LABELS = %w[新規登録 詳細 編集 削除].freeze
+  CrossScreenAudit::SHARED_BUTTON_SHAPE = "inline-flex min-h-11 items-center justify-center gap-2 rounded-ui-control border".freeze
+  CrossScreenAudit::ACTION_LABELS = %w[新規登録 詳細 編集 削除].freeze
 
-  NAMED_CONTROLS = <<~JS.freeze
+  CrossScreenAudit::NAMED_CONTROLS = <<~JS.freeze
     Array.from(document.querySelectorAll("a[href], button")).map((el) => ({
       name: (el.textContent || "").trim(),
       tag: el.tagName.toLowerCase(),
@@ -78,7 +81,7 @@ RSpec.describe "Cross-screen audit" do
       page.current_window.resize_to(width, 900)
       every_screen.flat_map do |path|
         visit path
-        page.evaluate_script(SMALL_TARGETS).map { |control| "#{path} at #{width}px: #{control}" }
+        page.evaluate_script(CrossScreenAudit::SMALL_TARGETS).map { |control| "#{path} at #{width}px: #{control}" }
       end
     end
 
@@ -138,14 +141,14 @@ RSpec.describe "Cross-screen audit" do
 
     actions = every_screen.flat_map do |path|
       visit path
-      page.evaluate_script(NAMED_CONTROLS)
-        .select { |control| ACTION_LABELS.include?(control.fetch("name")) }
+      page.evaluate_script(CrossScreenAudit::NAMED_CONTROLS)
+        .select { |control| CrossScreenAudit::ACTION_LABELS.include?(control.fetch("name")) }
         .map { |control| control.merge("path" => path) }
     end
 
-    expect(actions.map { |control| control.fetch("name") }.uniq).to match_array(ACTION_LABELS)
+    expect(actions.map { |control| control.fetch("name") }.uniq).to match_array(CrossScreenAudit::ACTION_LABELS)
 
-    strays = actions.reject { |control| control.fetch("classes").include?(SHARED_BUTTON_SHAPE) }
+    strays = actions.reject { |control| control.fetch("classes").include?(CrossScreenAudit::SHARED_BUTTON_SHAPE) }
     expect(strays).to be_empty, "actions drawn outside the shared button component:\n" +
       strays.map { |control| %(#{control['path']}: #{control['name']} as <#{control['tag']} class="#{control['classes']}">) }.join("\n")
   end
@@ -243,7 +246,7 @@ RSpec.describe "Cross-screen audit" do
       stops = []
       limit.times do
         press_tab
-        stop = page.evaluate_script(FOCUS_INDICATOR)
+        stop = page.evaluate_script(CrossScreenAudit::FOCUS_INDICATOR)
         break if stop.nil?
         break if stops.any? && stops.first == stop && stops.size > 1
 
