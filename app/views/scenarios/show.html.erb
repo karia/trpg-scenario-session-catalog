@@ -42,7 +42,7 @@
   <%= render "scenarios/gm_supplementary_info", scenario: @scenario %>
   <% if @scenario.purchase_links.any? %>
     <section class="mt-10"><h2 class="font-display text-xl font-bold">入手先</h2><ul class="mt-4 grid gap-3 text-sm">
-      <% @scenario.purchase_links.each do |link| %><li class="rounded-ui-control border border-ui-outline bg-ui-surface-solid p-4"><% if link.url.present? %><div class="grid gap-1"><%= link_to link.label, link.url, target: "_blank", rel: "noopener nofollow", class: "font-bold text-ui-action" %><%= link_to link.url, link.url, target: "_blank", rel: "noopener nofollow", class: "text-ui-caption text-ui-text-muted" %></div><% else %><span><%= link.label %></span><% end %></li><% end %>
+      <% @scenario.purchase_links.each do |link| %><li class="rounded-ui-control border border-ui-outline bg-ui-surface-solid p-4"><% if link.url.present? %><div class="grid gap-1"><%= link_to link.label, link.url, target: "_blank", rel: "noopener nofollow", class: "inline-flex min-h-11 items-center font-bold text-ui-action" %><%= link_to link.url, link.url, target: "_blank", rel: "noopener nofollow", class: "inline-flex min-h-11 items-center text-ui-caption text-ui-text-muted" %></div><% else %><span><%= link.label %></span><% end %></li><% end %>
     </ul></section>
   <% end %>
   <% if @scenario.stream_links.any? %>

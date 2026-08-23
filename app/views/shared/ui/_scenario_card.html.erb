@@ -28,7 +28,7 @@
           <dt class="text-ui-text-muted">人数</dt><dd><%= player_count_value(scenario) %></dd>
           <dt class="text-ui-text-muted">時間</dt><dd><%= duration_value(scenario) %></dd>
           <dt class="text-ui-text-muted">状態</dt><dd><%= scenario.status_for(owner)&.label || "シナリオ所持" %></dd>
-          <dt class="text-ui-text-muted">入手先</dt><dd class="flex flex-wrap gap-2"><% scenario.purchase_links.each do |purchase_link| %><%= purchase_link.url.present? ? link_to(purchase_link.label, purchase_link.url, target: "_blank", rel: "noopener nofollow", class: "text-ui-action") : purchase_link.label %><% end %></dd>
+          <dt class="text-ui-text-muted">入手先</dt><dd class="flex flex-wrap gap-2"><% scenario.purchase_links.each do |purchase_link| %><%= purchase_link.url.present? ? link_to(purchase_link.label, purchase_link.url, target: "_blank", rel: "noopener nofollow", class: "inline-flex min-h-11 items-center text-ui-action") : purchase_link.label %><% end %></dd>
         </dl>
       </div>
     <% end %>

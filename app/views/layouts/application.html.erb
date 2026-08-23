@@ -20,20 +20,20 @@
         data-layout="<%= content_for(:layout_context).presence || "application" %>"
         data-action="turbo:submit-start->form-status#start turbo:submit-end->form-status#finish">
     <a href="#main-content"
-       class="fixed top-2 left-2 z-[var(--z-ui-toast)] -translate-y-20 rounded-ui-control bg-ui-action px-4 py-2 text-sm font-bold text-ui-on-action focus:translate-y-0">
+       class="fixed top-2 left-2 z-[var(--z-ui-toast)] inline-flex min-h-11 -translate-y-20 items-center rounded-ui-control bg-ui-action px-4 py-2 text-sm font-bold text-ui-on-action focus:translate-y-0">
       本文へ移動
     </a>
 
     <header class="sticky top-0 z-[var(--z-ui-header)] border-b border-ui-outline bg-ui-surface-solid supports-[backdrop-filter:blur(1px)]:bg-ui-surface supports-[backdrop-filter:blur(1px)]:backdrop-blur-ui-header">
       <div class="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
-        <%= link_to root_path, class: "shrink-0 font-display text-lg font-bold tracking-wide text-ui-text no-underline sm:text-xl" do %>
+        <%= link_to root_path, class: "inline-flex min-h-11 shrink-0 items-center font-display text-lg font-bold tracking-wide text-ui-text no-underline sm:text-xl" do %>
           TRPGカタログ
         <% end %>
 
         <nav class="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 text-sm sm:ml-auto sm:w-auto sm:justify-end" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
-              <%= link_to current_person.display_name, person_path(current_person), class: "max-w-40 truncate text-ui-text-muted underline" %>
+              <%= link_to person_path(current_person), class: "inline-flex min-h-11 max-w-40 items-center text-ui-text-muted underline" do %><span class="min-w-0 truncate"><%= current_person.display_name %></span><% end %>
             <% else %>
               <span class="text-ui-text-muted">未登録</span>
             <% end %>

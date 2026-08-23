@@ -10,13 +10,13 @@
   </head>
   <body class="flex min-h-dvh flex-col bg-ui-background text-ui-text">
     <a href="#main-content"
-       class="fixed top-2 left-2 z-[var(--z-ui-toast)] -translate-y-20 rounded-ui-control bg-ui-action px-4 py-2 text-sm font-bold text-ui-on-action focus:translate-y-0">
+       class="fixed top-2 left-2 z-[var(--z-ui-toast)] inline-flex min-h-11 -translate-y-20 items-center rounded-ui-control bg-ui-action px-4 py-2 text-sm font-bold text-ui-on-action focus:translate-y-0">
       本文へ移動
     </a>
     <header class="border-b border-ui-outline bg-ui-surface-solid">
       <div class="mx-auto max-w-5xl px-4 py-4 sm:px-6">
         <%= link_to "TRPGカタログ", root_path,
-          class: "font-display text-lg font-bold tracking-wide text-ui-text no-underline sm:text-xl" %>
+          class: "inline-flex min-h-11 items-center font-display text-lg font-bold tracking-wide text-ui-text no-underline sm:text-xl" %>
       </div>
     </header>
     <main id="main-content" tabindex="-1" class="mx-auto flex w-full max-w-5xl grow items-center px-4 py-10 sm:px-6">
