@@ -35,6 +35,19 @@ RSpec.describe "The scenario list" do
       expect(response.body).to include("https://example.com/items/1")
     end
 
+    it "separates purchase links and presents edit and delete as paired buttons" do
+      scenario.purchase_links.create!(label: "TALTO", url: "https://example.com/items/2")
+      sign_in_as create(:person, roles: %w[admin])
+
+      get root_path
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("td div.gap-x-2 a", text: "BOOTH")
+      expect(page).to have_css("td div.gap-x-2 a", text: "TALTO")
+      expect(page).to have_css(%(a[href="#{edit_scenario_path(scenario)}"].bg-ui-surface-solid), text: "編集")
+      expect(page).to have_button("削除")
+    end
+
     it "leaves a column blank rather than inventing a value" do
       create(:scenario, title: "空欄だらけ")
 

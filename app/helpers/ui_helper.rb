@@ -20,11 +20,25 @@ module UiHelper
   def ui_button(label, variant: :primary, size: :medium, type: "button", disabled: false, id: nil, data: {}, aria: {})
     render "shared/ui/button",
       label:,
+      href: nil,
       variant_classes: BUTTON_VARIANTS.fetch(variant),
       size_classes: BUTTON_SIZES.fetch(size),
       type:,
       disabled:,
       id:,
+      data:,
+      aria:
+  end
+
+  def ui_button_link(label, href:, variant: :primary, size: :medium, data: {}, aria: {})
+    render "shared/ui/button",
+      label:,
+      href:,
+      variant_classes: BUTTON_VARIANTS.fetch(variant),
+      size_classes: BUTTON_SIZES.fetch(size),
+      type: nil,
+      disabled: false,
+      id: nil,
       data:,
       aria:
   end

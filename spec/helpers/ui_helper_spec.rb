@@ -17,6 +17,16 @@ RSpec.describe UiHelper, type: :helper do
     end
   end
 
+  describe "#ui_button_link" do
+    it "renders navigation with the same controlled button styles" do
+      html = helper.ui_button_link("編集", href: "/scenarios/1/edit", variant: :secondary, size: :small)
+      link = Capybara.string(html).find("a")
+
+      expect(link[:href]).to eq("/scenarios/1/edit")
+      expect(link[:class]).to include("bg-ui-surface-solid", "min-h-11", "px-3")
+    end
+  end
+
   describe "#ui_field and #ui_input" do
     let(:scenario) { Scenario.new }
 
