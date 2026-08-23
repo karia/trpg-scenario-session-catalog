@@ -26,7 +26,7 @@ RSpec.describe "Legacy content contrast" do
     click_button "Googleでログイン"
 
     legacy_paths = [
-      scenario_path(scenario), new_scenario_path, edit_scenario_path(scenario),
+      new_scenario_path, edit_scenario_path(scenario),
       play_sessions_path, play_session_path(play_session), new_play_session_path, edit_play_session_path(play_session),
       people_path, person_path(person), new_person_path, edit_person_path(person),
       authors_path, author_path(author), new_author_path, edit_author_path(author),

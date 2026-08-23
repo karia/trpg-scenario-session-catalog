@@ -1,19 +1,17 @@
 <% if scenario.preparation_note.present? %>
-  <section class="mt-10" id="preparation_note_<%= scenario.id %>">
-    <h2 class="font-display text-xl">プレーヤー向け事前情報</h2>
+  <section class="mt-10 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6" id="preparation_note_<%= scenario.id %>">
+    <h2 class="font-display text-xl font-bold">プレーヤー向け事前情報</h2>
 
     <% if policy(scenario).show_preparation_note? %>
       <p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(scenario.preparation_note) %></p>
-      <%= button_to "プレーヤー向け事前情報を閉じる", scenario_spoiler_reveal_path(scenario), method: :delete,
-            class: "mt-3 cursor-pointer border border-rule px-4 py-3 text-sm text-muted" %>
+      <div class="mt-4"><%= form_with url: scenario_spoiler_reveal_path(scenario), method: :delete do %><%= ui_button("プレーヤー向け事前情報を閉じる", variant: :secondary, type: "submit") %><% end %></div>
     <% elsif policy(scenario).reveal_preparation_note? %>
-      <p class="mt-3 text-sm text-muted">
+      <p class="mt-3 text-sm text-ui-text-muted">
         本編のネタバレはありませんが、購入しないとわからない情報等を含みます。<%= scenario.game_master_label %>から許可があった場合のみ開いてください。
       </p>
-      <%= button_to "プレーヤー向け事前情報を見る", scenario_spoiler_reveal_path(scenario),
-            class: "mt-3 cursor-pointer redacted px-4 py-3 text-sm" %>
+      <div class="mt-4"><%= form_with url: scenario_spoiler_reveal_path(scenario) do %><%= ui_button("プレーヤー向け事前情報を見る", type: "submit") %><% end %></div>
     <% else %>
-      <p class="mt-3 redacted px-4 py-3 text-sm"><%= scenario.game_master_label %>が許可したログイン済<%= Person.model_name.human %>のみ表示可能です。</p>
+      <p class="mt-3 rounded-ui-control bg-ui-field-solid px-4 py-3 text-sm text-ui-text-muted"><%= scenario.game_master_label %>が許可したログイン済<%= Person.model_name.human %>のみ表示可能です。</p>
     <% end %>
   </section>
 <% end %>

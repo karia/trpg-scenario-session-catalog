@@ -2,13 +2,13 @@
 <% sessions = policy_scope(PlaySession).where(scenario: scenario).includes(participations: :person).newest_first %>
 <% if sessions.any? %>
   <section class="mt-10">
-    <h2 class="font-display text-xl"><%= PlaySession.model_name.human %>履歴</h2>
-    <ul class="mt-3 divide-y divide-rule border border-rule bg-surface text-sm">
+    <h2 class="font-display text-xl font-bold"><%= PlaySession.model_name.human %>履歴</h2>
+    <ul class="mt-4 divide-y divide-ui-outline overflow-hidden rounded-ui-card border border-ui-outline bg-ui-surface-solid text-sm">
       <% sessions.each do |session| %>
         <li>
-          <%= link_to play_session_path(session), class: "flex flex-wrap items-baseline gap-x-4 gap-y-1 p-3 no-underline text-ink hover:bg-paper" do %>
-            <span class="font-mono text-xs text-muted"><%= play_session_schedule(session) %>（<%= play_session_status_label(session) %>）</span>
-            <span class="ml-auto text-xs text-muted">
+          <%= link_to play_session_path(session), class: "flex min-h-11 flex-wrap items-baseline gap-x-4 gap-y-1 p-4 no-underline text-ui-text hover:bg-ui-subtle" do %>
+            <span class="text-ui-caption text-ui-text-muted"><%= play_session_schedule(session) %>（<%= play_session_status_label(session) %>）</span>
+            <span class="sm:ml-auto text-ui-caption text-ui-text-muted">
               <%= session.participations.map { |p| p.person.display_name }.join("、") %>
             </span>
           <% end %>
