@@ -1,0 +1,6 @@
+<%= tag.label for: id,
+      class: "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-ui-control px-2 py-2 text-sm text-ui-text hover:bg-ui-subtle" do %>
+  <%= radio_button_tag name, value, checked, id:, required:, disabled:, data:, aria:,
+        class: "size-5 shrink-0 accent-ui-action focus:ring-2 focus:ring-ui-focus disabled:cursor-not-allowed disabled:opacity-50" %>
+  <span><%= label %></span>
+<% end %>

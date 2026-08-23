@@ -1,2 +1,3 @@
 <% content_for :title, "#{@scenario.title}の編集" %>
-<%= render template: "manage/scenarios/edit" %>
+<% content_for :ui_theme, "dark" %>
+<%= render "manage/scenarios/edit", scenario: @scenario %>

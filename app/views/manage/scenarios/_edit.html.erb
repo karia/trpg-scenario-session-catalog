@@ -1,0 +1,14 @@
+<%= render "shared/ui/page_header", title: "#{scenario.title}の編集" %>
+<div class="mt-6 flex flex-wrap items-center gap-3">
+  <%= form_with url: refresh_booth_image_scenario_path(scenario), method: :post do %>
+    <%= ui_button "BOOTH画像を更新", variant: :secondary, type: "submit" %>
+  <% end %>
+  <% if scenario.booth_image.attached? %><%= render "shared/ui/badge", label: "取得済み" %><% end %>
+  <% if scenario.jacket.attached? %>
+    <%= form_with url: jacket_scenario_path(scenario), method: :delete,
+          data: { turbo_confirm: "ジャケット画像を削除しますか" } do %>
+      <%= ui_button "ジャケット画像を削除", variant: :danger, type: "submit" %>
+    <% end %>
+  <% end %>
+</div>
+<%= render "manage/scenarios/form", scenario: %>
