@@ -1,0 +1,34 @@
+<%= render "shared/ui/card", variant: :interactive do %>
+  <article class="flex h-full flex-col p-4">
+    <%= link_to person_path(person), class: "flex min-h-11 items-center gap-3 no-underline" do %>
+      <span class="size-14 shrink-0 overflow-hidden rounded-full border border-ui-outline bg-ui-field-solid">
+        <% if person.icon.attached? %><%= image_tag person.icon.variant(:thumb), alt: "", class: "size-full object-cover" %><% end %>
+      </span>
+      <span class="min-w-0">
+        <span class="block font-display text-lg font-bold text-ui-text"><%= person.display_name %></span>
+        <% if person.visible_aliases.any? %><span class="mt-1 block text-ui-caption text-ui-text-muted"><%= person.visible_aliases.map(&:name).join("、") %></span><% end %>
+      </span>
+    <% end %>
+
+    <% if current_person.admin? %>
+      <dl class="mt-4 grid grid-cols-[4rem_minmax(0,1fr)] gap-x-3 gap-y-2 border-t border-ui-outline pt-4 text-ui-caption">
+        <dt class="text-ui-text-muted">権限</dt><dd><%= person_role_labels(person).join("、") %></dd>
+        <dt class="text-ui-text-muted"><%= Group.model_name.human %></dt><dd><%= person.groups.map(&:name).join("、").presence || "なし" %></dd>
+        <dt class="text-ui-text-muted"><%= User.model_name.human %></dt><dd class="break-words"><%= person.users.map { |user| "#{user.provider_name}: #{user.email.presence || user.name.presence || '不明'}" }.join("、").presence || "未紐づけ" %></dd>
+      </dl>
+    <% end %>
+
+    <% if policy(person).update? || policy(person).offer_destroy? %>
+      <div class="mt-auto flex flex-wrap items-center gap-2 border-t border-ui-outline pt-4">
+        <% if policy(person).update? %><%= ui_button_link("編集", href: edit_person_path(person), variant: :secondary, size: :small) %><% end %>
+        <% if policy(person).destroy? %>
+          <%= form_with url: person_path(person), method: :delete, data: { turbo_confirm: "#{person.display_name} を削除しますか" } do %>
+            <%= ui_button("削除", variant: :danger, size: :small, type: "submit", aria: { label: "#{person.display_name} を削除" }) %>
+          <% end %>
+        <% elsif policy(person).offer_destroy? %>
+          <%= ui_button("削除", variant: :secondary, size: :small, disabled: true, aria: { label: "自分自身は削除できません" }) %>
+        <% end %>
+      </div>
+    <% end %>
+  </article>
+<% end %>
