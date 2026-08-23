@@ -1,78 +1,44 @@
-<%= form_with model: play_session, class: "mt-6 space-y-6",
-      data: { controller: "participation-roles",
-              action: "nested-form:added->participation-roles#update",
+<%= form_with model: play_session, class: "mt-8 space-y-8",
+      data: { controller: "participation-roles", action: "nested-form:added->participation-roles#update",
               participation_roles_defaults_value: GameSystem::DEFAULT_ROLE_LABELS.to_json,
               participation_roles_labels_value: Scenario.includes(:game_systems).to_h { |scenario|
                 [ scenario.id, { gm: scenario.game_master_label, sub_gm: scenario.sub_game_master_label } ]
               }.to_json } do |form| %>
-  <%= accessible_error_summary(play_session) %>
+  <%= ui_error_summary(play_session) %>
 
-  <fieldset class="border border-rule bg-surface p-5">
-    <legend class="px-2 font-display text-sm"><%= PlaySession.model_name.human %></legend>
-
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div class="sm:col-span-2">
-        <%= form.label :scenario_id, Scenario.model_name.human, class: "block text-xs text-muted" %>
-        <%= form.collection_select :scenario_id, Scenario.order(:title), :id, :title,
-              { include_blank: "選択してください" },
-              class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm",
-              data: { participation_roles_target: "scenario",
-                      action: "change->participation-roles#update" } %>
-      </div>
-      <div class="sm:col-span-2">
-        <p class="text-xs text-muted">日程と録画リンク</p>
-        <div class="mt-1 space-y-3" data-controller="nested-form" data-nested-form-token-value="NEW_SCHEDULE">
-          <template data-nested-form-target="template">
-            <%= form.fields_for :session_schedules, SessionSchedule.new, child_index: "NEW_SCHEDULE" do |schedule_form| %>
-              <%= render "manage/play_sessions/session_schedule_row", schedule_form: schedule_form %>
-            <% end %>
-          </template>
-          <%= form.fields_for :session_schedules do |schedule_form| %>
-            <%= render "manage/play_sessions/session_schedule_row", schedule_form: schedule_form %>
-          <% end %>
-          <div data-nested-form-target="anchor"></div>
-          <button type="button" data-action="nested-form#add" class="cursor-pointer text-sm text-seal">日程を足す</button>
-        </div>
+  <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
+    <legend class="px-2 font-display text-lg font-bold text-ui-text"><%= PlaySession.model_name.human %></legend>
+    <div class="grid gap-5 md:grid-cols-2">
+      <div class="md:col-span-2">
+        <%= ui_field(form, :scenario_id, label: Scenario.model_name.human, required: true) do |field| %>
+          <%= ui_select(form, :scenario_id, Scenario.order(:title).map { |scenario| [ scenario.title, scenario.id ] },
+                include_blank: "選択してください", required: true, described_by: field[:described_by],
+                data: { participation_roles_target: "scenario", action: "change->participation-roles#update" }) %>
+        <% end %>
       </div>
       <% if policy(play_session).update_cocofolia_url? %>
-        <div>
-          <%= form.label :cocofolia_url, "ココフォリアリンク", class: "block text-xs text-muted" %>
-          <%= form.url_field :cocofolia_url, placeholder: "https://ccfolia.com/rooms/",
-                class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
-        </div>
+        <%= ui_field(form, :cocofolia_url, label: "ココフォリアリンク") do |field| %>
+          <%= ui_input(form, :cocofolia_url, type: :url, placeholder: "https://ccfolia.com/rooms/", described_by: field[:described_by]) %>
+        <% end %>
       <% end %>
-      <div class="sm:col-span-2">
-        <%= form.label :note, "メモ", class: "block text-xs text-muted" %>
-        <%= form.text_area :note, rows: 3, class: "mt-1 w-full border border-rule bg-paper px-3 py-2 text-sm" %>
+      <div class="md:col-span-2">
+        <%= ui_field(form, :note, label: "メモ") do |field| %><%= ui_textarea(form, :note, rows: 3, described_by: field[:described_by]) %><% end %>
       </div>
     </div>
   </fieldset>
 
-  <fieldset class="border border-rule bg-surface p-5">
-    <legend class="px-2 font-display text-sm">参加者</legend>
-    <p class="text-xs text-muted">キャラクター名とキャラシは PL のみ。<%= play_session.scenario&.game_master_label || GameSystem::DEFAULT_ROLE_LABELS.fetch(:gm) %> と<%= play_session.scenario&.sub_game_master_label || GameSystem::DEFAULT_ROLE_LABELS.fetch(:sub_gm) %>は空でよい。</p>
+  <%= ui_repeatable_fields form, association: :session_schedules, legend: "日程と録画リンク",
+        hint: "未定の開始時刻は空欄にします。", row_partial: "manage/play_sessions/session_schedule_row",
+        row_local: :schedule_form, new_record: SessionSchedule.new, add_label: "日程を足す", token: "NEW_SCHEDULE" %>
 
-    <div class="mt-3 space-y-3" data-controller="nested-form">
-      <template data-nested-form-target="template">
-        <%= form.fields_for :participations, Participation.new, child_index: "NEW_RECORD" do |row| %>
-          <%= render "manage/play_sessions/participation_row", row: row %>
-        <% end %>
-      </template>
+  <%= ui_repeatable_fields form, association: :participations, legend: "参加者",
+        hint: "キャラクター名とキャラシはPLだけ入力します。#{play_session.scenario&.game_master_label || GameSystem::DEFAULT_ROLE_LABELS.fetch(:gm)}と#{play_session.scenario&.sub_game_master_label || GameSystem::DEFAULT_ROLE_LABELS.fetch(:sub_gm)}は空で構いません。",
+        row_partial: "manage/play_sessions/participation_row", row_local: :row,
+        new_record: Participation.new, add_label: "参加者を足す" %>
 
-      <%= form.fields_for :participations do |row| %>
-        <%= render "manage/play_sessions/participation_row", row: row %>
-      <% end %>
-
-      <div data-nested-form-target="anchor"></div>
-
-      <button type="button" data-action="nested-form#add" class="cursor-pointer text-sm text-seal">参加者を足す</button>
-    </div>
-  </fieldset>
-
-  <div class="flex gap-4">
-    <%= form.submit play_session.persisted? ? "更新" : "登録", class: "cursor-pointer bg-ink px-6 py-2 text-sm text-paper" %>
-    <%= link_to play_session.persisted? ? "詳細に戻る" : "一覧に戻る",
-          play_session.persisted? ? play_session_path(play_session) : play_sessions_path,
-          class: "self-center text-sm text-muted" %>
+  <div class="flex flex-wrap items-center gap-3">
+    <%= ui_button play_session.persisted? ? "更新" : "登録", type: "submit" %>
+    <%= ui_button_link play_session.persisted? ? "詳細に戻る" : "一覧に戻る",
+          href: play_session.persisted? ? play_session_path(play_session) : play_sessions_path, variant: :secondary %>
   </div>
 <% end %>

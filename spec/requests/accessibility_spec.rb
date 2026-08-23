@@ -12,15 +12,6 @@ RSpec.describe "Accessibility" do
     expect(page).to have_css("main[data-ui-theme]")
   end
 
-  it "keeps not-yet-migrated content on the legacy surface" do
-    # 最後まで移行されない画面を指す。全画面の移行が済んだらこの example ごと消す。
-    sign_in_as create(:person, roles: %w[gm])
-    get new_play_session_path
-
-    expect(Capybara.string(response.body)).to have_css(
-      'main[data-ui-theme="legacy"].bg-paper.text-ink'
-    )
-  end
 
   it "announces alert flashes assertively" do
     get auth_failure_path

@@ -1,3 +1,4 @@
 <% content_for :title, "#{PlaySession.model_name.human}の新規登録" %>
-<h1 class="font-display text-2xl"><%= PlaySession.model_name.human %>の新規登録</h1>
+<% content_for :ui_theme, "dark" %>
+<%= render "shared/ui/page_header", title: "#{PlaySession.model_name.human}の新規登録" %>
 <%= render "manage/play_sessions/form", play_session: @play_session %>
