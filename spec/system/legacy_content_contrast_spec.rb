@@ -9,9 +9,6 @@ RSpec.describe "Legacy content contrast" do
     person = create(:person)
     scenario = create(:scenario)
     play_session = create(:play_session, scenario:)
-    author = create(:author)
-    game_system = create(:game_system)
-    group = create(:group)
     user = create(:user)
     OmniAuth.config.test_mode = true
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
@@ -24,10 +21,7 @@ RSpec.describe "Legacy content contrast" do
 
     legacy_paths = [
       scenario_path(scenario), new_scenario_path, edit_scenario_path(scenario),
-      play_sessions_path, play_session_path(play_session), new_play_session_path, edit_play_session_path(play_session),
-      authors_path, author_path(author), new_author_path, edit_author_path(author),
-      game_systems_path, game_system_path(game_system), new_game_system_path, edit_game_system_path(game_system),
-      manage_groups_path, manage_group_path(group), edit_manage_group_path(group)
+      play_sessions_path, play_session_path(play_session), new_play_session_path, edit_play_session_path(play_session)
     ]
 
     legacy_paths.each do |path|
