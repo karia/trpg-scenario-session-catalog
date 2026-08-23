@@ -35,7 +35,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
 
     frame = Capybara.string(response.body).find("turbo-frame#scenario_list")
     expect(frame["data-turbo-action"]).to eq("advance")
-    expect(frame).to have_button("1人")
+    expect(frame).to have_css("button", text: "1人", visible: :all)
     expect(frame).to have_select("並び順")
     expect(frame).to have_css("table")
     expect(frame).to have_css('a[data-turbo-frame="_top"]', text: "いちばん")
@@ -101,7 +101,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
     it "lists a scenario with two authors once" do
       get root_path(order: "author_asc")
 
-      expect(response.body.scan("最後の見本").size).to eq(1)
+      expect(Capybara.string(response.body).find("table")).to have_css("tr", text: "最後の見本", count: 1)
     end
 
     it "falls back to the GM order for an order it does not know" do
@@ -217,15 +217,15 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path
 
       document = Capybara.string(response.body)
-      party_size = document.all("fieldset")[0]
-      systems = document.all("fieldset")[1]
+      party_size = document.all("fieldset", visible: :all)[0]
+      systems = document.all("fieldset", visible: :all)[1]
 
-      expect(party_size).to have_css("legend", text: "人数")
-      expect(party_size).to have_button("1人")
-      expect(party_size).to have_button("5人以上")
-      expect(party_size).to have_css("button", count: 5)
-      expect(systems).to have_css("legend", text: "システム")
-      expect(systems).to have_css("button", count: 2)
+      expect(party_size).to have_css("legend", text: "人数", visible: :all)
+      expect(party_size).to have_css("button", text: "1人", visible: :all)
+      expect(party_size).to have_css("button", text: "5人以上", visible: :all)
+      expect(party_size).to have_css("button", count: 5, visible: :all)
+      expect(systems).to have_css("legend", text: "システム", visible: :all)
+      expect(systems).to have_css("button", count: 2, visible: :all)
       expect(document).to have_no_css('select[name="game_system_id"]')
       expect(document).to have_no_css('input[type="number"][name="player_count"]')
     end
@@ -234,9 +234,9 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(player_count: 5, game_system_ids: [ emoklore.id ])
 
       document = Capybara.string(response.body)
-      expect(document).to have_css('button[aria-pressed="true"]', text: "5人以上")
-      expect(document).to have_css('button[aria-pressed="true"]', text: "エモクロア")
-      selected_form = document.find("button", text: "5人以上").ancestor("form")
+      expect(document).to have_css('button[aria-pressed="true"]', text: "5人以上", visible: :all)
+      expect(document).to have_css('button[aria-pressed="true"]', text: "エモクロア", visible: :all)
+      selected_form = document.find("button", text: "5人以上", visible: :all).ancestor("form", visible: :all)
       expect(selected_form).to have_no_css('input[name="player_count"]', visible: :all)
     end
 
@@ -244,10 +244,10 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(author_ids: [ ma_author.id ])
 
       document = Capybara.string(response.body)
-      expect(document).to have_css('input[aria-label="作者を追加"][list="author-suggestions"]')
-      expect(document).to have_css('datalist#author-suggestions option[value="あ作者"]')
+      expect(document).to have_css('input[aria-label="作者を追加"][list="author-suggestions"]', visible: :all)
+      expect(document).to have_css('datalist#author-suggestions option[value="あ作者"]', visible: :all)
       expect(document).to have_css('input[type="hidden"][name="author_ids[]"]', visible: :all)
-      expect(document).to have_css('a[aria-label="ま作者を解除"]')
+      expect(document).to have_css('a[aria-label="ま作者を解除"]', visible: :all)
     end
 
     it "accepts an author alias from the suggestions" do
@@ -266,7 +266,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(author_name: "先生")
 
       document = Capybara.string(response.body)
-      expect(document).to have_css('[role="alert"]', text: "候補から作者を選択してください")
+      expect(document).to have_css('[role="alert"]', text: "候補から作者を選択してください", visible: :all)
       expect(document).to have_no_css('datalist option[value="先生"]')
     end
 
@@ -284,8 +284,8 @@ RSpec.describe "Sorting and filtering the scenario list" do
       get root_path(author_name: "知らない作者")
 
       document = Capybara.string(response.body)
-      expect(document).to have_css('[role="alert"]', text: "候補から作者を選択してください")
-      expect(document).to have_css('input[name="author_name"][aria-invalid="true"]')
+      expect(document).to have_css('[role="alert"]', text: "候補から作者を選択してください", visible: :all)
+      expect(document).to have_css('input[name="author_name"][aria-invalid="true"]', visible: :all)
     end
 
     it "filters the jacket view as well" do

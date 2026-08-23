@@ -16,11 +16,11 @@ RSpec.describe "Browsing scenarios" do
     )
 
     visit root_path
-    expect(page).to be_axe_clean.excluding("#main-content") if ENV["CHROME_BINARY"].present?
+    expect(page).to be_axe_clean if ENV["CHROME_BINARY"].present?
     expect(page).to have_content("シナリオ一覧")
     expect(page).to have_no_content("★")
 
-    click_link "カタシロ"
+    click_link "カタシロ", match: :first
 
     expect(page).to have_content("ディズム")
     expect(page).to have_content("CoC 7版")

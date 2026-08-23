@@ -60,7 +60,7 @@ RSpec.describe "The scenario list" do
 
       get root_path
 
-      expect(response.body[%r{<h1.*?</h1>}m]).to include("（全2件）")
+      expect(Capybara.string(response.body)).to have_css('[role="status"]', text: "全2件")
     end
 
     it "carries no explanation under the title" do
@@ -85,6 +85,18 @@ RSpec.describe "The scenario list" do
       get root_path
 
       expect(response.body).to include(root_path(view: "gallery"))
+    end
+
+    it "keeps the two views meaningfully different on narrow screens" do
+      get root_path
+
+      page = Capybara.string(response.body)
+      expect(page).to have_css("ul.md\\:hidden dl", visible: :all)
+      expect(page).to have_css("table", visible: :all)
+
+      get root_path(view: "gallery")
+
+      expect(Capybara.string(response.body)).to have_css(".aspect-3\\/4", visible: :all)
     end
 
     it "shows the jackets when asked" do
