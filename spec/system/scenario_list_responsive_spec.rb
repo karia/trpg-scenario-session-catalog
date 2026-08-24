@@ -1,6 +1,26 @@
 require "rails_helper"
 
 RSpec.describe "Responsive scenario lists" do
+  it "keeps the filter panel open while authors are added and removed" do
+    skip "Chrome is required for Turbo interaction checks" unless ENV["CHROME_BINARY"].present?
+
+    author = create(:author, name: "追加する作者")
+    create(:scenario, title: "作者で探せるシナリオ", authors: [ author ])
+
+    visit root_path
+    find("summary", text: "絞り込み").click
+    fill_in "作者を追加", with: author.name
+    find_field("作者を追加").send_keys(:tab)
+
+    expect(page).to have_css("details[open]", text: "絞り込み")
+    expect(page).to have_css(%(a[aria-label="#{author.name}を解除"]))
+
+    find(%(a[aria-label="#{author.name}を解除"])).click
+
+    expect(page).to have_css("details[open]", text: "絞り込み")
+    expect(page).to have_no_css(%(a[aria-label="#{author.name}を解除"]))
+  end
+
   it "reflows both list modes and ordering without horizontal controls" do
     skip "Chrome is required for viewport and axe checks" unless ENV["CHROME_BINARY"].present?
 
