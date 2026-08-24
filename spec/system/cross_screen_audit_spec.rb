@@ -186,7 +186,7 @@ RSpec.describe "Cross-screen audit" do
     sign_in_as_admin
     visit root_path
     page.execute_script(<<~JS)
-      document.body.insertAdjacentHTML("beforeend", '<button id="focus-probe" style="outline: none; box-shadow: none">focus probe</button>')
+      document.body.insertAdjacentHTML("beforeend", '<button id="focus-probe" style="all: unset; outline: none; box-shadow: none">focus probe</button>')
       document.querySelector("#focus-probe").focus()
     JS
 
