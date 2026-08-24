@@ -78,6 +78,7 @@ RSpec.describe "Cross-screen audit" do
 
   before do
     skip "Chrome is required for the cross-screen audit" unless ENV["CHROME_BINARY"].present?
+    audit
   end
 
   after do
