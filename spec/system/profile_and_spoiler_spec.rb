@@ -11,12 +11,7 @@ RSpec.describe "A member's own pages" do
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
-    visit root_path
-    click_button "Googleでログイン"
-    # click_button も visit も遷移の完了を待たないため、ここで着地を待たないと
-    # 後から届いたログインのリダイレクトが次の visit を上書きする。
-    expect(page).to have_content("ログインしました")
-
+    sign_in_with_google
     visit edit_person_path(person)
     fill_in "person[x_account]", with: "karia"
     # 既存の別名の行が出ていること自体も確かめる。

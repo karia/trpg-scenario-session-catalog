@@ -17,8 +17,7 @@ RSpec.describe "Editor navigation" do
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
 
-    visit root_path
-    click_button "Googleでログイン"
+    sign_in_with_google
     expect(page).to be_axe_clean.excluding("#main-content") if ENV["CHROME_BINARY"].present?
     save_screenshot("editor-scenarios.png") if ENV["VISUAL_REVIEW"]
     if ENV["CHROME_BINARY"]

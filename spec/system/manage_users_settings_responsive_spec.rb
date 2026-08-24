@@ -11,8 +11,7 @@ RSpec.describe "Responsive user and site-setting screens" do
     OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
       provider: "google_oauth2", uid: current_user.google_uid, info: { email: current_user.email }
     )
-    visit root_path
-    click_button "Googleでログイン"
+    sign_in_with_google
 
     paths = [ manage_users_path, manage_user_path(user), edit_manage_user_path(user), manage_site_setting_path, edit_manage_site_setting_path ]
     [ 320, 768, 1280 ].each do |width|

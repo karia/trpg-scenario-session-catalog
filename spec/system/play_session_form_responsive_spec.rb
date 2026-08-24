@@ -18,8 +18,7 @@ RSpec.describe "Responsive play session forms" do
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
 
-    visit root_path
-    click_button "Googleでログイン"
+    sign_in_with_google
 
     [ new_play_session_path, edit_play_session_path(play_session) ].each do |path|
       [ 320, 768, 1280 ].each do |width|

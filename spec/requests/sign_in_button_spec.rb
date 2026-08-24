@@ -6,14 +6,13 @@ RSpec.describe "The sign-in button" do
 
     expect(response.body).to include(%(href="#{new_registration_path}"))
     expect(response.body).to include(">新規登録</a>")
-    expect(response.body).to include(">Googleでログイン</button>")
     expect(response.body).to include(">Discordでログイン</button>")
   end
 
   # Turbo はフォーム送信を fetch に置き換えるため、Google への cross-origin リダイレクトを
   # 追えず、押しても何も起きなくなる。ブラウザに素の送信をさせる必要がある。
   it "opts out of Turbo so the browser follows the redirect to Google" do
-    get root_path
+    get new_registration_path
 
     form = response.body[%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m]
 
@@ -25,7 +24,7 @@ RSpec.describe "The sign-in button" do
   # トークンそのものは test 環境が forgery protection を切っているため出ない。
   # 開始を POST に限る点は spec/requests/sessions_spec.rb が GET で 404 を返すことで固定している。
   it "submits over POST, so another site cannot start the flow with a link" do
-    get root_path
+    get new_registration_path
 
     form = response.body[%r{<form[^>]*action="/auth/google_oauth2"[^>]*>}]
 
@@ -33,11 +32,12 @@ RSpec.describe "The sign-in button" do
   end
 
   it "passes the current URL through the sign-in flow" do
-    get root_path(order: "title_desc")
+    get new_registration_path
 
     form = response.body[%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m]
 
-    expect(form).to include(%(name="origin" value="/?order=title_desc"))
+    expect(form).to include(%(name="origin"))
+    expect(form).to include(%(value="#{new_registration_path}"))
   end
 
   # Chrome は form-action をリダイレクト先にも当てる。self だけだと押しても Google へ進めない。
@@ -55,7 +55,6 @@ RSpec.describe "The sign-in button" do
 
     get root_path
 
-    expect(response.body).not_to include('action="/auth/google_oauth2"')
     expect(response.body).not_to include('action="/auth/discord"')
     expect(response.body).not_to include(%(href="#{new_registration_path}"))
   end

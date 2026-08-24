@@ -11,8 +11,7 @@ RSpec.describe "Application shell" do
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
 
-    visit root_path
-    click_button "Googleでログイン"
+    sign_in_with_google
 
     [ 320, 768, 1280 ].each do |width|
       page.current_window.resize_to(width, 900)
@@ -32,5 +31,34 @@ RSpec.describe "Application shell" do
   ensure
     OmniAuth.config.mock_auth[:google_oauth2] = nil
     OmniAuth.config.test_mode = false
+  end
+
+  # button_to の form は block box を作るため、放置すると 1 つずつ行を占有して
+  # 3 段になり、右寄せも効かなくなる。行数と右端で固定する。
+  it "keeps the signed-out header actions on one right-aligned row on a phone" do
+    skip "Chrome is required for viewport checks" unless ENV["CHROME_BINARY"].present?
+
+    [ 320, 390 ].each do |width|
+      page.current_window.resize_to(width, 900)
+      visit root_path
+
+      geometry = page.evaluate_script(<<~JS)
+        (function () {
+          var nav = document.querySelector('header nav[aria-label="主要"]');
+          var items = [].slice.call(nav.querySelectorAll('a, button'));
+          var tops = items.map(function (e) { return Math.round(e.getBoundingClientRect().top); });
+          var rights = items.map(function (e) { return Math.round(e.getBoundingClientRect().right); });
+          return { rows: tops.filter(function (t, i) { return tops.indexOf(t) === i; }).length,
+                   right: Math.max.apply(null, rights) };
+        })()
+      JS
+
+      expect(geometry["rows"]).to eq(1), "#{width}px で操作が #{geometry["rows"]} 段になっている"
+      expect(geometry["right"]).to be_within(1).of(width - 16),
+        "#{width}px で右端が #{geometry["right"]} にあり右寄せになっていない"
+    end
+  ensure
+    # 幅を戻さないと、同じセッションを使う後続の example が狭いままになる。
+    page.current_window.resize_to(1280, 900)
   end
 end

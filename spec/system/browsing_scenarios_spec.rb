@@ -55,8 +55,7 @@ RSpec.describe "Browsing scenarios" do
       OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
         provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
       )
-      visit root_path
-      click_button "Googleでログイン"
+      sign_in_with_google
       page.current_window.resize_to(320, 900)
       visit scenario_path(scenario)
       expect(page).to have_content("GMからのおすすめ情報")

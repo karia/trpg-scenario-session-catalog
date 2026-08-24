@@ -16,8 +16,7 @@ RSpec.describe "Responsive master management screens" do
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
 
-    visit root_path
-    click_button "Googleでログイン"
+    sign_in_with_google
     expect(page).to have_link(admin.display_name, href: person_path(admin))
 
     paths = [
