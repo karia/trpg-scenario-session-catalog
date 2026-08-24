@@ -1,6 +1,20 @@
 require "rails_helper"
 
 RSpec.describe "Manage::Scenarios" do
+  # 補足は「選択肢に当てはまらない場合」の話なので、選択肢より後に出さないと読めない。
+  it "puts the character sheet deadline before the note that qualifies it" do
+    sign_in_as create(:person, roles: %w[gm])
+
+    get new_scenario_path
+
+    deadline = response.body.index(%(for="scenario_character_sheet_deadline"))
+    note = response.body.index(%(for="scenario_character_sheet_deadline_note"))
+
+    expect(deadline).to be_present
+    expect(note).to be_present
+    expect(deadline).to be < note
+  end
+
   describe "without a signed-in editor" do
     it "answers 404 to an anonymous visitor" do
       get scenario_order_index_path
