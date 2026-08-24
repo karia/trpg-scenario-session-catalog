@@ -62,7 +62,7 @@
                   ]) %>
                 <% end %>
                 <%= render "shared/ui/navigation", id: "account-menu", label: "#{User.model_name.human}メニュー",
-                  items: account_items, variant: :menu, hidden: true,
+                  items: account_items, hidden: true,
                   data: { dropdown_target: "menu" } %>
               </div>
             <% end %>
