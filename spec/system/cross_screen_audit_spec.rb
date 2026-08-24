@@ -179,7 +179,7 @@ RSpec.describe "Cross-screen audit" do
 
   private
     def signed_out_screens
-      [ root_path, new_registration_path ]
+      [ root_path, root_path(view: "gallery"), new_registration_path ]
     end
 
     def target_size_offenders(paths)
