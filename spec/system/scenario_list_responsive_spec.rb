@@ -45,6 +45,10 @@ RSpec.describe "Responsive scenario lists" do
       save_screenshot("scenario-gallery-#{width}.png") if ENV["VISUAL_REVIEW"]
     end
 
+    scenario_without_author = create(:scenario, title: "作者未設定のシナリオ")
+    visit root_path(view: "gallery")
+    expect(find("article", text: scenario_without_author.title)).to have_text("作者未設定")
+
     sign_in_with_google
     [ 320, 1280 ].each do |width|
       page.current_window.resize_to(width, 900)
