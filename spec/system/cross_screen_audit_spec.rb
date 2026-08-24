@@ -15,7 +15,8 @@ RSpec.describe "Cross-screen audit" do
       if (!active || active === document.body || active === document.documentElement) return null
       const style = getComputedStyle(active)
       const outlined = style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0
-      const ringed = style.boxShadow !== "none" && style.boxShadow !== ""
+      const ringed = style.boxShadow !== "none" && style.boxShadow !== "" &&
+        style.boxShadow !== "rgba(0, 0, 0, 0) 0px 0px 0px 0px"
       const browserDrawnDateIndicator = active instanceof HTMLInputElement &&
         ["date", "datetime-local", "time"].includes(active.type) && !active.matches(":focus")
       return {
@@ -186,11 +187,13 @@ RSpec.describe "Cross-screen audit" do
     sign_in_as_admin
     visit root_path
     page.execute_script(<<~JS)
-      document.body.insertAdjacentHTML("beforeend", '<button id="focus-probe" style="all: unset; outline: none; box-shadow: none">focus probe</button>')
+      document.body.insertAdjacentHTML("beforeend", '<button id="focus-probe">focus probe</button>')
+      document.styleSheets[0].insertRule("#focus-probe:focus-visible { outline: none !important; box-shadow: none !important; }")
       document.querySelector("#focus-probe").focus()
     JS
 
-    expect(page.evaluate_script(CrossScreenAudit::FOCUS_INDICATOR).fetch("indicated")).to be(false)
+    result = page.evaluate_script(CrossScreenAudit::FOCUS_INDICATOR)
+    expect(result.fetch("indicated")).to be(false), result.inspect
   end
 
   it "fails when the keyboard walk reaches its safety limit" do
