@@ -39,6 +39,7 @@ RSpec.describe "Responsive scenario lists" do
 
       visit root_path(view: "gallery", author_ids: [ author.id ])
       expect(page).to have_css(".aspect-3\\/4", visible: :visible)
+      expect(find(".aspect-3\\/4").ancestor("article")).to have_text(author.name)
       expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
       expect(page).to be_axe_clean
       save_screenshot("scenario-gallery-#{width}.png") if ENV["VISUAL_REVIEW"]
