@@ -56,6 +56,8 @@ RSpec.describe "Responsive scenario lists" do
     end
 
     sort_button = find_button("並べ替える")
+    sort_select = find_field("並び順")
+    expect(sort_select.rect.width).to be < 200
     expect(page.evaluate_script("getComputedStyle(arguments[0]).paddingLeft", sort_button)).to eq("12px")
     expect(sort_button.rect.width).to be < 160
     purchase_links = all("td div.gap-x-2 a", visible: :visible)
