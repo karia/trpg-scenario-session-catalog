@@ -59,10 +59,15 @@ RSpec.describe "Responsive scenario lists" do
 
       visit root_path(view: "gallery", author_ids: [ author.id ])
       expect(page).to have_css(".aspect-3\\/4", visible: :visible)
+      expect(find(".aspect-3\\/4").ancestor("article")).to have_text(author.name)
       expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
       expect(page).to be_axe_clean
       save_screenshot("scenario-gallery-#{width}.png") if ENV["VISUAL_REVIEW"]
     end
+
+    scenario_without_author = create(:scenario, title: "作者未設定のシナリオ")
+    visit root_path(view: "gallery")
+    expect(find("article", text: scenario_without_author.title)).to have_text("作者未設定")
 
     sign_in_with_google
     [ 320, 1280 ].each do |width|
