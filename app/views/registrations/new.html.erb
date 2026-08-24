@@ -1,4 +1,6 @@
 <% content_for :title, "新規登録" %>
+<%# ここを origin にすると、ログイン成功後も「登録してください」の画面へ戻ってしまう。 %>
+<% return_to = params[:origin].to_s.start_with?("/") && !params[:origin].to_s.start_with?("//") ? params[:origin] : root_path %>
 
 <div class="mx-auto max-w-2xl space-y-6">
   <%= render "shared/ui/page_header", title: "新規登録" %>
@@ -8,8 +10,8 @@
     <p>なお、Googleアカウントの情報はこのサイト上では管理者以外の人に表示されることはありません。表示名は自由に設定できます。</p>
     <p>Discordでログインすると、連携済みサーバーへの参加状況をBot経由で確認します。他の参加サーバーの情報は取得しません。</p>
     <div class="grid gap-3 sm:grid-cols-2">
-      <%= form_with url: "/auth/google_oauth2", method: :post, data: { turbo: false }, class: "contents" do %><%= hidden_field_tag :origin, request.fullpath %><%= ui_button("Google でログイン", type: "submit") %><% end %>
-      <%= form_with url: "/auth/discord", method: :post, data: { turbo: false }, class: "contents" do %><%= hidden_field_tag :origin, request.fullpath %><%= ui_button("Discord でログイン", variant: :secondary, type: "submit") %><% end %>
+      <%= form_with url: "/auth/google_oauth2", method: :post, data: { turbo: false }, class: "contents" do %><%= hidden_field_tag :origin, return_to %><%= ui_button("Google でログイン", type: "submit") %><% end %>
+      <%= form_with url: "/auth/discord", method: :post, data: { turbo: false }, class: "contents" do %><%= hidden_field_tag :origin, return_to %><%= ui_button("Discord でログイン", variant: :secondary, type: "submit") %><% end %>
     </div>
   </section>
 </div>

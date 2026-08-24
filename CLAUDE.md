@@ -27,6 +27,23 @@
 
 Ruby と Node は mise で固定している。shims を PATH に置いていない環境では `mise exec --` を頭に付ける。
 
+## ブラウザを使う spec
+
+`spec/system/` は Chrome が無いと skip する。見た目とアクセシビリティの確認はここにしか無いので、手元でも動かせるようにしておく。
+mise に Chrome 本体は無いため、Playwright から取る。
+
+```bash
+mise exec -- npx playwright install chromium
+CHROME_BINARY=$(ls -t ~/.cache/ms-playwright/chromium-*/chrome-linux/chrome 2>/dev/null | head -1)
+[ -x "$CHROME_BINARY" ] && export CHROME_BINARY || echo "Chrome が見つからない。install からやり直す"
+bin/rspec spec/system/
+```
+
+`CHROME_BINARY` に存在しないパスを入れると、spec は skip ではなく全件 Selenium の起動失敗になる。上のように実在を確かめてから export する。
+
+**`bin/rspec` は `app/assets/builds/tailwind.css` をそのまま読む。** 手元のビルドが古いと、テンプレートを直したのに spec は前の CSS で描画する。
+クラスを足したり消したりしたら、system spec の前に `bin/rails tailwindcss:build` を流す。CI は `assets:precompile` を挟むのでこの問題は起きない。
+
 ## データベースを変える
 
 ```bash

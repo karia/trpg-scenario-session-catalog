@@ -19,8 +19,7 @@ RSpec.describe "Responsive play session screens" do
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
 
-    visit root_path
-    click_button "Googleでログイン"
+    sign_in_with_google
 
     [ 320, 768, 1280 ].each do |width|
       page.current_window.resize_to(width, 900)

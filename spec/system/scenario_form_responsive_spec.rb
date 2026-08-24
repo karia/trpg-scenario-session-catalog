@@ -15,8 +15,7 @@ RSpec.describe "Responsive scenario forms" do
       provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
     )
 
-    visit root_path
-    click_button "Googleでログイン"
+    sign_in_with_google
 
     [ new_scenario_path, edit_scenario_path(scenario) ].each do |path|
       [ 320, 768, 1280 ].each do |width|

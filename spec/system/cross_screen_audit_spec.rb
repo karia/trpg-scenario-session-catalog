@@ -226,8 +226,7 @@ RSpec.describe "Cross-screen audit" do
       OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
         provider: "google_oauth2", uid: audit[:admin_user].google_uid, info: { email: audit[:admin_user].email }
       )
-      visit root_path
-      click_button "Googleでログイン"
+      sign_in_with_google
       expect(page).to have_link(audit[:admin].display_name)
     end
 
