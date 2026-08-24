@@ -2,8 +2,14 @@
       data: local_assigns.fetch(:data, {}),
       class: "absolute top-full right-0 z-[var(--z-ui-overlay)] mt-2 grid w-[min(18rem,calc(100vw-2rem))] gap-1 rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid p-2 shadow-ui-surface" do %>
   <% items.each do |item| %>
-    <% current = item.fetch(:current) { current_page?(item[:path]) } %>
-    <%= link_to item[:label], item[:path], aria: { current: ("page" if current) },
-      class: "inline-flex min-h-11 items-center rounded-ui-control px-3 py-2 text-sm font-bold no-underline #{current ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" %>
+    <% if item[:method] %>
+      <% variant_classes = item[:variant] == :danger ? "text-ui-error hover:bg-ui-subtle" : "text-ui-text hover:bg-ui-subtle" %>
+      <%= button_to item[:label], item[:path], method: item[:method], form: { class: "contents" },
+        class: "inline-flex min-h-11 w-full cursor-pointer items-center rounded-ui-control px-3 py-2 text-sm font-bold #{variant_classes}" %>
+    <% else %>
+      <% current = item.fetch(:current) { current_page?(item[:path]) } %>
+      <%= link_to item[:label], item[:path], aria: { current: ("page" if current) },
+        class: "inline-flex min-h-11 items-center rounded-ui-control px-3 py-2 text-sm font-bold no-underline #{current ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" %>
+    <% end %>
   <% end %>
 <% end %>

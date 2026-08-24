@@ -56,8 +56,14 @@ RSpec.describe "Application shell" do
         page.current_window.resize_to(width, 900)
         visit root_path
         expect_right_aligned(width, "ログイン済み")
+        expect(page).to have_no_css('header nav[aria-label="主要"] > form')
 
-        click_button "ログアウト"
+        click_button "メニュー"
+        account_menu = find("#account-menu")
+        expect(account_menu.all("a, button").last.text).to eq("ログアウト")
+        expect(account_menu).to have_css("button.text-ui-error", text: "ログアウト")
+
+        account_menu.click_button "ログアウト"
         expect(page).to have_link("新規登録")
       end
     ensure

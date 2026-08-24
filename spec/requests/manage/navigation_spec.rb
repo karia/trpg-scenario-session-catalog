@@ -68,7 +68,7 @@ RSpec.describe "Manage navigation" do
   end
 
   describe "the header" do
-    it "puts the menu after the profile and sign-out controls and uses a popover" do
+    it "puts the menu after the profile and sign-out at the bottom of the popover" do
       person = create(:person)
       sign_in_as person
 
@@ -79,7 +79,7 @@ RSpec.describe "Manage navigation" do
       expect(page).to have_css('nav#account-menu[hidden][aria-label="アカウントメニュー"]', visible: :all)
       expect(page).to have_css("nav#account-menu.rounded-ui-control.bg-ui-surface-solid", visible: :all)
       expect(response.body.index(person.display_name)).to be < response.body.index("account-menu")
-      expect(response.body.index("ログアウト")).to be < response.body.index("account-menu")
+      expect(page).to have_css("nav#account-menu > form:last-child button.text-ui-error", text: "ログアウト", visible: :all)
     end
 
     it "offers the manage area to an editor" do
