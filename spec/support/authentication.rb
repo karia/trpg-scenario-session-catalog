@@ -17,11 +17,10 @@ module SystemAuthenticationHelpers
   def sign_in_with_google
     visit new_registration_path
     click_button "Google でログイン"
-    # click_button も visit も遷移の完了を待たない。ここで着地を待たないと、
-    # 後から届くリダイレクトが次の visit を上書きする。
+    # click_button は遷移の完了を待たない。DOM で待つと認証のリダイレクト途中の
+    # 差し替えに当たり、Selenium が stale node で落ちる。URL で着地を待つ。
+    expect(page).to have_current_path(root_path, wait: 10)
     expect(page).to have_content("ログインしました")
-    # origin が新規登録ページになるため、従来どおり一覧から始められるよう戻す。
-    visit root_path
   end
 end
 
