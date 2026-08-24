@@ -67,7 +67,7 @@
               </div>
             <% end %>
           <% else %>
-            <%= link_to "新規登録", new_registration_path,
+            <%= link_to "新規登録", new_registration_path(origin: request.fullpath),
               class: "inline-flex min-h-11 items-center rounded-ui-control px-2 font-bold text-ui-text underline" %>
             <%# Google は管理者しか使わなくなったため、ヘッダーには出さず新規登録ページにだけ残す。 %>
             <%# Turbo はフォーム送信を横取りするが、provider への cross-origin リダイレクトを追えない。 %>
