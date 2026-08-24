@@ -37,35 +37,35 @@
             <% else %>
               <span class="text-ui-text-muted">未登録</span>
             <% end %>
-            <%= button_to "ログアウト", session_path, method: :delete, form: { class: "contents" },
-              class: "min-h-11 cursor-pointer rounded-ui-control px-2 text-ui-text-muted underline hover:text-ui-text" %>
-            <% if current_person %>
-              <div class="relative" data-controller="dropdown" data-action="click@window->dropdown#close">
+            <div class="relative" data-controller="dropdown" data-action="click@window->dropdown#close">
                 <button type="button" aria-controls="account-menu" aria-expanded="false"
                         data-dropdown-target="button" data-action="dropdown#toggle"
                         class="min-h-11 cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-3 py-2 font-bold text-ui-text hover:bg-ui-subtle">
                   メニュー
                 </button>
-                <% account_items = [
-                  { label: Scenario.model_name.human, path: scenarios_path },
-                  { label: PlaySession.model_name.human, path: play_sessions_path },
-                  { label: Person.model_name.human, path: people_path },
-                  { label: GameSystem.model_name.human, path: game_systems_path },
-                  { label: Author.model_name.human, path: authors_path }
-                ] %>
-                <% account_items << { label: "#{Scenario.model_name.human}の並び順", path: scenario_order_index_path } if policy(Scenario).reorder? %>
-                <% if current_person.admin? %>
+                <% account_items = [] %>
+                <% if current_person %>
                   <% account_items.concat([
-                    { label: Group.model_name.human, path: manage_groups_path },
-                    { label: User.model_name.human, path: manage_users_path },
-                    { label: SiteSetting.model_name.human, path: manage_site_setting_path }
+                    { label: Scenario.model_name.human, path: scenarios_path },
+                    { label: PlaySession.model_name.human, path: play_sessions_path },
+                    { label: Person.model_name.human, path: people_path },
+                    { label: GameSystem.model_name.human, path: game_systems_path },
+                    { label: Author.model_name.human, path: authors_path }
                   ]) %>
+                  <% account_items << { label: "#{Scenario.model_name.human}の並び順", path: scenario_order_index_path } if policy(Scenario).reorder? %>
+                  <% if current_person.admin? %>
+                    <% account_items.concat([
+                      { label: Group.model_name.human, path: manage_groups_path },
+                      { label: User.model_name.human, path: manage_users_path },
+                      { label: SiteSetting.model_name.human, path: manage_site_setting_path }
+                    ]) %>
+                  <% end %>
                 <% end %>
+                <% account_items << { label: "ログアウト", path: session_path, method: :delete, variant: :danger } %>
                 <%= render "shared/ui/navigation", id: "account-menu", label: "#{User.model_name.human}メニュー",
                   items: account_items, hidden: true,
                   data: { dropdown_target: "menu" } %>
-              </div>
-            <% end %>
+            </div>
           <% else %>
             <%= ui_button_link("新規登録", href: new_registration_path(origin: request.fullpath), variant: :secondary, size: :small) %>
             <%# Google は管理者しか使わなくなったため、ヘッダーには出さず新規登録ページにだけ残す。 %>

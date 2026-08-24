@@ -73,5 +73,6 @@ RSpec.describe "The sign-in button" do
 
     expect(response.body).not_to include('action="/auth/discord"')
     expect(response.body).not_to include(new_registration_path)
+    expect(Capybara.string(response.body)).to have_button("ログアウト", visible: :all)
   end
 end
