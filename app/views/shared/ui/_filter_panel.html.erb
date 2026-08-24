@@ -1,4 +1,6 @@
-<details class="group rounded-ui-surface border border-ui-outline bg-ui-surface-solid supports-[backdrop-filter:blur(1px)]:bg-ui-surface supports-[backdrop-filter:blur(1px)]:backdrop-blur-ui-surface">
+<details class="group rounded-ui-surface border border-ui-outline bg-ui-surface-solid supports-[backdrop-filter:blur(1px)]:bg-ui-surface supports-[backdrop-filter:blur(1px)]:backdrop-blur-ui-surface"
+         data-controller="filter-panel" data-filter-panel-key="<%= local_assigns.fetch(:key, "default") %>"
+         data-action="turbo:before-frame-render@document->filter-panel#preserveOpenState">
   <summary class="flex min-h-11 cursor-pointer items-center justify-between px-4 py-3 text-sm font-bold text-ui-text marker:content-none">
     <%= title %><span aria-hidden="true" class="text-ui-text-muted group-open:rotate-180">⌄</span>
   </summary>
