@@ -41,8 +41,16 @@ RSpec.describe "Cross-screen audit" do
         const wrapper = label.getBoundingClientRect()
         return { width: Math.max(own.width, wrapper.width), height: Math.max(own.height, wrapper.height) }
       }
-      const inRunningText = (el) => el.tagName === "A" && getComputedStyle(el).display === "inline" &&
-        Array.from(el.parentNode.childNodes).some((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "")
+      const inRunningText = (el) => {
+        if (el.tagName !== "A" || getComputedStyle(el).display !== "inline") return false
+        const container = el.closest("p, li, dd, dt, figcaption, blockquote")
+        if (!container) return false
+        const texts = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
+        while (texts.nextNode()) {
+          if (!el.contains(texts.currentNode) && texts.currentNode.textContent.trim() !== "") return true
+        }
+        return false
+      }
       return Array.from(document.querySelectorAll(#{CrossScreenAudit::INTERACTIVE.dump}))
         .filter(shown)
         .filter((el) => !inRunningText(el))
@@ -164,12 +172,14 @@ RSpec.describe "Cross-screen audit" do
       document.body.insertAdjacentHTML("beforeend", `
         <div><a href="#standalone">standalone audit probe</a></div>
         <p>Running text <a href="#running">running audit probe</a>.</p>
+        <p>Nested running text <em><a href="#nested-running">nested running audit probe</a></em>.</p>
       `)
     JS
 
     offenders = page.evaluate_script(CrossScreenAudit::SMALL_TARGETS)
     expect(offenders.grep(/standalone audit probe/)).not_to be_empty
     expect(offenders.grep(/running audit probe/)).to be_empty
+    expect(offenders.grep(/nested running audit probe/)).to be_empty
   end
 
   it "rejects a focused control without an indicator" do
