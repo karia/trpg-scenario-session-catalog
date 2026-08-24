@@ -1,19 +1,9 @@
-<% variants = {
-  menu: "absolute top-full right-0 z-[var(--z-ui-overlay)] mt-2 grid w-[min(18rem,calc(100vw-2rem))] gap-1 rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid p-2 shadow-ui-surface",
-  bar: "border-b border-ui-outline bg-ui-surface-solid px-4 py-3 sm:px-6"
-} %>
 <%= tag.nav id: local_assigns[:id], aria: { label: }, hidden: local_assigns.fetch(:hidden, false),
-      data: local_assigns.fetch(:data, {}), class: variants.fetch(variant) do %>
-  <% if variant == :bar %>
-    <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-2">
-      <span class="mr-2 text-ui-caption font-bold text-ui-text-muted"><%= label %></span>
-  <% end %>
+      data: local_assigns.fetch(:data, {}),
+      class: "absolute top-full right-0 z-[var(--z-ui-overlay)] mt-2 grid w-[min(18rem,calc(100vw-2rem))] gap-1 rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid p-2 shadow-ui-surface" do %>
   <% items.each do |item| %>
     <% current = item.fetch(:current) { current_page?(item[:path]) } %>
     <%= link_to item[:label], item[:path], aria: { current: ("page" if current) },
       class: "inline-flex min-h-11 items-center rounded-ui-control px-3 py-2 text-sm font-bold no-underline #{current ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" %>
-  <% end %>
-  <% if variant == :bar %>
-    </div>
   <% end %>
 <% end %>
