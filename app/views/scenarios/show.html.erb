@@ -4,7 +4,7 @@
 
 <article>
   <nav class="text-ui-caption text-ui-text-muted" aria-label="パンくずリスト">
-    <%= link_to "#{Scenario.model_name.human}一覧", root_path, class: "text-ui-action" %>
+    <%= link_to "#{Scenario.model_name.human}一覧", root_path, class: "inline-flex min-h-11 items-center text-ui-action" %>
     <span aria-hidden="true">／</span> <span aria-current="page"><%= @scenario.title %></span>
   </nav>
   <div class="mt-6 grid gap-6 md:grid-cols-[minmax(13rem,18rem)_minmax(0,1fr)] md:gap-8">

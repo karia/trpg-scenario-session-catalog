@@ -11,7 +11,7 @@
     <dt class="text-ui-text-muted">ログイン方法</dt><dd><%= @user.provider_name %></dd>
     <dt class="text-ui-text-muted">表示名</dt><dd><%= @user.name.presence || "不明" %></dd>
     <dt class="text-ui-text-muted">初回ログイン</dt><dd><%= l @user.created_at, format: :short %></dd>
-    <dt class="text-ui-text-muted">紐づけ先</dt><dd><% if @user.person %><%= link_to @user.person.display_name, person_path(@user.person), class: "text-ui-action" %><% else %>未紐づけ<% end %></dd>
+    <dt class="text-ui-text-muted">紐づけ先</dt><dd><% if @user.person %><%= link_to @user.person.display_name, person_path(@user.person), class: "inline-flex min-h-11 items-center text-ui-action" %><% else %>未紐づけ<% end %></dd>
   </dl>
   <%= ui_button_link("一覧に戻る", href: manage_users_path, variant: :secondary) %>
 </article>

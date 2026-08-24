@@ -6,7 +6,7 @@
           <span class="sortable-handle inline-flex min-h-11 min-w-11 cursor-move touch-none items-center justify-center text-xl text-ui-text-muted select-none" aria-hidden="true">⠿</span>
           <span class="text-ui-caption text-ui-text-muted"><span class="sr-only">現在の並び順:</span><%= index + 1 %></span>
         </div>
-        <h2 class="font-display text-base font-bold"><%= link_to scenario.title, scenario_path(scenario), class: "text-ui-text hover:text-ui-action" %></h2>
+        <h2 class="font-display text-base font-bold"><%= link_to scenario.title, scenario_path(scenario), class: "inline-flex min-h-11 items-center text-ui-text hover:text-ui-action" %></h2>
         <div class="flex flex-wrap gap-2 sm:justify-end">
           <%= form_with url: move_scenario_order_path(scenario, direction: "up"), method: :patch do %><%= ui_button("上へ", variant: :secondary, size: :small, type: "submit", disabled: index.zero?, aria: { label: "#{scenario.title}を1つ上へ" }) %><% end %>
           <%= form_with url: move_scenario_order_path(scenario, direction: "down"), method: :patch do %><%= ui_button("下へ", variant: :secondary, size: :small, type: "submit", disabled: index == scenarios.length - 1, aria: { label: "#{scenario.title}を1つ下へ" }) %><% end %>

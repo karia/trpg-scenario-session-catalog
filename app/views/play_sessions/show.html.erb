@@ -2,7 +2,7 @@
 
 <article class="space-y-10">
   <nav class="text-ui-caption text-ui-text-muted" aria-label="パンくずリスト">
-    <%= link_to "#{PlaySession.model_name.human}一覧", play_sessions_path, class: "text-ui-action underline" %>
+    <%= link_to "#{PlaySession.model_name.human}一覧", play_sessions_path, class: "inline-flex min-h-11 items-center text-ui-action underline" %>
     <span aria-hidden="true">／</span> <span aria-current="page"><%= @play_session.scenario.title %></span>
   </nav>
 
