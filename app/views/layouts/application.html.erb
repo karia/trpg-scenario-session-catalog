@@ -30,14 +30,14 @@
           TRPGカタログ
         <% end %>
 
-        <nav class="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 text-sm sm:ml-auto sm:w-auto sm:justify-end" aria-label="主要">
+        <nav class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 text-sm sm:ml-auto sm:w-auto" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
               <%= link_to person_path(current_person), class: "inline-flex min-h-11 max-w-40 items-center text-ui-text-muted underline" do %><span class="min-w-0 truncate"><%= current_person.display_name %></span><% end %>
             <% else %>
               <span class="text-ui-text-muted">未登録</span>
             <% end %>
-            <%= button_to "ログアウト", session_path, method: :delete,
+            <%= button_to "ログアウト", session_path, method: :delete, form: { class: "contents" },
               class: "min-h-11 cursor-pointer rounded-ui-control px-2 text-ui-text-muted underline hover:text-ui-text" %>
             <% if current_person %>
               <div class="relative" data-controller="dropdown" data-action="click@window->dropdown#close">
@@ -69,14 +69,11 @@
           <% else %>
             <%= link_to "新規登録", new_registration_path,
               class: "inline-flex min-h-11 items-center rounded-ui-control px-2 font-bold text-ui-text underline" %>
+            <%# Google は管理者しか使わなくなったため、ヘッダーには出さず新規登録ページにだけ残す。 %>
             <%# Turbo はフォーム送信を横取りするが、provider への cross-origin リダイレクトを追えない。 %>
-            <%= button_to "Googleでログイン", "/auth/google_oauth2", method: :post,
-                  params: { origin: request.fullpath },
-                  form: { data: { turbo: false } },
-                  class: "min-h-11 cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-3 py-2 font-bold text-ui-text hover:bg-ui-subtle" %>
             <%= button_to "Discordでログイン", "/auth/discord", method: :post,
                   params: { origin: request.fullpath },
-                  form: { data: { turbo: false } },
+                  form: { class: "contents", data: { turbo: false } },
                   class: "min-h-11 cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-3 py-2 font-bold text-ui-text hover:bg-ui-subtle" %>
           <% end %>
         </nav>
