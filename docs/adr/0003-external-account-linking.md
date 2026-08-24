@@ -8,14 +8,18 @@
 
 現在、Google と Discord はどちらもログイン手段である。
 `SessionsController#create` はどちらの callback も同じ経路で受け、`User.from_omniauth` が `User` を作る。
-`Person` との紐づけは管理者が `manage/users` で行う。
+
+`users` は `provider`、`uid`、`email`、`name` に加えて `person_id` と `google_uid` を持つ。
+`google_uid` は provider 列を足す前の名残で、`from_omniauth` が既存行を見つけるためのフォールバックとして今も使う。
+
+`Person` との紐づけには 2 つの経路がある。
+管理者が `manage/users` で選ぶ経路と、Discord ログイン時に `sync_discord_groups!` が自動で作る経路である。
+後者が `Person` を作るのは、`discord_guild_id` を持つ `Group` のいずれかに所属していると確認できたときに限る。
 
 [Issue #149](https://github.com/karia/trpg-scenario-session-catalog/issues/149) は、セッション情報から YouTube のライブ配信枠を作り、GM の録画一覧からセッション情報を生成することを目指している。
-どちらも GM 本人の YouTube チャンネルに対する API 呼び出しであり、本人の同意で得たトークンが要る。
-ログインのたびに得られる短命のアクセストークンでは足りず、GM が画面を開いていない時刻にも使える refresh token を保持する必要がある。
-
-`users` テーブルは今 `provider`、`uid`、`email`、`name` しか持たない。
-トークンを置く場所が無い。
+どちらも GM 本人のチャンネルに対する API 呼び出しであり、本人の同意で得たトークンが要る。
+GM が画面を開いていない時刻にも使うため、refresh token を保持する必要がある。
+`users` にトークンを置く列は無い。
 
 ## 決定
 
@@ -26,31 +30,63 @@ Discord をログイン手段とし、Google は**ログイン済みの利用者
 - 新規の利用者は Discord でログインする。Google での新規登録は受け付けない
 - Google の連携と解除は、本人が `Person` の画面から行う
 - 管理者は他人の Google 連携を**解除**できる。紐づけはできない
-- `manage/users` の紐づけ編集は廃止する
 
-管理者だけは Google でもログインできる状態を残す。
-最初の管理者は `bin/rails admin:grant` で作るが、Discord サーバーの障害や Bot トークンの失効で Discord 経由のログインが塞がったとき、管理画面へ入る経路が完全に無くなるのを避けるためである。
+### `Person` への紐づけ経路は残す
 
-### YouTube の scope は連携時に取得し、必要になった時点で追加する
+Issue #149 は `manage/users` の「アカウントの紐づけ」を画面ごと廃止するとしていた。
+これは採らない。
+廃止するのは **Google の紐づけだけ**とし、Discord の `User` を既存の `Person` へ結ぶ操作は管理者に残す。
+
+理由は 2 つある。
+1 つは、`sync_discord_groups!` が `Person` を作るのは登録済みギルドへの所属を確認できたときだけであり、所属していない利用者は `person_id` が nil のまま入ることである。
+`pundit_user` は `current_person` なので、この利用者は公開エリアしか見られない状態から自力で抜けられない。
+
+もう 1 つは、管理者が先に作った `Person` を持つ人が初めて Discord でログインすると、`self.person ||= Person.create!` が別の `Person` を新たに作ることである。
+これは本 ADR が解消しようとしている分裂そのものを再生産する。
+
+### 退避路としての Google ログインを定義する
+
+管理者は Google でもログインできる状態を残す。
+Discord 側の障害でログインが塞がったとき、管理画面へ入る経路が完全に無くなるのを避けるためである。
+
+ただし「管理者かどうか」は callback の時点では `User` が既にあって初めて分かる。
+そこで受け付ける条件を次のとおり狭める。
+
+**Google の callback は、その `uid` の `User` が既に存在し、かつ `admin` を持つ `Person` に紐づいているときだけログインとして扱う。**
+それ以外は連携の操作としてのみ受け付け、未ログインなら失敗させる。
+
+新しい Google アカウントからは退避路を作れない。
+`bin/rails admin:grant` は既存の `User` 行を探すだけで作らないため、これは運用上の前提として受け入れる。
+退避路を保つには、管理者の Google 連携を最後の 1 件まで解除させない制約が要る。
+
+### YouTube の scope は `youtube.force-ssl` だけを要求する
 
 Google の連携時、その `Person` が GM または管理者であれば YouTube Data API の scope を含めて要求する。
+
+要求するのは `youtube.force-ssl` のみとする。
+このスコープは読み取りを含むため、`youtube.readonly` を併せて要求しても同意画面が広がるだけで得るものが無い。
+
 権限は後から付与されるため、連携時に権限を持たなかった利用者が後で GM になる場合がある。
 このとき遡って再認証を求めず、**YouTube の機能を実際に使う時点で再連携を促す**。
 
-要求する scope は `youtube.readonly` と `youtube.force-ssl` の両方とする。
-後続タスクのうち録画一覧の読み取りは前者で足りるが、ライブ配信枠の作成は後者を要する。
-2 度に分けて同意を求めるより、連携という 1 つの操作で完結させる。
+scope は利用者ごとに変わるため、`config/initializers/omniauth.rb` の静的な指定では表せない。
+request phase で差し替える。
+同じ理由で `access_type` と `prompt` も連携のリクエストにだけ渡す。
+provider の設定に書くと、管理者の通常ログインでも毎回同意画面が出る。
+
+Google の callback はログインと連携の両方が通るため、**どちらの意図で始めたかを state に載せて区別する**。
 
 ### トークンは Active Record Encryption で暗号化して保持する
 
-`users` に refresh token と access token、有効期限、取得済み scope を持たせ、Active Record Encryption で暗号化する。
+`users` に refresh token、access token、有効期限、取得済み scope を持たせ、Active Record Encryption で暗号化する。
 
-暗号鍵は環境変数から渡す。
-この repo は Rails credentials を使わない方針であり、`config/master.key` が存在しない。
-鍵は `config/initializers/required_env.rb` の必須変数に加え、欠けたまま本番が起動しないようにする。
+鍵は `primary_key`、`deterministic_key`、`key_derivation_salt` の 3 つが要る。
+この repo は Rails credentials を使わず `config/master.key` も持たないため、3 つとも環境変数から読み、`config/initializers/required_env.rb` の必須変数に加える。
+1 つでも欠けると、起動は通るのに暗号化した属性へ初めて触れた時点で例外になる。
 
-Google の OAuth は既定では refresh token を返さない。
-`access_type: "offline"` と `prompt: "consent"` を指定する。
+連携の解除では、保存したトークンを破棄し、Google 側でも revoke する。
+`Person` は `has_many :users, dependent: :nullify` なので、`Person` を消しても `users` の行は残る。
+`Person` の削除でもトークンを破棄する。
 
 ## 検討した代替案
 
@@ -66,7 +102,6 @@ Discord にも保存すべきトークンが出てきた時点で分ける。
 変更が小さい。
 しかし Google と Discord のどちらでログインしたかで `Person` が分かれる現在の状態が続く。
 実際に本番では同一人物の `Person` が 2 件に分かれている。
-連携を「ログイン済みの本人が足す操作」に変えることで、この分岐が起きなくなる。
 
 ### 鍵を Rails credentials に置く
 
@@ -76,8 +111,15 @@ Active Record Encryption の既定の置き場所であり、設定量が最も�
 
 ## 帰結
 
-Discord が唯一のログイン経路になるため、Discord 側の障害はログインできない状態に直結する。
-管理者だけ Google でも入れる状態を残すのは、この単一障害点に対する退避路である。
+Discord が主なログイン経路になる。
+ここで塞がるのは Bot トークンの失効ではない。
+`DiscordGuildMemberClient` が 401 を返しても `sync_discord_groups!` が rescue して非メンバー扱いにするため、ログイン自体は成功する。
+ログインが落ちるのは `DISCORD_BOT_TOKEN` が未設定のときで、`ENV.fetch` の `KeyError` が `SessionsController#create` の rescue に入り失敗として扱われる。
+
+より起きやすいのは、ログインは通るのに所属が失われる状態である。
+Discord API の障害や 3 秒の締め切り超過ではすべてのギルドが非メンバーと判定され、`discord_managed` な `group_membership` が破棄される。
+セッションの可視性は `PlaySessionPolicy::Scope` がグループ所属で決めるため、障害中はログインできるのに見えるセッションが減る。
+この挙動は本 ADR の変更対象ではないが、Discord への依存度が上がる以上、別途扱う価値がある。
 
 暗号鍵を失うと保存済みのトークンは復号できない。
 利用者に再連携を求めれば復旧できるが、鍵はデータベースのバックアップとは別に保管する必要がある。
