@@ -21,7 +21,7 @@
       <% end %>
     <% else %>
       <div class="space-y-4 p-4">
-        <h2><%= link_to scenario.title, scenario_path(scenario), data: { turbo_frame: "_top" }, class: "font-display text-lg font-bold text-ui-text hover:text-ui-action" %></h2>
+        <h2><%= link_to scenario.title, scenario_path(scenario), data: { turbo_frame: "_top" }, class: "inline-flex min-h-11 items-center font-display text-lg font-bold text-ui-text hover:text-ui-action" %></h2>
         <dl class="grid grid-cols-[5rem_minmax(0,1fr)] gap-x-3 gap-y-2 text-ui-caption">
           <dt class="text-ui-text-muted">作者</dt><dd><%= scenario.authors.map(&:name).join("、") %></dd>
           <dt class="text-ui-text-muted">システム</dt><dd><%= scenario.game_systems.map(&:name).join("／") %></dd>

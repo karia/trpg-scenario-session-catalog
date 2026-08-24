@@ -16,10 +16,12 @@ RSpec.describe "Cross-screen audit" do
       const style = getComputedStyle(active)
       const outlined = style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0
       const ringed = style.boxShadow !== "none" && style.boxShadow !== ""
+      const browserDrawnDateIndicator = active instanceof HTMLInputElement &&
+        ["date", "datetime-local", "time"].includes(active.type) && !active.matches(":focus")
       return {
         name: (active.getAttribute("aria-label") || active.textContent || active.value || active.name || active.id || "").trim().slice(0, 60),
         tag: active.tagName.toLowerCase(),
-        indicated: !active.matches(":focus") || outlined || ringed
+        indicated: browserDrawnDateIndicator || outlined || ringed
       }
     })()
   JS
@@ -39,9 +41,11 @@ RSpec.describe "Cross-screen audit" do
         const wrapper = label.getBoundingClientRect()
         return { width: Math.max(own.width, wrapper.width), height: Math.max(own.height, wrapper.height) }
       }
+      const inRunningText = (el) => el.tagName === "A" && getComputedStyle(el).display === "inline" &&
+        Array.from(el.parentNode.childNodes).some((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "")
       return Array.from(document.querySelectorAll(#{CrossScreenAudit::INTERACTIVE.dump}))
         .filter(shown)
-        .filter((el) => !(el.tagName === "A" && getComputedStyle(el).display === "inline"))
+        .filter((el) => !inRunningText(el))
         .filter((el) => { const rect = box(el); return rect.width < 44 || rect.height < 44 })
         .map((el) => {
           const rect = box(el)
@@ -153,6 +157,40 @@ RSpec.describe "Cross-screen audit" do
       strays.map { |control| %(#{control['path']}: #{control['name']} as <#{control['tag']} class="#{control['classes']}">) }.join("\n")
   end
 
+  it "exempts only inline links that are part of running text" do
+    sign_in_as_admin
+    visit root_path
+    page.execute_script(<<~JS)
+      document.body.insertAdjacentHTML("beforeend", `
+        <div><a href="#standalone">standalone audit probe</a></div>
+        <p>Running text <a href="#running">running audit probe</a>.</p>
+      `)
+    JS
+
+    offenders = page.evaluate_script(CrossScreenAudit::SMALL_TARGETS)
+    expect(offenders.grep(/standalone audit probe/)).not_to be_empty
+    expect(offenders.grep(/running audit probe/)).to be_empty
+  end
+
+  it "rejects a focused control without an indicator" do
+    sign_in_as_admin
+    visit root_path
+    page.execute_script(<<~JS)
+      document.body.insertAdjacentHTML("beforeend", '<button id="focus-probe" style="outline: none; box-shadow: none">focus probe</button>')
+      document.querySelector("#focus-probe").focus()
+    JS
+
+    expect(page.evaluate_script(CrossScreenAudit::FOCUS_INDICATOR).fetch("indicated")).to be(false)
+  end
+
+  it "fails when the keyboard walk reaches its safety limit" do
+    sign_in_as_admin
+    visit root_path
+    start_from_the_top_of(root_path)
+
+    expect { walk_with_tab(root_path, limit: 1) }.to raise_error(/exceeded the 1-stop keyboard audit limit/)
+  end
+
   private
     def every_screen
       @every_screen ||= begin
@@ -243,15 +281,19 @@ RSpec.describe "Cross-screen audit" do
     # body へ戻るか、先頭の停留点へ一周するまで辿る。
     def walk_with_tab(path, limit: 80)
       stops = []
+      completed = false
       limit.times do
         press_tab
         stop = page.evaluate_script(CrossScreenAudit::FOCUS_INDICATOR)
-        break if stop.nil?
-        break if stops.any? && stops.first == stop && stops.size > 1
+        if stop.nil? || (stops.any? && stops.first == stop && stops.size > 1)
+          completed = true
+          break
+        end
 
         stops << stop
       end
       raise "#{path} never handed focus to a control" if stops.empty?
+      raise "#{path} exceeded the #{limit}-stop keyboard audit limit" unless completed
 
       stops
     end
