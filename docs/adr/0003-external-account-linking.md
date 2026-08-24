@@ -111,15 +111,12 @@ Active Record Encryption の既定の置き場所であり、設定量が最も�
 
 ## 帰結
 
-Discord が主なログイン経路になる。
-ここで塞がるのは Bot トークンの失効ではない。
-`DiscordGuildMemberClient` が 401 を返しても `sync_discord_groups!` が rescue して非メンバー扱いにするため、ログイン自体は成功する。
-ログインが落ちるのは `DISCORD_BOT_TOKEN` が未設定のときで、`ENV.fetch` の `KeyError` が `SessionsController#create` の rescue に入り失敗として扱われる。
+Discord が主なログイン経路になるため、Discord 側の不調がそのまま利用者に届くようになる。
 
-より起きやすいのは、ログインは通るのに所属が失われる状態である。
-Discord API の障害や 3 秒の締め切り超過ではすべてのギルドが非メンバーと判定され、`discord_managed` な `group_membership` が破棄される。
-セッションの可視性は `PlaySessionPolicy::Scope` がグループ所属で決めるため、障害中はログインできるのに見えるセッションが減る。
-この挙動は本 ADR の変更対象ではないが、Discord への依存度が上がる以上、別途扱う価値がある。
+問い合わせが失敗すると、ログインは成功するのに `discord_managed` な所属が破棄される。
+`PlaySessionPolicy::Scope` が可視性を所属で決めるため、見えていたセッションが見えなくなる。
+以前からある挙動だが、依存度が上がる以上そのままにはできない。
+本 ADR の対象外とし、[Issue #151](https://github.com/karia/trpg-scenario-session-catalog/issues/151) で扱う。
 
 暗号鍵を失うと保存済みのトークンは復号できない。
 利用者に再連携を求めれば復旧できるが、鍵はデータベースのバックアップとは別に保管する必要がある。
