@@ -78,6 +78,7 @@ RSpec.describe "Cross-screen audit" do
 
   before do
     skip "Chrome is required for the cross-screen audit" unless ENV["CHROME_BINARY"].present?
+    audit
   end
 
   after do
@@ -88,47 +89,25 @@ RSpec.describe "Cross-screen audit" do
   let(:audit) { build_audit_fixtures }
 
   it "gives every screen a large enough target for each control" do
+    offenders = target_size_offenders(signed_out_screens)
     sign_in_as_admin
-
-    offenders = [ 320, 1280 ].flat_map do |width|
-      page.current_window.resize_to(width, 900)
-      every_screen.flat_map do |path|
-        visit path
-        page.evaluate_script(CrossScreenAudit::SMALL_TARGETS).map { |control| "#{path} at #{width}px: #{control}" }
-      end
-    end
+    offenders.concat(target_size_offenders(every_screen))
 
     expect(offenders.uniq).to be_empty, "targets under 44px:\n#{offenders.uniq.join("\n")}"
   end
 
   it "keeps a visible focus indicator on every control the keyboard can reach" do
+    unindicated = focus_offenders(signed_out_screens)
     sign_in_as_admin
-    page.current_window.resize_to(1280, 900)
-
-    unindicated = every_screen.flat_map do |path|
-      visit path
-      start_from_the_top_of(path)
-      walk_with_tab(path).reject { |stop| stop.fetch("indicated") }
-        .map { |stop| "#{path}: #{stop['tag']} #{stop['name']}" }
-    end
+    unindicated.concat(focus_offenders(every_screen))
 
     expect(unindicated.uniq).to be_empty, "controls without a focus indicator:\n#{unindicated.uniq.join("\n")}"
   end
 
   it "starts every screen at the skip link and moves focus into the main landmark" do
+    audit_skip_links(signed_out_screens)
     sign_in_as_admin
-    page.current_window.resize_to(1280, 900)
-
-    every_screen.each do |path|
-      visit path
-      start_from_the_top_of(path)
-      press_tab
-      expect(page).to have_css('a[href="#main-content"]:focus'), path
-      expect(page.evaluate_script("document.activeElement.getBoundingClientRect().top")).to be >= 0, path
-
-      page.driver.browser.action.send_keys(:enter).perform
-      expect(page).to have_css("main#main-content:focus"), path
-    end
+    audit_skip_links(every_screen)
   end
 
   it "opens and closes the account menu from the keyboard alone" do
@@ -149,15 +128,9 @@ RSpec.describe "Cross-screen audit" do
   end
 
   it "draws every list, detail and form action with the shared button component" do
+    actions = named_actions(signed_out_screens)
     sign_in_as_admin
-    page.current_window.resize_to(1280, 900)
-
-    actions = every_screen.flat_map do |path|
-      visit path
-      page.evaluate_script(CrossScreenAudit::NAMED_CONTROLS)
-        .select { |control| CrossScreenAudit::ACTION_LABELS.include?(control.fetch("name")) }
-        .map { |control| control.merge("path" => path) }
-    end
+    actions.concat(named_actions(every_screen))
 
     expect(actions.map { |control| control.fetch("name") }.uniq).to match_array(CrossScreenAudit::ACTION_LABELS)
 
@@ -205,6 +178,54 @@ RSpec.describe "Cross-screen audit" do
   end
 
   private
+    def signed_out_screens
+      [ root_path, root_path(view: "gallery"), new_registration_path ]
+    end
+
+    def target_size_offenders(paths)
+      [ 320, 1280 ].flat_map do |width|
+        page.current_window.resize_to(width, 900)
+        paths.flat_map do |path|
+          visit path
+          page.evaluate_script(CrossScreenAudit::SMALL_TARGETS).map { |control| "#{path} at #{width}px: #{control}" }
+        end
+      end
+    end
+
+    def focus_offenders(paths)
+      page.current_window.resize_to(1280, 900)
+      paths.flat_map do |path|
+        visit path
+        start_from_the_top_of(path)
+        walk_with_tab(path).reject { |stop| stop.fetch("indicated") }
+          .map { |stop| "#{path}: #{stop['tag']} #{stop['name']}" }
+      end
+    end
+
+    def audit_skip_links(paths)
+      page.current_window.resize_to(1280, 900)
+      paths.each do |path|
+        visit path
+        start_from_the_top_of(path)
+        press_tab
+        expect(page).to have_css('a[href="#main-content"]:focus'), path
+        expect(page.evaluate_script("document.activeElement.getBoundingClientRect().top")).to be >= 0, path
+
+        page.driver.browser.action.send_keys(:enter).perform
+        expect(page).to have_css("main#main-content:focus"), path
+      end
+    end
+
+    def named_actions(paths)
+      page.current_window.resize_to(1280, 900)
+      paths.flat_map do |path|
+        visit path
+        page.evaluate_script(CrossScreenAudit::NAMED_CONTROLS)
+          .select { |control| CrossScreenAudit::ACTION_LABELS.include?(control.fetch("name")) }
+          .map { |control| control.merge("path" => path) }
+      end
+    end
+
     def every_screen
       @every_screen ||= begin
         records = audit
