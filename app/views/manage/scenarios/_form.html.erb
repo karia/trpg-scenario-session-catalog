@@ -19,7 +19,7 @@
       <%= ui_field(form, :duration_max_hours, label: "目安時間（時間・最大）") do |field| %><%= ui_input(form, :duration_max_hours, type: :number, step: 0.5, min: 0.5, described_by: field[:described_by]) %><% end %>
       <%= ui_field(form, :character_restriction, label: "参加可能キャラの制限") do |field| %><%= ui_input(form, :character_restriction, described_by: field[:described_by]) %><% end %>
       <%= ui_field(form, :character_sheet_deadline, label: "キャラシ提出期限") do |field| %><%= ui_select(form, :character_sheet_deadline, Scenario.character_sheet_deadlines.keys.map { |key| [ t("scenarios.character_sheet_deadlines.#{key}"), key ] }, include_blank: "未設定", described_by: field[:described_by]) %><% end %>
-      <%= ui_field(form, :character_sheet_deadline_note, label: "キャラシ提出期限の補足", description: "選択肢に当てはまらない場合に書きます。入力すると選択肢より優先して表示されます。") do |field| %><%= ui_input(form, :character_sheet_deadline_note, described_by: field[:described_by]) %><% end %>
+      <%= ui_field(form, :character_sheet_deadline_note, label: "キャラシ提出期限の補足", description: "選択肢に当てはまらない場合は、上で「備考参照」を選んでからここに書きます。詳細画面では選択肢とこの補足の両方が出ます。") do |field| %><%= ui_input(form, :character_sheet_deadline_note, described_by: field[:described_by]) %><% end %>
     </div>
   </fieldset>
 
