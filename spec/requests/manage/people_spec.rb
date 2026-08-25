@@ -65,7 +65,9 @@ RSpec.describe "Manage::People" do
       group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
       client = instance_double(DiscordGuildMemberClient)
       allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
-      allow(client).to receive(:guild_members).with(group.discord_guild_id).and_return([])
+      allow(client).to receive(:guild_members).with(group.discord_guild_id).and_return([
+        { "id" => "23456789012345678#{9}", "display_name" => "Guild Member", "username" => "member" }
+      ])
 
       patch person_path(person), params: {
         person: { display_name: person.display_name, roles: [], manual_group_ids: [ group.id ],
@@ -74,6 +76,21 @@ RSpec.describe "Manage::People" do
 
       expect(response).to redirect_to(person_path(person))
       expect(person.reload.discord_uid).to eq("23456789012345678#{9}")
+    end
+
+    it "rejects a Discord UID outside the offered guild members" do
+      person = create(:person)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      client = instance_double(DiscordGuildMemberClient, guild_members: [])
+      allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
+
+      patch person_path(person), params: {
+        person: { display_name: person.display_name, roles: [], manual_group_ids: [ group.id ],
+          discord_uid: "23456789012345678#{9}" }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(person.reload.discord_uid).to be_nil
     end
 
     it "keeps the edit screen available when the guild members intent is missing" do

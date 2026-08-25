@@ -29,6 +29,7 @@ class Person < ApplicationRecord
     if: -> { attachment_changes.key?("icon") }
   validate :keeps_at_least_one_admin
   validate :roles_are_known
+  validate :discord_uid_is_available
 
   default_scope { order(:display_name) }
 
@@ -80,6 +81,15 @@ class Person < ApplicationRecord
   end
 
   private
+    def discord_uid_is_available
+      return if discord_uid.blank?
+
+      discord_user = User.find_by(provider: "discord", uid: discord_uid)
+      return if discord_user.nil? || (id.present? && discord_user.person_id == id)
+
+      errors.add(:discord_uid, "は別のアカウントで使用されています")
+    end
+
     def roles_are_known
       return if @unknown_roles.blank?
 

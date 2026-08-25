@@ -13,6 +13,13 @@ RSpec.describe Person do
     expect(build(:person, discord_uid: "")).to be_valid
   end
 
+  it "rejects a Discord UID already used by an account" do
+    uid = "23456789012345678#{9}"
+    create(:user, provider: "discord", uid:, person: nil)
+
+    expect(build(:person, discord_uid: uid)).not_to be_valid
+  end
+
   describe "roles" do
     it "starts with none" do
       expect(create(:person)).not_to be_admin

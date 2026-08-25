@@ -24,7 +24,9 @@ class User < ApplicationRecord
     uid = auth.uid.to_s
     user = find_by(provider:, uid:)
     user ||= find_by(google_uid: uid) if provider == "google_oauth2"
-    user ||= new(provider:, uid:, person: (Person.find_by(discord_uid: uid) if provider == "discord"))
+    prelinked_person = Person.find_by(discord_uid: uid) if provider == "discord"
+    user ||= new(provider:, uid:)
+    user.person ||= prelinked_person
     user.provider = provider
     user.uid = uid
     user.google_uid = user.uid if provider == "google_oauth2"

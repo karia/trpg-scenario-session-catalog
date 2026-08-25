@@ -18,6 +18,8 @@ class PeopleController < ApplicationController
   def update
     authorize @person, :update?
 
+    return render_invalid_discord_uid unless discord_uid_selection_valid?
+
     @lost_roles = roles_lost_by_role_change
     return render_role_change_warning if @lost_roles.any?
 
@@ -64,6 +66,26 @@ class PeopleController < ApplicationController
       @person.assign_attributes(person_params.except(:roles, :manual_group_ids))
       prepare_discord_members
       render :edit, status: :unprocessable_content
+    end
+
+    def render_invalid_discord_uid
+      @selected_roles = Array(person_params[:roles]).compact_blank
+      @selected_group_ids = Array(person_params[:manual_group_ids]).compact_blank.map(&:to_i)
+      @person.assign_attributes(person_params.except(:roles, :manual_group_ids))
+      render :edit, status: :unprocessable_content
+    end
+
+    def discord_uid_selection_valid?
+      return true unless policy(@person).manage? && params[:person]&.key?(:discord_uid)
+
+      uid = params[:person][:discord_uid].presence
+      return true unless uid
+
+      prepare_discord_members
+      return true if @discord_member_options&.any? { |_label, candidate_uid| candidate_uid == uid }
+
+      @person.errors.add(:discord_uid, "は所属するDiscordサーバーの未使用の参加者から選んでください")
+      false
     end
 
     # グループ所属はここでは受け取らない。管理画面（管理者のみ）で扱う。
