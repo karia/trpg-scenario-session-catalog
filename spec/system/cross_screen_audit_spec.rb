@@ -78,6 +78,10 @@ RSpec.describe "Cross-screen audit" do
 
   before do
     skip "Chrome is required for the cross-screen audit" unless ENV["CHROME_BINARY"].present?
+    discord_client = instance_double(DiscordGuildMemberClient, guild_members: [
+      { "id" => "23456789012345678#{9}", "display_name" => "監査用ニックネーム", "username" => "audit-user" }
+    ])
+    allow(DiscordGuildMemberClient).to receive(:new).and_return(discord_client)
     audit
   end
 
@@ -287,7 +291,8 @@ RSpec.describe "Cross-screen audit" do
         game_system:,
         scenario:,
         play_session:,
-        group: create(:group, name: "折り返しを確かめるための長いグループ名", people: [ member ]),
+        group: create(:group, name: "折り返しを確かめるための長いグループ名",
+          discord_guild_id: "12345678901234567#{8}", people: [ member ]),
         user: create(:user, person: member, email: "audited-account@example.com"),
         admin_user: create(:user, person: admin)
       }

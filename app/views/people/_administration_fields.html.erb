@@ -1,5 +1,7 @@
 <% roles = local_assigns[:selected_roles] || person.roles %>
 <% group_ids = local_assigns[:selected_group_ids] || person.manual_group_ids %>
+<% discord_member_options = local_assigns[:discord_member_options] %>
+<% discord_members_error = local_assigns[:discord_members_error] %>
 <fieldset class="rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
   <legend class="px-2 font-display text-lg font-bold">管理項目</legend>
   <div class="space-y-2">
@@ -14,5 +16,17 @@
   <div class="mt-5 space-y-2">
     <span class="block text-sm font-bold"><%= Group.model_name.human %></span>
     <div class="flex flex-wrap gap-x-5 gap-y-2"><%= form.collection_check_boxes :manual_group_ids, Group.all.to_a, :id, :name, checked: group_ids do |group| %><%= group.label class: "inline-flex min-h-11 items-center gap-2 text-sm" do %><%= group.check_box class: "size-5 accent-ui-action" %><%= group.text %><% end %><% end %></div>
+  </div>
+  <div class="mt-5">
+    <% if discord_members_error.present? %>
+      <p class="text-sm text-ui-error"><%= discord_members_error %></p>
+    <% elsif !discord_member_options.nil? %>
+      <%= ui_field(form, :discord_uid, label: "Discordアカウント", description: "所属グループのDiscordサーバー参加者から選びます。") do |field| %>
+        <%= ui_select(form, :discord_uid, discord_member_options, include_blank: "紐づけなし", described_by: field[:described_by]) %>
+      <% end %>
+      <% if discord_member_options.empty? %><p class="mt-2 text-sm text-ui-text-muted">新たに紐づけられる参加者はいません。</p><% end %>
+    <% else %>
+      <p class="text-sm text-ui-text-muted">Discordサーバーに紐づいた所属グループがありません。</p>
+    <% end %>
   </div>
 </fieldset>

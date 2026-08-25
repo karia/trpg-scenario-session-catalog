@@ -42,6 +42,54 @@ RSpec.describe "Manage::People" do
   describe "as an admin" do
     before { sign_in_as create(:person, roles: %w[admin], display_name: "カーリア") }
 
+    it "offers unlinked members from the person's Discord guilds" do
+      person = create(:person)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      client = instance_double(DiscordGuildMemberClient)
+      allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
+      allow(client).to receive(:guild_members).with(group.discord_guild_id).and_return([
+        { "id" => "23456789012345678#{9}", "display_name" => "Guild Nick", "username" => "username" },
+        { "id" => "34567890123456789#{0}", "display_name" => "Already Linked", "username" => "linked" }
+      ])
+      create(:person, discord_uid: "34567890123456789#{0}")
+
+      get edit_person_path(person)
+
+      page = Capybara.string(response.body)
+      expect(page).to have_select("Discordアカウント", options: [ "紐づけなし", "Guild Nick (@username)" ])
+      expect(page).not_to have_text("Already Linked")
+    end
+
+    it "saves a Discord member selected in person editing" do
+      person = create(:person)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      client = instance_double(DiscordGuildMemberClient)
+      allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
+      allow(client).to receive(:guild_members).with(group.discord_guild_id).and_return([])
+
+      patch person_path(person), params: {
+        person: { display_name: person.display_name, roles: [], manual_group_ids: [ group.id ],
+          discord_uid: "23456789012345678#{9}" }
+      }
+
+      expect(response).to redirect_to(person_path(person))
+      expect(person.reload.discord_uid).to eq("23456789012345678#{9}")
+    end
+
+    it "keeps the edit screen available when the guild members intent is missing" do
+      person = create(:person)
+      create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      client = instance_double(DiscordGuildMemberClient)
+      allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
+      allow(client).to receive(:guild_members)
+        .and_raise(DiscordGuildMemberClient::GuildMembersPermissionError)
+
+      get edit_person_path(person)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("GUILD_MEMBERS")
+    end
+
     it "limits the icon picker to supported image formats" do
       person = create(:person)
 

@@ -119,6 +119,16 @@ RSpec.describe "People" do
       expect(person.reload.groups).to be_empty
     end
 
+    it "does not let the person prelink their own Discord account" do
+      sign_in_as person
+
+      patch person_path(person), params: {
+        person: { display_name: "本人", discord_uid: "23456789012345678#{9}" }
+      }
+
+      expect(person.reload.discord_uid).to be_nil
+    end
+
     it "lets an admin change group membership from the admin screen" do
       group = create(:group)
       sign_in_as create(:person, roles: %w[admin])
