@@ -21,6 +21,8 @@ class Person < ApplicationRecord
   has_many :participations, dependent: :restrict_with_error
 
   validates :display_name, presence: true
+  validates :discord_uid, uniqueness: true, format: { with: /\A\d{17,20}\z/ }, allow_nil: true
+  normalizes :discord_uid, with: ->(value) { value.presence }
   validates :icon,
     content_type: { in: [ :png, :jpeg, :webp ], spoofing_protection: true },
     size: { less_than: 5.megabytes },

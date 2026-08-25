@@ -5,6 +5,14 @@ RSpec.describe Person do
     expect(build(:person, display_name: "")).not_to be_valid
   end
 
+  it "requires a unique valid Discord UID when prelinked" do
+    create(:person, discord_uid: "12345678901234567#{8}")
+
+    expect(build(:person, discord_uid: "12345678901234567#{8}")).not_to be_valid
+    expect(build(:person, discord_uid: "not-an-id")).not_to be_valid
+    expect(build(:person, discord_uid: "")).to be_valid
+  end
+
   describe "roles" do
     it "starts with none" do
       expect(create(:person)).not_to be_admin
