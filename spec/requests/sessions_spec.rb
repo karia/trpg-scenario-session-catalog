@@ -80,13 +80,15 @@ RSpec.describe "Sessions" do
     it "signs in a linked Discord user when fetching guilds fails" do
       person = create(:person)
       user = create(:user, provider: "discord", uid: "23456789012345678#{9}", person:)
-      create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      membership = person.group_memberships.create!(group:, discord_managed: true)
       allow(discord_client).to receive(:member?)
         .and_raise(DiscordGuildMemberClient::Error, "Discord API returned 503")
 
       sign_in_with_discord
 
       expect(session[:user_id]).to eq(user.id)
+      expect(GroupMembership.exists?(membership.id)).to be(true)
       expect(response).to redirect_to(root_path)
     end
 

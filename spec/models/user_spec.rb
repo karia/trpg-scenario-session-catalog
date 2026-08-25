@@ -139,14 +139,15 @@ RSpec.describe User do
       expect { user.sync_discord_groups!(client:) }.to change(GroupMembership, :count).by(-1)
     end
 
-    it "fails closed when Discord cannot confirm a managed membership" do
+    it "keeps a Discord-managed membership when Discord cannot confirm it" do
       person = create(:person)
       user = create(:user, provider: "discord", uid: user_id, person:)
       group = create(:group, discord_guild_id: "12345678901234567#{8}")
       person.group_memberships.create!(group:, discord_managed: true)
       allow(client).to receive(:member?).and_raise(DiscordGuildMemberClient::Error)
 
-      expect { user.sync_discord_groups!(client:) }.to change(GroupMembership, :count).by(-1)
+      expect { user.sync_discord_groups!(client:) }.not_to change(GroupMembership, :count)
+      expect(person.group_memberships.find_by(group:)).to be_discord_managed
     end
 
     it "enforces one deadline across all configured guilds" do
@@ -162,6 +163,18 @@ RSpec.describe User do
       expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at).to be < 0.04
       expect(client).to have_received(:member?).once
       expect(user.reload.person).to be_nil
+    end
+
+    it "keeps unchecked Discord-managed memberships after the deadline" do
+      stub_const("User::DISCORD_SYNC_DEADLINE", 0.01.seconds)
+      person = create(:person)
+      user = create(:user, provider: "discord", uid: user_id, person:)
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      person.group_memberships.create!(group:, discord_managed: true)
+      allow(client).to receive(:member?) { sleep 0.02; false }
+
+      expect { user.sync_discord_groups!(client:) }.not_to change(GroupMembership, :count)
+      expect(person.group_memberships.find_by(group:)).to be_discord_managed
     end
   end
 end

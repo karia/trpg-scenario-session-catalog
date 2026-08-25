@@ -45,10 +45,10 @@ class User < ApplicationRecord
     deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + DISCORD_SYNC_DEADLINE
     memberships = groups.index_with do |group|
       remaining = deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      remaining.positive? && Timeout.timeout(remaining) { client.member?(group.discord_guild_id, uid) }
+      Timeout.timeout(remaining) { client.member?(group.discord_guild_id, uid) } if remaining.positive?
     rescue DiscordGuildMemberClient::Error, Timeout::Error => error
       Rails.logger.warn("Discord guild membership check failed: #{error.class}")
-      false
+      nil
     end
 
     with_lock do
@@ -63,7 +63,7 @@ class User < ApplicationRecord
         membership = person.group_memberships.find_by(group:)
         if member
           person.group_memberships.create!(group:, discord_managed: true) unless membership
-        elsif membership&.discord_managed?
+        elsif member == false && membership&.discord_managed?
           membership.destroy!
         end
       end

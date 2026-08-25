@@ -88,4 +88,35 @@ RSpec.describe DiscordGuildMemberClient do
     expect { described_class.new(bot_token: "bot-token").member?(guild_id, user_id) }
       .to raise_error(DiscordGuildMemberClient::Error, "Discord API returned 503")
   end
+
+  it "uses a recent successful result during a short API outage" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+    success = Net::HTTPOK.new("1.1", "200", "OK")
+    unavailable = Net::HTTPServiceUnavailable.new("1.1", "503", "Unavailable")
+    http = instance_double(Net::HTTP)
+    allow(Net::HTTP).to receive(:new).and_return(http)
+    allow(http).to receive(:use_ssl=)
+    allow(http).to receive(:open_timeout=)
+    allow(http).to receive(:read_timeout=)
+    allow(http).to receive(:request).twice.and_return(success, unavailable)
+    client = described_class.new(bot_token: "bot-token", cache:)
+
+    expect(client.member?(guild_id, user_id)).to be(true)
+    travel 61.seconds
+    expect(client.member?(guild_id, user_id)).to be(true)
+    expect(client.member?(guild_id, user_id)).to be(true)
+    expect(http).to have_received(:request).twice
+  end
+
+  it "uses a recent non-member result during a short API outage" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+    not_found = Net::HTTPNotFound.new("1.1", "404", "Not Found")
+    unavailable = Net::HTTPServiceUnavailable.new("1.1", "503", "Unavailable")
+    allow_any_instance_of(Net::HTTP).to receive(:request).and_return(not_found, unavailable)
+    client = described_class.new(bot_token: "bot-token", cache:)
+
+    expect(client.member?(guild_id, user_id)).to be(false)
+    travel 61.seconds
+    expect(client.member?(guild_id, user_id)).to be(false)
+  end
 end
