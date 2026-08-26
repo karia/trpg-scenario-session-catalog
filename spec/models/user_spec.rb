@@ -86,6 +86,30 @@ RSpec.describe User do
       expect(first.name).to eq("Discord User")
       expect { described_class.from_omniauth(auth) }.not_to change(described_class, :count)
     end
+
+    it "links a new Discord account to a prelinked person" do
+      uid = "23456789012345678#{9}"
+      person = create(:person, discord_uid: uid)
+      auth = OmniAuth::AuthHash.new(
+        provider: "discord", uid:, info: { email: "discord@example.com", name: "Discord User" }
+      )
+
+      user = described_class.from_omniauth(auth)
+
+      expect(user.person).to eq(person)
+      expect { user.sync_discord_groups!(client: instance_double(DiscordGuildMemberClient)) }
+        .not_to change(Person, :count)
+    end
+
+    it "links an existing unlinked Discord account to a concurrently prelinked person" do
+      uid = "23456789012345678#{9}"
+      person = create(:person, discord_uid: uid)
+      user = create(:user, provider: "discord", uid:, person: nil)
+      auth = OmniAuth::AuthHash.new(provider: "discord", uid:, info: { name: "Discord User" })
+
+      expect(described_class.from_omniauth(auth)).to eq(user)
+      expect(user.reload.person).to eq(person)
+    end
   end
 
   describe "#sync_discord_groups!" do

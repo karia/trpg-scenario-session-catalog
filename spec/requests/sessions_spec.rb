@@ -65,6 +65,18 @@ RSpec.describe "Sessions" do
       expect(response).to redirect_to(root_path)
     end
 
+    it "uses a prelinked person on their first Discord sign-in" do
+      uid = "23456789012345678#{9}"
+      group = create(:group, discord_guild_id: "12345678901234567#{8}")
+      person = create(:person, discord_uid: uid, groups: [ group ])
+      allow(discord_client).to receive(:member?).with(group.discord_guild_id, uid).and_return(true)
+
+      expect { sign_in_with_discord }.not_to change(Person, :count)
+
+      expect(User.sole.person).to eq(person)
+      expect(session[:user_id]).to eq(User.sole.id)
+    end
+
     it "removes Discord-managed access on the first request after leaving the guild" do
       group = create(:group, discord_guild_id: "12345678901234567#{8}")
       allow(discord_client).to receive(:member?).and_return(true)

@@ -19,7 +19,7 @@
 
     <%= render "shared/ui/alias_fields", form:, display_attribute: :display_name, alias_class: PersonAlias %>
     <% if policy(@person).manage? %>
-      <%= render "people/administration_fields", form:, person: @person, selected_roles: @selected_roles, selected_group_ids: @selected_group_ids %>
+      <%= render "people/administration_fields", form:, person: @person, selected_roles: @selected_roles, selected_group_ids: @selected_group_ids, discord_member_options: @discord_member_options, discord_members_error: @discord_members_error %>
     <% else %>
       <p class="text-ui-caption text-ui-text-muted"><%= Group.model_name.human %>の所属は管理者が設定します。</p>
     <% end %>

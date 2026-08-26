@@ -119,4 +119,78 @@ RSpec.describe DiscordGuildMemberClient do
     travel 61.seconds
     expect(client.member?(guild_id, user_id)).to be(false)
   end
+
+  describe "#guild_members" do
+    def json_response(body)
+      response = Net::HTTPOK.new("1.1", "200", "OK")
+      response.body = JSON.generate(body)
+      response.instance_variable_set(:@read, true)
+      response
+    end
+
+    it "uses nick, global name, then username as each display name" do
+      response = json_response([
+        { nick: "Guild Nick", user: { id: user_id, username: "first", global_name: "Global Name", avatar: "a" } },
+        { nick: nil, user: { id: "34567890123456789#{0}", username: "second", global_name: "Second Global", avatar: nil } },
+        { nick: nil, user: { id: "45678901234567890#{1}", username: "third", global_name: nil, avatar: nil } }
+      ])
+      allow_any_instance_of(Net::HTTP).to receive(:request).and_return(response)
+
+      members = described_class.new(bot_token: "bot-token").guild_members(guild_id)
+
+      expect(members.pluck("display_name")).to eq([ "Guild Nick", "Second Global", "third" ])
+      expect(members.first).to include("id" => user_id, "username" => "first")
+    end
+
+    it "fetches another page after a full page" do
+      first_page = 1_000.times.map do |index|
+        id = format("%018d", index + 1)
+        { nick: nil, user: { id:, username: "user#{index}", global_name: nil, avatar: nil } }
+      end
+      final_member = { nick: nil, user: { id: "99999999999999999#{9}", username: "last", global_name: nil, avatar: nil } }
+      responses = [ json_response(first_page), json_response([ final_member ]) ]
+      requests = []
+      allow_any_instance_of(Net::HTTP).to receive(:request) do |_http, request|
+        requests << request
+        responses.shift
+      end
+
+      members = described_class.new(bot_token: "bot-token").guild_members(guild_id)
+
+      expect(members.size).to eq(1_001)
+      expect(requests.map(&:path)).to eq([
+        "/api/v10/guilds/#{guild_id}/members?limit=1000",
+        "/api/v10/guilds/#{guild_id}/members?limit=1000&after=000000000000001000"
+      ])
+    end
+
+    it "raises a specific error when the privileged intent is unavailable" do
+      response = Net::HTTPForbidden.new("1.1", "403", "Forbidden")
+      allow_any_instance_of(Net::HTTP).to receive(:request).and_return(response)
+
+      expect { described_class.new(bot_token: "bot-token").guild_members(guild_id) }
+        .to raise_error(DiscordGuildMemberClient::GuildMembersPermissionError)
+    end
+
+    it "reuses a recent list after an API failure and suppresses the next request" do
+      cache = ActiveSupport::Cache::MemoryStore.new
+      success = json_response([
+        { nick: nil, user: { id: user_id, username: "member", global_name: nil, avatar: nil } }
+      ])
+      unavailable = Net::HTTPServiceUnavailable.new("1.1", "503", "Unavailable")
+      http = instance_double(Net::HTTP)
+      allow(Net::HTTP).to receive(:new).and_return(http)
+      allow(http).to receive(:use_ssl=)
+      allow(http).to receive(:open_timeout=)
+      allow(http).to receive(:read_timeout=)
+      allow(http).to receive(:request).twice.and_return(success, unavailable)
+      client = described_class.new(bot_token: "bot-token", cache:)
+
+      expect(client.guild_members(guild_id).sole.fetch("id")).to eq(user_id)
+      travel 61.seconds
+      expect(client.guild_members(guild_id).sole.fetch("id")).to eq(user_id)
+      expect(client.guild_members(guild_id).sole.fetch("id")).to eq(user_id)
+      expect(http).to have_received(:request).twice
+    end
+  end
 end

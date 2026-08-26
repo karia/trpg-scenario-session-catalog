@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_15_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_25_190130) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -123,9 +123,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_160000) do
 
   create_table "people", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "discord_uid"
     t.string "display_name", null: false
     t.datetime "updated_at", null: false
     t.string "x_account"
+    t.index ["discord_uid"], name: "index_people_on_discord_uid", unique: true
   end
 
   create_table "person_aliases", force: :cascade do |t|
