@@ -63,6 +63,10 @@ Discord にも保存すべきトークンが出た時点で分ける。
 
 変更は小さいが、どちらでログインしたかで `Person` が分かれる状態が続く。
 
+### 鍵を Rails credentials に置く
+
+Active Record Encryption の既定の置き場所だが、設定を環境変数から読む方針と衝突し、`config/master.key` をイメージへ入れることになる。
+
 ## 帰結
 
 Discord が唯一のログイン経路になる。
