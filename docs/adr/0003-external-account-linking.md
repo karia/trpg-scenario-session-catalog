@@ -28,6 +28,8 @@ Discord を唯一のログイン手段とし、Google は**ログイン済みの
 
 Issue #149 は「アカウントの紐づけ」画面を廃止するとしていたが、これは採らない。
 廃止するのは Google の紐づけだけとし、Discord の `User` を `Person` へ結ぶ経路は残す。
+画面が扱えるのは Discord の `User` に限る。
+Google の `User` はトークンを持つため、紐づけ先を付け替えられると他人のチャンネルへのトークンがその `Person` へ移る。
 
 `sync_discord_groups!` が `Person` を作るのは登録済みギルドへの所属を確認できたときだけで、所属していない利用者は `person_id` が nil のまま入る。
 `pundit_user` は `current_person` なので、この利用者は自力で抜けられない。
@@ -42,6 +44,9 @@ Issue #149 は「アカウントの紐づけ」画面を廃止するとしてい
 権限は後から付与されるため、連携後に GM になる利用者がいる。
 遡って再認証を求めず、**YouTube の機能を実際に使う時点で再連携を促す**。
 
+本人が画面の前にいない時刻に走る処理で scope が足りなかった場合は、黙って諦めず失敗として扱い、対象の GM へ通知する。
+トークンを保持する目的が「画面を開いていない時刻にも使う」ことである以上、促す相手がいない経路が必ず存在する。
+
 ### トークンは暗号化して `users` に持つ
 
 refresh token と取得済みの scope を `users` に持たせ、Active Record Encryption で暗号化する。
@@ -49,6 +54,8 @@ refresh token と取得済みの scope を `users` に持たせ、Active Record 
 この repo は Rails credentials を使わず `config/master.key` を持たないためである。
 
 連携の解除では、保存したトークンを破棄し Google 側でも revoke する。
+管理者が `User` ごと削除する経路でも同じく revoke する。行を消すだけでは Google 側の許可が残る。
+GM と管理者のロールを失った利用者のトークンも破棄する。連携時に持っていた権限が根拠だったためである。
 `Person` は `has_many :users, dependent: :nullify` なので、`Person` を消しても `users` の行は残る。
 `Person` の削除でもトークンを破棄する。
 
@@ -65,7 +72,9 @@ Discord にも保存すべきトークンが出た時点で分ける。
 
 ### 鍵を Rails credentials に置く
 
-Active Record Encryption の既定の置き場所だが、設定を環境変数から読む方針と衝突し、`config/master.key` をイメージへ入れることになる。
+Active Record Encryption の既定の置き場所である。
+`RAILS_MASTER_KEY` で鍵を渡せるためイメージへ `config/master.key` を入れる必要はなく、環境変数から読む方針とも衝突しない。
+それでも採らないのは、この repo が credentials そのものを使わないと決めており、暗号鍵のためだけに復活させると設定の在り処が 2 つに分かれるためである。
 
 ## 帰結
 
