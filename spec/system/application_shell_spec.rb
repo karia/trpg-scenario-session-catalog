@@ -74,13 +74,15 @@ RSpec.describe "Application shell" do
 
   # 高さが違う要素は items-center で top がずれるため、行の判定は中心線で行う。
   def expect_single_right_aligned_row(width, label)
+    expect(page).to have_css('header a[href="/"]')
+
     geometry = page.evaluate_script(<<~JS)
       (function () {
         var nav = document.querySelector('header nav[aria-label="主要"]');
-        // 閉じたメニューの項目は矩形が 0 になり、別の段として数えられてしまう。
+        // 閉じたメニューの項目は矩形が 0 になり、別の段として数えられてしまう。段の判定からは外す。
         var items = [ document.querySelector('header a[href="/"]') ]
           .concat([].slice.call(nav.querySelectorAll('a, button')))
-          .filter(function (e) { return e.getBoundingClientRect().width > 0; });
+          .filter(function (e) { return !e.closest('#account-menu'); });
         var centers = items.map(function (e) {
           var b = e.getBoundingClientRect();
           return Math.round((b.top + b.bottom) / 2 / 10);
