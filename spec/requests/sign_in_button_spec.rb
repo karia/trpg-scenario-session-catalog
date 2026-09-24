@@ -7,7 +7,7 @@ RSpec.describe "The sign-in button" do
     # 元いた画面へ戻すため origin を引き継ぐ。
     expect(response.body).to include(%(href="#{new_registration_path}?origin=%2F"))
     expect(response.body).to include(">新規登録</a>")
-    expect(response.body).to include(%(<span class="hidden sm:inline">Discordで</span>ログイン</button>))
+    expect(Capybara.string(response.body)).to have_button("Discordでログイン")
   end
 
   # Turbo はフォーム送信を fetch に置き換えるため、Google への cross-origin リダイレクトを
