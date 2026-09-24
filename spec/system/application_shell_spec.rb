@@ -35,6 +35,7 @@ RSpec.describe "Application shell" do
 
   # button_to の form は block box を作るため、放置すると 1 つずつ行を占有して
   # 3 段になり、右寄せも効かなくなる。行数と右端で固定する。
+  # 題字を含めて 1 段に収まることも見る。nav だけ 1 段でも、題字の下に落ちれば同じ無駄が出る。
   it "keeps the header actions on one right-aligned row on a phone" do
     skip "Chrome is required for viewport checks" unless ENV["CHROME_BINARY"].present?
 
@@ -55,7 +56,7 @@ RSpec.describe "Application shell" do
         sign_in_with_google
         page.current_window.resize_to(width, 900)
         visit root_path
-        expect_right_aligned(width, "ログイン済み")
+        expect_single_right_aligned_row(width, "ログイン済み")
         expect(page).to have_no_css('header nav[aria-label="主要"] > form')
 
         click_button "メニュー"
@@ -73,14 +74,13 @@ RSpec.describe "Application shell" do
 
   # 高さが違う要素は items-center で top がずれるため、行の判定は中心線で行う。
   def expect_single_right_aligned_row(width, label)
-    expect_right_aligned(width, label, rows: 1)
-  end
-
-  def expect_right_aligned(width, label, rows: nil)
     geometry = page.evaluate_script(<<~JS)
       (function () {
         var nav = document.querySelector('header nav[aria-label="主要"]');
-        var items = [].slice.call(nav.querySelectorAll('a, button'));
+        // 閉じたメニューの項目は矩形が 0 になり、別の段として数えられてしまう。
+        var items = [ document.querySelector('header a[href="/"]') ]
+          .concat([].slice.call(nav.querySelectorAll('a, button')))
+          .filter(function (e) { return e.getBoundingClientRect().width > 0; });
         var centers = items.map(function (e) {
           var b = e.getBoundingClientRect();
           return Math.round((b.top + b.bottom) / 2 / 10);
@@ -92,8 +92,8 @@ RSpec.describe "Application shell" do
       })()
     JS
 
-    expect(geometry["rows"]).to eq(rows),
-      "#{width}px の#{label}ヘッダーで操作が #{geometry["rows"]} 段になっている" if rows
+    expect(geometry["rows"]).to eq(1),
+      "#{width}px の#{label}ヘッダーが #{geometry["rows"]} 段になっている"
     expect(geometry["right"]).to be_within(1).of(geometry["inner"] - 16),
       "#{width}px の#{label}ヘッダーで右端が #{geometry["right"]}（幅 #{geometry["inner"]}）にあり右寄せになっていない"
   end
