@@ -30,7 +30,7 @@
           TRPGカタログ
         <% end %>
 
-        <nav class="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-1.5 text-xs sm:gap-2 sm:text-sm" aria-label="主要">
+        <nav class="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-1.5 text-sm sm:gap-2" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
               <%= link_to person_path(current_person), class: "inline-flex min-h-11 max-w-24 items-center text-ui-text-muted underline sm:max-w-40" do %><span class="min-w-0 truncate"><%= current_person.display_name %></span><% end %>
