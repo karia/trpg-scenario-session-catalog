@@ -33,9 +33,7 @@ RSpec.describe "Application shell" do
     OmniAuth.config.test_mode = false
   end
 
-  # button_to の form は block box を作るため、放置すると 1 つずつ行を占有して
-  # 3 段になり、右寄せも効かなくなる。行数と右端で固定する。
-  # 題字を含めて 1 段に収まることも見る。nav だけ 1 段でも、題字の下に落ちれば同じ無駄が出る。
+  # button_to の form は block box を作るため、放置すると操作が 1 つずつ行を占有する。
   it "keeps the header actions on one right-aligned row on a phone" do
     skip "Chrome is required for viewport checks" unless ENV["CHROME_BINARY"].present?
 
@@ -79,7 +77,6 @@ RSpec.describe "Application shell" do
     geometry = page.evaluate_script(<<~JS)
       (function () {
         var nav = document.querySelector('header nav[aria-label="主要"]');
-        // 閉じたメニューの項目は矩形が 0 になり、別の段として数えられてしまう。段の判定からは外す。
         var items = [ document.querySelector('header a[href="/"]') ]
           .concat([].slice.call(nav.querySelectorAll('a, button')))
           .filter(function (e) { return !e.closest('#account-menu'); });

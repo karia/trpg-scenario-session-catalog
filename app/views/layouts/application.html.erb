@@ -68,9 +68,6 @@
             </div>
           <% else %>
             <%= ui_button_link("新規登録", href: new_registration_path(origin: request.fullpath), variant: :secondary, size: :small) %>
-            <%# Google は管理者しか使わなくなったため、ヘッダーには出さず新規登録ページにだけ残す。 %>
-            <%# Turbo はフォーム送信を横取りするが、provider への cross-origin リダイレクトを追えない。 %>
-            <%# 狭い画面では provider 名の幅が取れない。読み上げには残すため sr-only で外へ出す。 %>
             <%= button_to "/auth/discord", method: :post,
                   params: { origin: request.fullpath },
                   form: { class: "contents", data: { turbo: false } },
