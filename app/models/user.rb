@@ -24,13 +24,18 @@ class User < ApplicationRecord
     raise ArgumentError, "unsupported provider" unless auth.provider.to_s == "google_oauth2"
 
     token = auth.credentials&.refresh_token.to_s.presence or raise ArgumentError, "missing refresh token"
+    scopes = auth.credentials.scope.to_s.split(/[\s,]+/).uniq
+    if (scopes - person.google_oauth_scopes).any?
+      GoogleTokenRevoker.revoke(token)
+      raise ArgumentError, "scope no longer allowed"
+    end
     user = find_or_initialize_by(provider: "google_oauth2", uid: auth.uid.to_s)
     raise ArgumentError, "Google account already linked" if user.person && user.person != person
 
     user.assign_attributes(
       person:, google_uid: auth.uid.to_s, email: auth.info&.email, name: auth.info&.name,
       google_refresh_token: token,
-      google_scopes: auth.credentials.scope.to_s.split(/[\s,]+/).uniq.join(" ")
+      google_scopes: scopes.join(" ")
     )
     user.save!
     user

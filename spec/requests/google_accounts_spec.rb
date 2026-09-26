@@ -67,6 +67,21 @@ RSpec.describe "Google accounts" do
     expect(response).to have_http_status(:not_found)
   end
 
+  it "revokes and refuses YouTube scope after the member loses their privileged role" do
+    OmniAuth.config.mock_auth[:google_oauth2].credentials.scope =
+      "email profile https://www.googleapis.com/auth/youtube.force-ssl"
+    sign_in_as person
+    allow(GoogleTokenRevoker).to receive(:revoke)
+
+    post "/auth/google_oauth2"
+    follow_redirect!
+
+    expect(response).to redirect_to(person_path(person))
+    expect(flash[:alert]).to eq("Googleを連携できませんでした")
+    expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+    expect(person.users.where(provider: "google_oauth2")).not_to exist
+  end
+
   it "lets the member unlink Google from their profile" do
     google = create(:user, person:, google_refresh_token: "refresh-token", google_scopes: "email")
     sign_in_as person
