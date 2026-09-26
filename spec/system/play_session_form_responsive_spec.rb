@@ -6,7 +6,7 @@ RSpec.describe "Responsive play session forms" do
 
     editor = create(:person, roles: %w[admin gm], display_name: "編集者")
     participant = create(:person, display_name: "参加者")
-    user = create(:user, person: editor)
+    user = create(:user, provider: "discord", person: editor)
     scenario = create(:scenario, title: "編集するセッションのシナリオ")
     play_session = create(:play_session, scenario:, note: "長いメモ")
     schedule = create(:session_schedule, play_session:, scheduled_on: Date.new(2026, 8, 24))
@@ -14,11 +14,11 @@ RSpec.describe "Responsive play session forms" do
     create(:participation, play_session:, person: participant, role: :player,
       character_name: "長い名前のキャラクター", character_sheet_url: "https://example.com/character")
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
 
-    sign_in_with_google
+    sign_in_with_discord
 
     [ new_play_session_path, edit_play_session_path(play_session) ].each do |path|
       [ 320, 768, 1280 ].each do |width|
@@ -43,7 +43,7 @@ RSpec.describe "Responsive play session forms" do
     expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
     expect(page).to be_axe_clean
   ensure
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 end

@@ -20,6 +20,25 @@
     </div>
   </header>
 
+  <% google_user = @person.users.find { |user| user.provider == "google_oauth2" } %>
+  <% google_policy = GoogleAccountPolicy.new(current_person, @person) %>
+  <% if google_policy.link? || (google_user && google_policy.unlink?) %>
+    <section class="space-y-3" aria-labelledby="google-account-heading">
+      <h2 id="google-account-heading" class="font-display text-ui-heading font-bold">Google連携</h2>
+      <div class="flex flex-wrap items-center justify-between gap-3 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-4">
+        <% if google_user %>
+          <p class="break-all text-ui-body"><%= google_user.email.presence || "連携済み" %></p>
+          <% if google_policy.unlink? %>
+            <%= form_with url: person_google_account_path(@person), method: :delete, data: { turbo_confirm: "Google連携を解除しますか" } do %><%= ui_button("Google連携を解除", variant: :danger, size: :small, type: "submit") %><% end %>
+          <% end %>
+        <% else %>
+          <p class="text-ui-body text-ui-text-muted">Googleは連携されていません。</p>
+          <%= form_with url: "/auth/google_oauth2", method: :post, data: { turbo: false } do %><%= ui_button("Googleを連携", type: "submit") %><% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
   <% if @person.visible_aliases.any? %>
     <section class="space-y-3" aria-labelledby="aliases-heading">
       <h2 id="aliases-heading" class="font-display text-ui-heading font-bold">別名</h2>

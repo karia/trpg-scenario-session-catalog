@@ -5,17 +5,17 @@ RSpec.describe "Responsive scenario forms" do
     skip "Chrome is required for viewport and axe checks" unless ENV["CHROME_BINARY"].present?
 
     editor = create(:person, roles: %w[admin gm])
-    user = create(:user, person: editor)
+    user = create(:user, provider: "discord", person: editor)
     scenario = create(:scenario, title: "編集するシナリオ")
     scenario.purchase_links.create!(label: "とても長い名前のオンラインストア", url: "https://example.com/item")
     create(:author, name: "見本作者")
     create(:game_system, name: "見本システム")
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
 
-    sign_in_with_google
+    sign_in_with_discord
 
     [ new_scenario_path, edit_scenario_path(scenario) ].each do |path|
       [ 320, 768, 1280 ].each do |width|
@@ -34,7 +34,7 @@ RSpec.describe "Responsive scenario forms" do
       end
     end
   ensure
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 end

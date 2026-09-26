@@ -85,6 +85,59 @@ RSpec.describe User do
     end
   end
 
+  describe ".link_google" do
+    let(:person) { create(:person) }
+    let(:auth) do
+      OmniAuth::AuthHash.new(
+        provider: "google_oauth2", uid: "10000001",
+        info: { email: "someone@example.com", name: "Someone" },
+        credentials: { refresh_token: "refresh-token", scope: "email profile" }
+      )
+    end
+
+    it "links the Google account and stores its credentials" do
+      user = described_class.link_google(auth, person)
+
+      expect(user).to have_attributes(
+        person:, provider: "google_oauth2", uid: "10000001",
+        google_refresh_token: "refresh-token", google_scopes: "email profile"
+      )
+    end
+
+    it "refuses to move another person's Google account" do
+      described_class.link_google(auth, create(:person))
+
+      expect { described_class.link_google(auth, person) }.to raise_error(ArgumentError)
+    end
+
+    it "requires a refresh token" do
+      auth.credentials.delete(:refresh_token)
+
+      expect { described_class.link_google(auth, person) }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe "#unlink_google!" do
+    it "revokes and clears a Google link" do
+      user = create(:user, person: create(:person), google_refresh_token: "refresh-token", google_scopes: "email")
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      user.unlink_google!
+
+      expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+      expect(user.reload).to have_attributes(person: nil, google_refresh_token: nil, google_scopes: nil)
+    end
+  end
+
+  it "revokes Google access before the user is destroyed" do
+    user = create(:user, google_refresh_token: "refresh-token")
+    allow(GoogleTokenRevoker).to receive(:revoke)
+
+    user.destroy!
+
+    expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+  end
+
   describe ".from_omniauth" do
     it "creates and finds a Discord account by provider and UID" do
       auth = OmniAuth::AuthHash.new(

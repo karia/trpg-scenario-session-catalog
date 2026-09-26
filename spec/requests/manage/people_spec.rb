@@ -40,12 +40,16 @@ RSpec.describe "Manage::People" do
   end
 
   describe "as an admin" do
-    before { sign_in_as create(:person, roles: %w[admin], display_name: "カーリア") }
+    before do
+      sign_in_as create(:person, roles: %w[admin], display_name: "カーリア")
+      allow_any_instance_of(DiscordGuildMemberClient).to receive(:member?).and_return(nil)
+    end
 
     it "offers unlinked members from the person's Discord guilds" do
       person = create(:person)
       group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
       client = instance_double(DiscordGuildMemberClient)
+      allow(client).to receive(:member?).and_return(nil)
       allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
       allow(client).to receive(:guild_members).with(group.discord_guild_id).and_return([
         { "id" => "23456789012345678#{9}", "display_name" => "Guild Nick", "username" => "username" },
@@ -64,6 +68,7 @@ RSpec.describe "Manage::People" do
       person = create(:person)
       group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
       client = instance_double(DiscordGuildMemberClient)
+      allow(client).to receive(:member?).and_return(nil)
       allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
       allow(client).to receive(:guild_members).with(group.discord_guild_id).and_return([
         { "id" => "23456789012345678#{9}", "display_name" => "Guild Member", "username" => "member" }
@@ -82,6 +87,7 @@ RSpec.describe "Manage::People" do
       person = create(:person)
       group = create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
       client = instance_double(DiscordGuildMemberClient, guild_members: [])
+      allow(client).to receive(:member?).and_return(nil)
       allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
 
       patch person_path(person), params: {
@@ -97,6 +103,7 @@ RSpec.describe "Manage::People" do
       person = create(:person)
       create(:group, discord_guild_id: "12345678901234567#{8}", people: [ person ])
       client = instance_double(DiscordGuildMemberClient)
+      allow(client).to receive(:member?).and_return(nil)
       allow(DiscordGuildMemberClient).to receive(:new).and_return(client)
       allow(client).to receive(:guild_members)
         .and_raise(DiscordGuildMemberClient::GuildMembersPermissionError)
@@ -163,8 +170,8 @@ RSpec.describe "Manage::People" do
       expect(response.body).not_to include("Person は管理者が作ります")
     end
 
-    it "links a Google account to a person" do
-      user = create(:user, person: nil, email: "someone@example.com")
+    it "links a Discord account to a person" do
+      user = create(:user, provider: "discord", person: nil, email: "someone@example.com")
       person = create(:person, display_name: "だれか")
 
       patch manage_user_path(user), params: { user: { person_id: person.id } }
@@ -173,9 +180,9 @@ RSpec.describe "Manage::People" do
       expect(user.reload.person).to eq(person)
     end
 
-    it "unlinks a Google account" do
+    it "unlinks a Discord account" do
       person = create(:person)
-      user = create(:user, person: person)
+      user = create(:user, provider: "discord", person: person)
 
       patch manage_user_path(user), params: { user: { person_id: "" } }
 
@@ -185,7 +192,7 @@ RSpec.describe "Manage::People" do
     it "links people, groups and accounts to both detail and edit screens" do
       person = create(:person)
       group = create(:group)
-      user = create(:user, person: nil)
+      user = create(:user, provider: "discord", person: nil)
 
       get people_path
       expect(response.body).to include(person_path(person), edit_person_path(person))
@@ -233,7 +240,7 @@ RSpec.describe "Manage::People" do
     end
 
     it "renders account detail and edit screens with reciprocal links" do
-      user = create(:user, person: create(:person, display_name: "紐づけ先"))
+      user = create(:user, provider: "discord", person: create(:person, display_name: "紐づけ先"))
 
       get manage_user_path(user)
       expect(response.body).to include("紐づけ先", edit_manage_user_path(user))
@@ -244,8 +251,8 @@ RSpec.describe "Manage::People" do
 
     it "refuses to link one person to two accounts from the same provider" do
       person = create(:person)
-      create(:user, person: person)
-      other = create(:user, person: nil)
+      create(:user, provider: "discord", person: person)
+      other = create(:user, provider: "discord", person: nil)
 
       patch manage_user_path(other), params: { user: { person_id: person.id } }
 
@@ -275,7 +282,7 @@ RSpec.describe "Manage::People" do
 
     it "refuses a GM's attempt to link an account" do
       sign_in_as create(:person, roles: %w[gm])
-      user = create(:user, person: nil)
+      user = create(:user, provider: "discord", person: nil)
       target = create(:person, roles: %w[admin])
 
       patch manage_user_path(user), params: { user: { person_id: target.id } }
@@ -286,7 +293,7 @@ RSpec.describe "Manage::People" do
 
     it "hides account detail and edit screens from a GM" do
       sign_in_as create(:person, roles: %w[gm])
-      user = create(:user, person: nil)
+      user = create(:user, provider: "discord", person: nil)
 
       [ manage_user_path(user), edit_manage_user_path(user) ].each do |path|
         get path
@@ -334,8 +341,8 @@ RSpec.describe "Manage::People" do
   describe "linking effects" do
     it "opens the signed-in area once the account is linked" do
       admin = create(:person, roles: %w[admin])
-      create(:user, person: admin)
-      user = create(:user, person: nil)
+      create(:user, provider: "discord", person: admin)
+      user = create(:user, provider: "discord", person: nil)
 
       sign_in_as user
       get people_path
