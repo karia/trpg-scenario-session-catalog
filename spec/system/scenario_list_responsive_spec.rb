@@ -38,6 +38,15 @@ RSpec.describe "Responsive scenario lists" do
 
     expect(page).to have_current_path(/order=\w+/)
     expect(page).to have_css("#order:focus")
+
+    click_button "絞り込み（2）"
+    within("dialog[open]") do
+      choose "指定なし"
+      click_button "適用する"
+    end
+
+    expect(page).to have_button("絞り込み（1）")
+    expect(URI(page.current_url).query).not_to match(/(\A|&)(player_count|author_name)=(&|\z)/)
   end
 
   it "reflows both list modes and ordering without horizontal controls" do

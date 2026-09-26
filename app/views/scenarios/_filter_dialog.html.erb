@@ -1,6 +1,6 @@
 <dialog data-dialog-target="dialog" data-return-focus="filter-button" data-action="click->dialog#closeOnBackdrop" aria-labelledby="filter-title"
         class="mx-0 mt-auto mb-0 max-h-[85dvh] w-full max-w-none rounded-t-ui-surface border border-ui-outline bg-ui-surface-solid p-0 text-ui-text backdrop:bg-black/60 sm:m-auto sm:max-w-lg sm:rounded-ui-surface">
-  <%= form_with url: root_path, method: :get, class: "flex max-h-[85dvh] flex-col" do |form| %>
+  <%= form_with url: root_path, method: :get, class: "flex max-h-[85dvh] flex-col", data: { controller: "blank-params", action: "formdata->blank-params#strip" } do |form| %>
     <% @listing.params.slice(:view, :order).each do |key, value| %><%= hidden_field_tag key, value, id: nil %><% end %>
     <div class="flex items-center justify-between border-b border-ui-outline py-1 pr-1 pl-4">
       <h2 id="filter-title" class="font-display text-ui-heading font-bold">絞り込み</h2>
