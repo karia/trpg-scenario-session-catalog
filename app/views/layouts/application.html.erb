@@ -25,22 +25,22 @@
     </a>
 
     <header class="sticky top-0 z-[var(--z-ui-header)] border-b border-ui-outline bg-ui-surface-solid supports-[backdrop-filter:blur(1px)]:bg-ui-surface supports-[backdrop-filter:blur(1px)]:backdrop-blur-ui-header">
-      <div class="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
-        <%= link_to root_path, class: "inline-flex min-h-11 shrink-0 items-center font-display text-lg font-bold tracking-wide text-ui-text no-underline sm:text-xl" do %>
+      <div class="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-2 gap-y-3 px-4 py-3 sm:gap-x-4 sm:px-6">
+        <%= link_to root_path, class: "inline-flex min-h-11 shrink-0 items-center font-display text-base font-bold tracking-wide text-ui-text no-underline sm:text-xl" do %>
           TRPGカタログ
         <% end %>
 
-        <nav class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 text-sm sm:ml-auto sm:w-auto" aria-label="主要">
+        <nav class="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-1.5 text-sm sm:gap-2" aria-label="主要">
           <% if signed_in? %>
             <% if current_person %>
-              <%= link_to person_path(current_person), class: "inline-flex min-h-11 max-w-40 items-center text-ui-text-muted underline" do %><span class="min-w-0 truncate"><%= current_person.display_name %></span><% end %>
+              <%= link_to person_path(current_person), class: "inline-flex min-h-11 max-w-24 items-center text-ui-text-muted underline sm:max-w-40" do %><span class="min-w-0 truncate"><%= current_person.display_name %></span><% end %>
             <% else %>
               <span class="text-ui-text-muted">未登録</span>
             <% end %>
             <div class="relative" data-controller="dropdown" data-action="click@window->dropdown#close">
                 <button type="button" aria-controls="account-menu" aria-expanded="false"
                         data-dropdown-target="button" data-action="dropdown#toggle"
-                        class="min-h-11 cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-3 py-2 font-bold text-ui-text hover:bg-ui-subtle">
+                        class="min-h-11 cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-2 py-2 font-bold text-ui-text hover:bg-ui-subtle sm:px-3">
                   メニュー
                 </button>
                 <% account_items = [] %>
@@ -68,12 +68,10 @@
             </div>
           <% else %>
             <%= ui_button_link("新規登録", href: new_registration_path(origin: request.fullpath), variant: :secondary, size: :small) %>
-            <%# Google は管理者しか使わなくなったため、ヘッダーには出さず新規登録ページにだけ残す。 %>
-            <%# Turbo はフォーム送信を横取りするが、provider への cross-origin リダイレクトを追えない。 %>
-            <%= button_to "Discordでログイン", "/auth/discord", method: :post,
+            <%= button_to "/auth/discord", method: :post,
                   params: { origin: request.fullpath },
                   form: { class: "contents", data: { turbo: false } },
-                  class: "min-h-11 cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-3 py-2 font-bold text-ui-text hover:bg-ui-subtle" %>
+                  class: "min-h-11 cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-2 py-2 font-bold text-ui-text hover:bg-ui-subtle sm:px-3" do %><span class="sr-only sm:not-sr-only">Discordで</span>ログイン<% end %>
           <% end %>
         </nav>
       </div>

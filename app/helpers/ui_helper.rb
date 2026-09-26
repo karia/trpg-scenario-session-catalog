@@ -5,7 +5,7 @@ module UiHelper
     danger: "border-transparent bg-ui-danger text-ui-on-danger hover:brightness-110 active:brightness-90"
   }.freeze
   BUTTON_SIZES = {
-    small: "px-3",
+    small: "px-2 sm:px-3",
     medium: "px-4"
   }.freeze
   INPUT_TYPES = {
