@@ -9,8 +9,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     setup: lambda { |env|
       user_id = env.fetch("rack.session", {})["user_id"]
       person = User.find_by(id: user_id)&.person
-      scopes = %w[email profile]
-      scopes << "https://www.googleapis.com/auth/youtube.force-ssl" if person&.gm? || person&.admin?
+      scopes = person ? person.google_oauth_scopes : Person::GOOGLE_OAUTH_SCOPES
       env.fetch("omniauth.strategy").options[:scope] = scopes.join(",")
     }
 

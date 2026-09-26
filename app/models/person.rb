@@ -1,5 +1,7 @@
 class Person < ApplicationRecord
   DISPLAY_NAME_ATTRIBUTE = :display_name
+  GOOGLE_OAUTH_SCOPES = %w[email profile].freeze
+  YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
   has_one_attached :icon do |attachable|
     attachable.variant :thumb, resize_to_fill: [ 160, 160, { sharpen: true } ], format: :webp, saver: { quality: 80 }
   end
@@ -41,6 +43,10 @@ class Person < ApplicationRecord
 
   # Person であることがそのままプレイヤーであることを表す。付け外しはできない。
   def player? = true
+
+  def google_oauth_scopes
+    GOOGLE_OAUTH_SCOPES + ((gm? || admin?) ? [ YOUTUBE_SCOPE ] : [])
+  end
 
   # 既存行の名前を空にしたときは無視せず検証に落とす。新規の空行だけ捨てる。
   alias_method :person_aliases_attributes=, :aliases_attributes=

@@ -115,6 +115,16 @@ RSpec.describe User do
 
       expect { described_class.link_google(auth, person) }.to raise_error(ArgumentError)
     end
+
+    it "revokes instead of saving scopes no longer allowed for the person's roles" do
+      auth.credentials.scope = "email profile https://www.googleapis.com/auth/youtube.force-ssl"
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      expect { described_class.link_google(auth, person) }.to raise_error(ArgumentError)
+
+      expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+      expect(described_class.where(provider: "google_oauth2", uid: auth.uid.to_s)).not_to exist
+    end
   end
 
   describe "#unlink_google!" do

@@ -1,6 +1,19 @@
 require "rails_helper"
 
 RSpec.describe Person do
+  describe "#google_oauth_scopes" do
+    it "allows only identity scopes without a privileged role" do
+      expect(build(:person).google_oauth_scopes).to contain_exactly("email", "profile")
+    end
+
+    it "allows YouTube access for a GM or administrator" do
+      %w[gm admin].each do |role|
+        expect(create(:person, roles: [ role ]).google_oauth_scopes)
+          .to include("https://www.googleapis.com/auth/youtube.force-ssl")
+      end
+    end
+  end
+
   it "requires a display name" do
     expect(build(:person, display_name: "")).not_to be_valid
   end
