@@ -1,6 +1,6 @@
 <% if policy(scenario).show_gm_supplementary_info? %>
   <section class="mt-10 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 sm:p-6">
-    <h2 class="font-display text-xl font-bold"><%= scenario.game_master_label %>からの補足情報</h2>
+    <h2 class="font-display text-ui-heading font-bold"><%= scenario.game_master_label %>からの補足情報</h2>
     <div class="mt-4">
       <%= render "shared/ui/definition_list", items: [
         { term: "参加可能キャラの制限", description: auto_link_urls(scenario.character_restriction.presence || "制限なし") },

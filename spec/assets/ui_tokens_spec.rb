@@ -21,6 +21,35 @@ RSpec.describe "UI design tokens" do
     expect(contrast(token("ui-error"), token("ui-field-solid"))).to be >= 4.5
   end
 
+  it "defines each step of the type scale with its line height" do
+    theme = stylesheet[/@theme \{.*?^\}/m]
+
+    {
+      "page" => %w[1.5rem 2rem],
+      "heading" => %w[1.25rem 1.75rem],
+      "title" => %w[1.0625rem 1.5rem],
+      "body" => %w[0.9375rem 1.375rem],
+      "caption" => %w[0.8125rem 1.25rem],
+      "input" => %w[1rem 1.5rem]
+    }.each do |step, (size, line_height)|
+      expect(theme).to include("--text-ui-#{step}: #{size};", "--text-ui-#{step}--line-height: #{line_height};")
+    end
+  end
+
+  it "renders unsized text on the body step" do
+    base = stylesheet[/@layer base \{.*?^\}/m]
+
+    expect(base).to include("font-size: var(--text-ui-body);", "line-height: var(--text-ui-body--line-height);")
+  end
+
+  it "leaves no Tailwind text size in the templates" do
+    expect(template_lines_matching(/\btext-(xs|sm|base|lg|\d?xl)\b/)).to be_empty
+  end
+
+  it "leaves line heights to the scale except for long prose" do
+    expect(template_lines_matching(/\bleading-(?!relaxed\b)[\w-]+/)).to be_empty
+  end
+
   it "keeps stacking tokens outside Tailwind's theme namespaces" do
     theme = stylesheet[/@theme \{.*?^\}/m]
 
@@ -29,6 +58,14 @@ RSpec.describe "UI design tokens" do
   end
 
   private
+    def template_lines_matching(pattern)
+      Dir[Rails.root.join("app/{views,helpers,javascript}/**/*.{erb,rb,js}")].flat_map do |file|
+        File.readlines(file).each_with_index.filter_map do |line, index|
+          "#{Pathname(file).relative_path_from(Rails.root)}:#{index + 1}" if line.match?(pattern)
+        end
+      end
+    end
+
     def token(name)
       stylesheet.match(/--color-#{Regexp.escape(name)}:\s*(#[0-9a-f]{6});/i).captures.first
     end

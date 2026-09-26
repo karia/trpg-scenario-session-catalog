@@ -7,7 +7,7 @@
   <%= ui_error_summary(play_session) %>
 
   <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
-    <legend class="px-2 font-display text-lg font-bold text-ui-text"><%= PlaySession.model_name.human %></legend>
+    <legend class="px-2 font-display text-ui-title font-bold text-ui-text"><%= PlaySession.model_name.human %></legend>
     <div class="grid gap-5 md:grid-cols-2">
       <div class="md:col-span-2">
         <%= ui_field(form, :scenario_id, label: Scenario.model_name.human, required: true) do |field| %>

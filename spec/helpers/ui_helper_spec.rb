@@ -37,7 +37,7 @@ RSpec.describe UiHelper, type: :helper do
       expect(field).to have_css('label[for="scenario_title"]', text: "タイトル")
       expect(field).to have_css("#scenario_title_description", text: "公開される名称です")
       expect(field).to have_css('#scenario_title[aria-describedby="scenario_title_description"]')
-      expect(field).to have_css("#scenario_title.text-base.min-h-11")
+      expect(field).to have_css("#scenario_title.text-ui-input.min-h-11")
     end
 
     it "renders and associates a validation error without duplicate IDs" do

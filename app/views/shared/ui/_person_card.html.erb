@@ -5,7 +5,7 @@
         <% if person.icon.attached? %><%= image_tag person.icon.variant(:thumb), alt: "", class: "size-full object-cover" %><% end %>
       </span>
       <span class="min-w-0">
-        <span class="block font-display text-lg font-bold text-ui-text"><%= person.display_name %></span>
+        <span class="block font-display text-ui-title font-bold text-ui-text"><%= person.display_name %></span>
         <% if person.visible_aliases.any? %><span class="mt-1 block text-ui-caption text-ui-text-muted"><%= person.visible_aliases.map(&:name).join("、") %></span><% end %>
       </span>
     <% end %>

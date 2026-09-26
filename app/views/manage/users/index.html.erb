@@ -1,7 +1,7 @@
 <% content_for :title, "#{User.model_name.human}の紐づけ" %>
 
 <div class="space-y-6">
-  <div><%= render "shared/ui/page_header", title: "#{User.model_name.human}の紐づけ" %><p class="mt-2 text-sm text-ui-text-muted">紐づくまで、その<%= User.model_name.human %>は公開エリアしか見られません。</p></div>
+  <div><%= render "shared/ui/page_header", title: "#{User.model_name.human}の紐づけ" %><p class="mt-2 text-ui-body text-ui-text-muted">紐づくまで、その<%= User.model_name.human %>は公開エリアしか見られません。</p></div>
   <% if @users.any? %>
     <ul class="grid gap-4 sm:grid-cols-2">
       <% @users.each do |user| %>
@@ -9,7 +9,7 @@
           <article class="flex h-full flex-col p-4 sm:p-5">
             <div class="min-w-0 space-y-1">
               <p class="text-ui-caption font-bold text-ui-text-muted"><%= user.provider_name %></p>
-              <p class="break-all font-mono text-sm"><%= user.email.presence || "メールアドレス不明" %></p>
+              <p class="break-all font-mono text-ui-body"><%= user.email.presence || "メールアドレス不明" %></p>
               <% if user.name.present? %><p class="text-ui-caption text-ui-text-muted"><%= user.name %></p><% end %>
               <p class="text-ui-caption text-ui-text-muted">初回ログイン <%= l user.created_at, format: :short %></p>
             </div>

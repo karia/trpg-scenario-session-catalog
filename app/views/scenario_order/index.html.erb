@@ -1,7 +1,7 @@
 <% content_for :title, "#{Scenario.model_name.human}の並び順" %>
 <div class="space-y-6">
   <%= render "shared/ui/page_header", title: "#{Scenario.model_name.human}の並び順" %>
-  <p class="max-w-3xl text-sm text-ui-text-muted">カードをドラッグするか、上へ・下へボタンを押すと保存されます。この並びが「GMのおすすめ順」になります。</p>
+  <p class="max-w-3xl text-ui-body text-ui-text-muted">カードをドラッグするか、上へ・下へボタンを押すと保存されます。この並びが「GMのおすすめ順」になります。</p>
   <section aria-label="<%= Scenario.model_name.human %>の並び順と操作">
     <%= render "scenario_order/scenarios", scenarios: @scenarios %>
   </section>

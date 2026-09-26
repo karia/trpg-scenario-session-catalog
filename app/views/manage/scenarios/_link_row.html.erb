@@ -1,5 +1,5 @@
 <fieldset class="grid min-w-0 gap-4 rounded-ui-control border border-ui-outline p-4 md:grid-cols-[minmax(8rem,0.7fr)_minmax(12rem,1.3fr)_auto] md:items-end">
-  <legend class="px-2 text-sm font-bold text-ui-text">リンク <%= link.index.to_i + 1 %></legend>
+  <legend class="px-2 text-ui-body font-bold text-ui-text">リンク <%= link.index.to_i + 1 %></legend>
   <%= ui_field(link, :label, label: "ラベル") do |field| %><%= ui_input(link, :label, described_by: field[:described_by]) %><% end %>
   <%= ui_field(link, :url, label: "URL") do |field| %><%= ui_input(link, :url, type: :url, described_by: field[:described_by]) %><% end %>
   <%= ui_checkbox(link, :_destroy, label: "削除") %>

@@ -5,7 +5,7 @@
     <div>
       <%= render "shared/ui/page_header", title: safe_join([
         "#{PlaySession.model_name.human}一覧",
-        tag.span("（全#{@play_sessions.size}件）", class: "ml-2 text-base font-normal text-ui-text-muted")
+        tag.span("（全#{@play_sessions.size}件）", class: "ml-2 text-ui-body font-normal text-ui-text-muted")
       ]) %>
     </div>
     <% if policy(PlaySession).create? %><%= ui_button_link("新規登録", href: new_play_session_path) %><% end %>

@@ -20,7 +20,7 @@ module UiHelper
     time: :time_field
   }.freeze
 
-  CONTROL_CLASSES = "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text placeholder:text-ui-text-muted focus:border-ui-focus focus:outline-none focus:ring-2 focus:ring-ui-focus/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-ui-error aria-invalid:ring-1 aria-invalid:ring-ui-error".freeze
+  CONTROL_CLASSES = "min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text placeholder:text-ui-text-muted focus:border-ui-focus focus:outline-none focus:ring-2 focus:ring-ui-focus/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-ui-error aria-invalid:ring-1 aria-invalid:ring-ui-error".freeze
 
   def ui_button(label, variant: :primary, size: :medium, type: "button", disabled: false, id: nil, data: {}, aria: {})
     render "shared/ui/button",
@@ -121,7 +121,7 @@ module UiHelper
     error_id = form.field_id(attribute, :error) if form.object&.errors&.[](attribute)&.any?
     form.file_field attribute, accept:, data: { ui_error_id: error_id }.compact,
       aria: { describedby: [ described_by, error_id ].compact.join(" ").presence },
-      class: "block min-h-11 w-full cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-field-solid text-sm text-ui-text file:mr-3 file:min-h-11 file:border-0 file:bg-ui-subtle file:px-3 file:py-2 file:font-bold file:text-ui-text hover:file:bg-ui-action hover:file:text-ui-on-action"
+      class: "block min-h-11 w-full cursor-pointer rounded-ui-control border border-ui-outline-strong bg-ui-field-solid text-ui-body text-ui-text file:mr-3 file:min-h-11 file:border-0 file:bg-ui-subtle file:px-3 file:py-2 file:font-bold file:text-ui-text hover:file:bg-ui-action hover:file:text-ui-on-action"
   end
 
   def ui_radio(name, value, label:, checked:, id:, required: false, disabled: false, data: {}, aria: {})

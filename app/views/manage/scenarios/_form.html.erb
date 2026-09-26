@@ -1,17 +1,17 @@
 <%= form_with model: scenario, class: "mt-8 space-y-8" do |form| %>
   <%= ui_error_summary(scenario) %>
   <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
-    <legend class="px-2 font-display text-lg font-bold text-ui-text">基本</legend>
+    <legend class="px-2 font-display text-ui-title font-bold text-ui-text">基本</legend>
     <div class="space-y-5">
       <%= ui_field(form, :title, label: "#{Scenario.model_name.human}名", required: true) do |field| %><%= ui_input(form, :title, described_by: field[:described_by], required: true) %><% end %>
-      <fieldset><legend class="text-sm font-bold text-ui-text"><%= GameSystem.model_name.human %></legend><div class="mt-2 flex flex-wrap gap-2"><%= ui_collection_checkboxes(form, :game_system_ids, GameSystem.all, value_method: :id, text_method: :name) %></div></fieldset>
-      <fieldset><legend class="text-sm font-bold text-ui-text"><%= Author.model_name.human %></legend><div class="mt-2 flex flex-wrap gap-2"><%= ui_collection_checkboxes(form, :author_ids, Author.all, value_method: :id, text_method: :name) %></div></fieldset>
+      <fieldset><legend class="text-ui-body font-bold text-ui-text"><%= GameSystem.model_name.human %></legend><div class="mt-2 flex flex-wrap gap-2"><%= ui_collection_checkboxes(form, :game_system_ids, GameSystem.all, value_method: :id, text_method: :name) %></div></fieldset>
+      <fieldset><legend class="text-ui-body font-bold text-ui-text"><%= Author.model_name.human %></legend><div class="mt-2 flex flex-wrap gap-2"><%= ui_collection_checkboxes(form, :author_ids, Author.all, value_method: :id, text_method: :name) %></div></fieldset>
       <%= ui_field(form, :jacket, label: "ジャケット画像") do |field| %><%= ui_file_input(form, :jacket, accept: "image/png,image/jpeg,image/webp", described_by: field[:described_by]) %><% end %>
     </div>
   </fieldset>
 
   <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
-    <legend class="px-2 font-display text-lg font-bold text-ui-text">遊ぶときの条件</legend>
+    <legend class="px-2 font-display text-ui-title font-bold text-ui-text">遊ぶときの条件</legend>
     <div class="grid gap-5 md:grid-cols-2">
       <%= ui_field(form, :player_count_min, label: "PL人数（最小）", required: true) do |field| %><%= ui_input(form, :player_count_min, type: :number, min: 1, required: true, described_by: field[:described_by]) %><% end %>
       <%= ui_field(form, :player_count_max, label: "PL人数（最大）", description: "人数が固定なら最小と同じ値を入れます。上限が無ければ空欄にします。") do |field| %><%= ui_input(form, :player_count_max, type: :number, min: 1, described_by: field[:described_by]) %><% end %>
@@ -24,10 +24,10 @@
   </fieldset>
 
   <fieldset class="rounded-ui-surface border border-ui-outline bg-ui-surface-solid p-4 sm:p-6">
-    <legend class="px-2 font-display text-lg font-bold text-ui-text">評価と本文</legend>
+    <legend class="px-2 font-display text-ui-title font-bold text-ui-text">評価と本文</legend>
     <div class="space-y-5">
       <% [ [ :gm_experienced, "#{GameSystem::DEFAULT_GAME_MASTER_LABEL}経験" ], [ :pl_experienced, "PL経験" ], [ :read, "シナリオ既読" ] ].each do |attribute, label| %>
-        <fieldset><legend class="text-sm font-bold text-ui-text"><%= label %></legend><div class="mt-1 flex flex-wrap gap-2">
+        <fieldset><legend class="text-ui-body font-bold text-ui-text"><%= label %></legend><div class="mt-1 flex flex-wrap gap-2">
           <%= ui_radio "scenario_status[#{attribute}]", "1", label: "あり", checked: @scenario_status.public_send(attribute), id: "scenario_status_#{attribute}_yes", required: true %>
           <%= ui_radio "scenario_status[#{attribute}]", "0", label: "なし", checked: !@scenario_status.public_send(attribute), id: "scenario_status_#{attribute}_no", required: true %>
         </div></fieldset>

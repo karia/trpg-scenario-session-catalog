@@ -6,11 +6,11 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="space-y-3">
         <%= render "shared/ui/page_header", title: list_title %>
-        <p class="text-sm text-ui-text-muted" role="status">全<%= @scenarios.size %>件</p>
+        <p class="text-ui-body text-ui-text-muted" role="status">全<%= @scenarios.size %>件</p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
         <% if policy(Scenario).create? %><%= ui_button_link("新規登録", href: new_scenario_path, data: { turbo_frame: "_top" }) %><% end %>
-        <nav class="flex rounded-ui-control border border-ui-outline-strong bg-ui-field-solid p-1 text-sm" aria-label="表示の切り替え">
+        <nav class="flex rounded-ui-control border border-ui-outline-strong bg-ui-field-solid p-1 text-ui-body" aria-label="表示の切り替え">
           <% [ [ "table", "表形式" ], [ "gallery", "ジャケット" ] ].each do |view, label| %>
             <%= link_to label, root_path(@listing.params(view:)), aria: { current: ("page" if @listing.view == view) },
                   class: "inline-flex min-h-11 items-center rounded-[0.65rem] px-3 font-bold no-underline #{@listing.view == view ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" %>
@@ -21,31 +21,31 @@
 
     <%= render "shared/ui/filter_panel", title: "絞り込み#{'（適用中）' if @listing.filtered?}" do %>
       <fieldset>
-        <legend class="text-sm font-bold text-ui-text">人数</legend>
+        <legend class="text-ui-body font-bold text-ui-text">人数</legend>
         <div class="mt-2 flex flex-wrap gap-2">
           <% [ [ 1, "1人" ], [ 2, "2人" ], [ 3, "3人" ], [ 4, "4人" ], [ 5, "5人以上" ] ].each do |count, label| %>
             <% selected = @listing.player_count == count %>
-            <%= button_to label, root_path, method: :get, params: @listing.params(player_count: (selected ? nil : count)), form: { class: "inline" }, aria: { pressed: selected }, class: "min-h-11 rounded-ui-control border px-3 py-2 text-sm font-bold #{selected ? 'border-ui-action bg-ui-action text-ui-on-action' : 'border-ui-outline-strong bg-ui-field-solid text-ui-text hover:bg-ui-subtle'}" %>
+            <%= button_to label, root_path, method: :get, params: @listing.params(player_count: (selected ? nil : count)), form: { class: "inline" }, aria: { pressed: selected }, class: "min-h-11 rounded-ui-control border px-3 py-2 text-ui-body font-bold #{selected ? 'border-ui-action bg-ui-action text-ui-on-action' : 'border-ui-outline-strong bg-ui-field-solid text-ui-text hover:bg-ui-subtle'}" %>
           <% end %>
         </div>
       </fieldset>
       <fieldset>
-        <legend class="text-sm font-bold text-ui-text"><%= GameSystem.model_name.human %></legend>
+        <legend class="text-ui-body font-bold text-ui-text"><%= GameSystem.model_name.human %></legend>
         <div class="mt-2 flex flex-wrap gap-2">
           <% @listing.game_system_options.each do |game_system| %>
             <% selected = @listing.game_systems.include?(game_system) %><% ids = selected ? @listing.game_systems.without(game_system).map(&:id) : @listing.game_systems.map(&:id) + [ game_system.id ] %>
-            <%= button_to game_system.name, root_path, method: :get, params: @listing.params(game_system_ids: ids.presence), form: { class: "inline" }, aria: { pressed: selected }, class: "min-h-11 rounded-ui-control border px-3 py-2 text-sm font-bold #{selected ? 'border-ui-action bg-ui-action text-ui-on-action' : 'border-ui-outline-strong bg-ui-field-solid text-ui-text hover:bg-ui-subtle'}" %>
+            <%= button_to game_system.name, root_path, method: :get, params: @listing.params(game_system_ids: ids.presence), form: { class: "inline" }, aria: { pressed: selected }, class: "min-h-11 rounded-ui-control border px-3 py-2 text-ui-body font-bold #{selected ? 'border-ui-action bg-ui-action text-ui-on-action' : 'border-ui-outline-strong bg-ui-field-solid text-ui-text hover:bg-ui-subtle'}" %>
           <% end %>
         </div>
       </fieldset>
       <%= form_with url: root_path, method: :get, data: { controller: "author-filter" }, class: "space-y-2" do |form| %>
         <% @listing.params(author_ids: nil).each do |key, value| %><% Array(value).each do |item| %><%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %><% end %><% end %>
         <% @listing.authors.each do |author| %><%= hidden_field_tag "author_ids[]", author.id, id: nil %><% end %>
-        <label class="block text-sm font-bold text-ui-text" for="author_name"><%= Author.model_name.human %></label>
+        <label class="block text-ui-body font-bold text-ui-text" for="author_name"><%= Author.model_name.human %></label>
         <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
           <div class="flex min-w-0 flex-wrap gap-2">
-            <% @listing.authors.each do |author| %><span class="inline-flex min-h-11 items-center rounded-full border border-ui-outline-strong bg-ui-subtle pl-3 text-sm"><%= author.name %><%= link_to "×", root_path(@listing.params(author_ids: @listing.authors.without(author).map(&:id).presence)), aria: { label: "#{author.name}を解除" }, class: "inline-flex min-h-11 min-w-11 items-center justify-center text-ui-action no-underline" %></span><% end %>
-            <%= text_field_tag :author_name, (@listing.author_name if @listing.author_name_error?), list: "author-suggestions", autocomplete: "off", placeholder: "#{Author.model_name.human}名を入力", aria: { label: "#{Author.model_name.human}を追加", describedby: "author-help#{' author-error' if @listing.author_name_error?}", invalid: ("true" if @listing.author_name_error?) }, data: { action: "change->author-filter#submit" }, class: "min-h-11 min-w-0 flex-1 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text placeholder:text-ui-text-muted aria-invalid:border-ui-error" %>
+            <% @listing.authors.each do |author| %><span class="inline-flex min-h-11 items-center rounded-full border border-ui-outline-strong bg-ui-subtle pl-3 text-ui-body"><%= author.name %><%= link_to "×", root_path(@listing.params(author_ids: @listing.authors.without(author).map(&:id).presence)), aria: { label: "#{author.name}を解除" }, class: "inline-flex min-h-11 min-w-11 items-center justify-center text-ui-action no-underline" %></span><% end %>
+            <%= text_field_tag :author_name, (@listing.author_name if @listing.author_name_error?), list: "author-suggestions", autocomplete: "off", placeholder: "#{Author.model_name.human}名を入力", aria: { label: "#{Author.model_name.human}を追加", describedby: "author-help#{' author-error' if @listing.author_name_error?}", invalid: ("true" if @listing.author_name_error?) }, data: { action: "change->author-filter#submit" }, class: "min-h-11 min-w-0 flex-1 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text placeholder:text-ui-text-muted aria-invalid:border-ui-error" %>
           </div>
           <%= ui_button("追加", variant: :secondary, type: "submit") %>
         </div>
@@ -58,7 +58,7 @@
     <% if @scenarios.any? %>
       <%= form_with url: root_path, method: :get, class: "grid gap-2 sm:grid-cols-[auto_auto_auto] sm:items-center sm:justify-end" do |form| %>
         <% @listing.params(order: nil).each do |key, value| %><% Array(value).each do |item| %><%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %><% end %><% end %>
-        <%= label_tag :order, "並び順", class: "text-sm font-bold text-ui-text" %><%= select_tag :order, scenario_order_options(@listing), class: "min-h-11 min-w-0 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-base text-ui-text" %><%= ui_button("並べ替える", size: :small, type: "submit") %>
+        <%= label_tag :order, "並び順", class: "text-ui-body font-bold text-ui-text" %><%= select_tag :order, scenario_order_options(@listing), class: "min-h-11 min-w-0 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text" %><%= ui_button("並べ替える", size: :small, type: "submit") %>
       <% end %>
       <%= render "scenarios/#{@listing.view}", scenarios: @scenarios %>
     <% else %>

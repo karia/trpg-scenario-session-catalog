@@ -3,6 +3,6 @@
   error: { role: "alert", classes: "border-ui-error bg-ui-surface-solid text-ui-error" }
 } %>
 <% presentation = variants.fetch(variant) %>
-<div class="rounded-ui-control border px-4 py-3 text-sm <%= presentation[:classes] %>" role="<%= presentation[:role] %>">
+<div class="rounded-ui-control border px-4 py-3 text-ui-body <%= presentation[:classes] %>" role="<%= presentation[:role] %>">
   <%= message %>
 </div>
