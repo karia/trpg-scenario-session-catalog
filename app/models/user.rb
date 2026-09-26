@@ -25,7 +25,7 @@ class User < ApplicationRecord
 
     token = auth.credentials&.refresh_token.to_s.presence or raise ArgumentError, "missing refresh token"
     scopes = auth.credentials.scope.to_s.split(/[\s,]+/).uniq
-    if (scopes - person.google_oauth_scopes).any?
+    if scopes.include?(Person::YOUTUBE_SCOPE) && person.google_oauth_scopes.exclude?(Person::YOUTUBE_SCOPE)
       GoogleTokenRevoker.revoke(token)
       raise ArgumentError, "scope no longer allowed"
     end

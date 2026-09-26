@@ -104,6 +104,13 @@ RSpec.describe User do
       )
     end
 
+    it "accepts the scopes in the form Google returns them" do
+      auth.credentials.scope =
+        "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid"
+
+      expect(described_class.link_google(auth, person)).to be_persisted
+    end
+
     it "refuses to move another person's Google account" do
       described_class.link_google(auth, create(:person))
 
