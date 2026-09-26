@@ -28,10 +28,10 @@ RSpec.describe "Responsive scenario lists" do
     scenario = create(:scenario, title: "狭い画面でも読める長いシナリオ名", player_count_min: 2,
       duration_min_hours: 3, game_systems: [ create(:game_system, name: "長い名前のゲームシステム") ], authors: [ author ])
     admin = create(:person, roles: %w[admin])
-    user = create(:user, person: admin)
+    user = create(:user, provider: "discord", person: admin)
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
 
     [ 320, 768, 1280 ].each do |width|
@@ -67,7 +67,7 @@ RSpec.describe "Responsive scenario lists" do
     visit root_path(view: "gallery")
     expect(find("article", text: scenario_without_author.title)).to have_text("作者未設定")
 
-    sign_in_with_google
+    sign_in_with_discord
     [ 320, 1280 ].each do |width|
       page.current_window.resize_to(width, 900)
       visit root_path
@@ -93,7 +93,7 @@ RSpec.describe "Responsive scenario lists" do
       save_screenshot("scenario-order-#{width}.png") if ENV["VISUAL_REVIEW"]
     end
   ensure
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 end

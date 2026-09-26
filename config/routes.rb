@@ -8,8 +8,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # 開始は POST 限定（omniauth-rails_csrf_protection）。コールバックは OAuth provider からの GET。
-  match "/auth/:provider/callback", to: "sessions#create", via: [ :get, :post ],
-    constraints: { provider: /google_oauth2|discord/ }
+  match "/auth/discord/callback", to: "sessions#create", via: [ :get, :post ]
+  match "/auth/google_oauth2/callback", to: "google_accounts#create", via: [ :get, :post ]
   get "/auth/failure", to: "sessions#failure"
   resource :session, only: [ :destroy ]
   resource :registration, only: [ :new ]
@@ -25,7 +25,9 @@ Rails.application.routes.draw do
     patch :move, on: :member
   end
   resources :play_sessions
-  resources :people
+  resources :people do
+    resource :google_account, only: :destroy
+  end
   resources :game_systems
   resources :authors
 

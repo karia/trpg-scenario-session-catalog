@@ -50,12 +50,12 @@ RSpec.describe "Browsing scenarios" do
       end
 
       member = create(:person)
-      user = create(:user, person: member)
+      user = create(:user, provider: "discord", person: member)
       OmniAuth.config.test_mode = true
-      OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-        provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+      OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+        provider: "discord", uid: user.uid, info: { email: user.email }
       )
-      sign_in_with_google
+      sign_in_with_discord
       page.current_window.resize_to(320, 900)
       visit scenario_path(scenario)
       expect(page).to have_content("GMからのおすすめ情報")
@@ -64,7 +64,7 @@ RSpec.describe "Browsing scenarios" do
       expect(page).to be_axe_clean
     end
   ensure
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 end

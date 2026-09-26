@@ -38,6 +38,9 @@ module TrpgCatalog
     config.i18n.available_locales = [ :ja ]
     config.time_zone = "Asia/Tokyo"
     config.exceptions_app = routes
+    config.active_record.encryption.primary_key = ENV["ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"]
+    config.active_record.encryption.deterministic_key = ENV["ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY"]
+    config.active_record.encryption.key_derivation_salt = ENV["ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT"]
 
     # config.eager_load_paths << Rails.root.join("extras")
 

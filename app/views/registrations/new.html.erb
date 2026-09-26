@@ -5,12 +5,10 @@
 <div class="mx-auto max-w-2xl space-y-6">
   <%= render "shared/ui/page_header", title: "新規登録" %>
   <section class="space-y-5 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 text-ui-body leading-relaxed sm:p-7">
-    <p>このサイトの全機能（セッション情報表示・お気に入りシナリオ機能など）を利用するにはGoogleまたはDiscordアカウントでのログインが必要です。以下のステップで登録してください。</p>
-    <ol class="list-decimal space-y-2 pl-6"><li>下記のボタンを押してGoogleまたはDiscordでログインする</li><li>プロフィールを提供してよいか認証先に聞かれるので許可する</li><li>Discord連携済みのサーバーに参加していない場合は、管理者に連絡して許可してもらうのを待つ</li></ol>
-    <p>なお、Googleアカウントの情報はこのサイト上では管理者以外の人に表示されることはありません。表示名は自由に設定できます。</p>
+    <p>このサイトの全機能（セッション情報表示・お気に入りシナリオ機能など）を利用するにはDiscordアカウントでのログインが必要です。以下のステップで登録してください。</p>
+    <ol class="list-decimal space-y-2 pl-6"><li>下記のボタンを押してDiscordでログインする</li><li>プロフィールを提供してよいかDiscordに聞かれるので許可する</li><li>Discord連携済みのサーバーに参加していない場合は、管理者に連絡して許可してもらうのを待つ</li></ol>
     <p>Discordでログインすると、連携済みサーバーへの参加状況をBot経由で確認します。他の参加サーバーの情報は取得しません。</p>
-    <div class="grid gap-3 sm:grid-cols-2">
-      <%= form_with url: "/auth/google_oauth2", method: :post, data: { turbo: false }, class: "contents" do %><%= hidden_field_tag :origin, return_to %><%= ui_button("Google でログイン", type: "submit") %><% end %>
+    <div>
       <%= form_with url: "/auth/discord", method: :post, data: { turbo: false }, class: "contents" do %><%= hidden_field_tag :origin, return_to %><%= ui_button("Discord でログイン", variant: :secondary, type: "submit") %><% end %>
     </div>
   </section>

@@ -23,7 +23,7 @@ RSpec.describe "Manage::Scenarios" do
     end
 
     it "answers 404 to a user who is not linked to a person" do
-      sign_in_as create(:user, person: nil)
+      sign_in_as create(:user, provider: "discord", person: nil)
 
       get scenario_order_index_path
 
@@ -59,7 +59,7 @@ RSpec.describe "Manage::Scenarios" do
     it "does not rearrange the list for a user who is not linked to a person" do
       first = create(:scenario)
       second = create(:scenario)
-      sign_in_as create(:user, person: nil)
+      sign_in_as create(:user, provider: "discord", person: nil)
 
       patch reorder_scenario_order_index_path, params: { scenario_ids: [ second.id, first.id ] }
 

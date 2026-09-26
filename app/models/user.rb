@@ -7,14 +7,38 @@ class User < ApplicationRecord
 
   belongs_to :person, optional: true
 
+  encrypts :google_refresh_token, :google_scopes
+
   validates :provider, inclusion: { in: PROVIDERS.keys }
   validates :uid, presence: true, uniqueness: { scope: :provider }
   validates :person_id, uniqueness: { scope: :provider }, allow_nil: true
   before_validation :copy_legacy_google_uid
+  before_destroy :revoke_google_access!
 
   # 初回は Person 未紐づけで作る。紐づけは管理者が管理画面で行う。
   def self.from_google(auth)
     from_omniauth(auth)
+  end
+
+  def self.link_google(auth, person)
+    raise ArgumentError, "unsupported provider" unless auth.provider.to_s == "google_oauth2"
+
+    token = auth.credentials&.refresh_token.to_s.presence or raise ArgumentError, "missing refresh token"
+    scopes = auth.credentials.scope.to_s.split(/[\s,]+/).uniq
+    if scopes.include?(Person::YOUTUBE_SCOPE) && person.google_oauth_scopes.exclude?(Person::YOUTUBE_SCOPE)
+      GoogleTokenRevoker.revoke(token)
+      raise ArgumentError, "scope no longer allowed"
+    end
+    user = find_or_initialize_by(provider: "google_oauth2", uid: auth.uid.to_s)
+    raise ArgumentError, "Google account already linked" if user.person && user.person != person
+
+    user.assign_attributes(
+      person:, google_uid: auth.uid.to_s, email: auth.info&.email, name: auth.info&.name,
+      google_refresh_token: token,
+      google_scopes: scopes.join(" ")
+    )
+    user.save!
+    user
   end
 
   def self.from_omniauth(auth)
@@ -38,6 +62,20 @@ class User < ApplicationRecord
 
   def linked? = person.present?
   def provider_name = PROVIDERS.fetch(provider)
+
+  def unlink_google!
+    transaction do
+      revoke_google_access!
+      update!(person: nil)
+    end
+  end
+
+  def revoke_google_access!
+    return unless provider == "google_oauth2" && google_refresh_token.present?
+
+    GoogleTokenRevoker.revoke(google_refresh_token)
+    update_columns(google_refresh_token: nil, google_scopes: nil)
+  end
 
   def sync_discord_groups!(client: nil)
     raise ArgumentError, "not a Discord account" unless provider == "discord"

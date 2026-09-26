@@ -3,7 +3,15 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     ENV["GOOGLE_CLIENT_ID"],
     ENV["GOOGLE_CLIENT_SECRET"],
     scope: "email,profile",
-    prompt: "select_account"
+    access_type: "offline",
+    prompt: "consent select_account",
+    overridable_authorize_options: [],
+    setup: lambda { |env|
+      user_id = env.fetch("rack.session", {})["user_id"]
+      person = User.find_by(id: user_id)&.person
+      scopes = person ? person.google_oauth_scopes : Person::GOOGLE_OAUTH_SCOPES
+      env.fetch("omniauth.strategy").options[:scope] = scopes.join(",")
+    }
 
   provider :discord,
     ENV["DISCORD_CLIENT_ID"],

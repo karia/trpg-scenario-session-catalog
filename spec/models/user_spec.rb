@@ -1,6 +1,18 @@
 require "rails_helper"
 
 RSpec.describe User do
+  it "encrypts the Google refresh token and scopes" do
+    user = create(:user, google_refresh_token: "refresh-token", google_scopes: "email profile")
+    stored = described_class.connection.select_one(
+      "SELECT google_refresh_token, google_scopes FROM users WHERE id = #{user.id}"
+    )
+
+    expect(stored.values).not_to include("refresh-token", "email profile")
+    expect(user.reload).to have_attributes(
+      google_refresh_token: "refresh-token", google_scopes: "email profile"
+    )
+  end
+
   it "requires a provider and UID" do
     expect(build(:user, provider: "", uid: "")).not_to be_valid
   end
@@ -71,6 +83,76 @@ RSpec.describe User do
       expect { described_class.from_google(auth) }.not_to change(described_class, :count)
       expect(legacy.reload).to have_attributes(uid: auth.uid.to_s, email: "someone@example.com")
     end
+  end
+
+  describe ".link_google" do
+    let(:person) { create(:person) }
+    let(:auth) do
+      OmniAuth::AuthHash.new(
+        provider: "google_oauth2", uid: "10000001",
+        info: { email: "someone@example.com", name: "Someone" },
+        credentials: { refresh_token: "refresh-token", scope: "email profile" }
+      )
+    end
+
+    it "links the Google account and stores its credentials" do
+      user = described_class.link_google(auth, person)
+
+      expect(user).to have_attributes(
+        person:, provider: "google_oauth2", uid: "10000001",
+        google_refresh_token: "refresh-token", google_scopes: "email profile"
+      )
+    end
+
+    it "accepts the scopes in the form Google returns them" do
+      auth.credentials.scope =
+        "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid"
+
+      expect(described_class.link_google(auth, person)).to be_persisted
+    end
+
+    it "refuses to move another person's Google account" do
+      described_class.link_google(auth, create(:person))
+
+      expect { described_class.link_google(auth, person) }.to raise_error(ArgumentError)
+    end
+
+    it "requires a refresh token" do
+      auth.credentials.delete(:refresh_token)
+
+      expect { described_class.link_google(auth, person) }.to raise_error(ArgumentError)
+    end
+
+    it "revokes instead of saving scopes no longer allowed for the person's roles" do
+      auth.credentials.scope = "email profile https://www.googleapis.com/auth/youtube.force-ssl"
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      expect { described_class.link_google(auth, person) }.to raise_error(ArgumentError)
+
+      expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+      expect(described_class.where(provider: "google_oauth2", uid: auth.uid.to_s)).not_to exist
+    end
+  end
+
+  describe "#unlink_google!" do
+    it "revokes and clears a Google link" do
+      user = create(:user, person: create(:person), google_refresh_token: "refresh-token", google_scopes: "email")
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      user.unlink_google!
+
+      expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+      expect(user.reload).to have_attributes(person: nil, google_refresh_token: nil, google_scopes: nil)
+    end
+  end
+
+  it "revokes Google access before the user is destroyed" do
+    user = create(:user, google_refresh_token: "refresh-token")
+    allow(GoogleTokenRevoker).to receive(:revoke)
+
+    user.destroy!
+
+    expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
   end
 
   describe ".from_omniauth" do

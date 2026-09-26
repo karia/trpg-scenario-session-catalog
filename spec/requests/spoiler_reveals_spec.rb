@@ -24,7 +24,7 @@ RSpec.describe "SpoilerReveals" do
   end
 
   it "refuses to record a reveal for an account with no person" do
-    sign_in_as create(:user, person: nil)
+    sign_in_as create(:user, provider: "discord", person: nil)
 
     post scenario_spoiler_reveal_path(scenario)
 
@@ -57,7 +57,7 @@ RSpec.describe "SpoilerReveals" do
 
   it "remembers the press across sessions, so another device sees it open" do
     person = create(:person)
-    user = create(:user, person: person)
+    user = create(:user, provider: "discord", person: person)
     sign_in_as user
     post scenario_spoiler_reveal_path(scenario)
     delete session_path

@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   # 存在を伏せるため 403 ではなく 404 を返す。
   rescue_from Pundit::NotAuthorizedError, with: :render_not_found
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+  rescue_from GoogleTokenRevoker::Error, with: :handle_google_token_error
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -20,6 +21,11 @@ class ApplicationController < ActionController::Base
   stale_when_importmap_changes
 
   private
+
+  def handle_google_token_error
+    redirect_back fallback_location: root_path,
+      alert: "Googleとの通信に失敗しました。時間をおいてもう一度お試しください"
+  end
 
   def render_not_found
     render "errors/show", status: :not_found, formats: [ :html ],

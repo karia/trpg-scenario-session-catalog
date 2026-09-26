@@ -47,3 +47,4 @@ Phase 0 の完了条件にはそちらの作業も含む。
 | [シナリオ一覧の絞り込みと並び替え](2026-08-11-scenario-list-sort-filter.md) | 一覧の検索条件と並び替え | - |
 | [UI 刷新](2026-08-22-ui-redesign.md) | 全画面のダークデザインへの移行 | [ADR-0002](../adr/0002-user-interface-design.md) |
 | [文字サイズの階層と一覧の圧縮](2026-09-26-type-scale.md) | 6 段の文字サイズの適用と、シナリオ一覧の圧縮 | [ADR-0003](../adr/0003-type-scale.md) |
+| [外部アカウント連携](2026-09-27-external-account-linking.md) | DiscordログインとGoogle連携の役割分担 | [ADR-0004](../adr/0004-external-account-linking.md) |
