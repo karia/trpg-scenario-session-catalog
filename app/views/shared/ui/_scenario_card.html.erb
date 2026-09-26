@@ -12,8 +12,8 @@
         </div>
         <div class="space-y-3 p-4">
           <h2 class="font-display text-ui-title font-bold text-ui-text group-hover:text-ui-action"><%= scenario.title %></h2>
-          <p><%= scenario.authors.map(&:name).join("、").presence || "#{Author.model_name.human}未設定" %></p>
-          <p class="text-ui-caption text-ui-text-muted"><%= scenario.game_systems.map(&:name).join("／").presence || "#{GameSystem.model_name.human}未設定" %></p>
+          <p><span class="sr-only"><%= Author.model_name.human %>：</span><%= scenario.authors.map(&:name).join("、").presence || "#{Author.model_name.human}未設定" %></p>
+          <p class="text-ui-caption text-ui-text-muted"><span class="sr-only"><%= GameSystem.model_name.human %>：</span><%= scenario.game_systems.map(&:name).join("／").presence || "#{GameSystem.model_name.human}未設定" %></p>
           <div class="flex flex-wrap gap-2">
             <%= render "shared/ui/badge", label: (player_count_value(scenario) || "人数未設定") %>
             <%= render "shared/ui/badge", label: (duration_value(scenario) || "時間未設定") %>
@@ -23,8 +23,8 @@
     <% else %>
       <div class="px-4 pt-2.5 pb-3.5">
         <h2><%= link_to scenario.title, scenario_path(scenario), data: { turbo_frame: "_top" }, class: "inline-flex min-h-11 items-center font-display text-ui-title font-bold text-ui-text hover:text-ui-action" %></h2>
-        <% if scenario.authors.any? %><p><%= scenario.authors.map(&:name).join("、") %></p><% end %>
-        <% if scenario.game_systems.any? %><p class="text-ui-caption text-ui-text-muted"><%= scenario.game_systems.map(&:name).join("／") %></p><% end %>
+        <% if scenario.authors.any? %><p><span class="sr-only"><%= Author.model_name.human %>：</span><%= scenario.authors.map(&:name).join("、") %></p><% end %>
+        <% if scenario.game_systems.any? %><p class="text-ui-caption text-ui-text-muted"><span class="sr-only"><%= GameSystem.model_name.human %>：</span><%= scenario.game_systems.map(&:name).join("／") %></p><% end %>
         <% badges = [ player_count_value(scenario), duration_value(scenario) ].compact %>
         <% if badges.any? %><div class="mt-2 flex flex-wrap gap-2"><% badges.each do |label| %><%= render "shared/ui/badge", label: %><% end %></div><% end %>
       </div>

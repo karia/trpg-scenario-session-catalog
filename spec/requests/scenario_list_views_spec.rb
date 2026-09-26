@@ -45,6 +45,16 @@ RSpec.describe "The scenario list" do
       expect(page).to have_button("削除")
     end
 
+    it "names the author and system rows for screen readers on both card views" do
+      [ root_path, root_path(view: "gallery") ].each do |path|
+        get path
+
+        card = Capybara.string(response.body).find("ul li", text: "見本シナリオ", visible: :all, match: :first)
+        expect(card).to have_css(".sr-only", text: "作者", visible: :all)
+        expect(card).to have_css(".sr-only", text: "システム", visible: :all)
+      end
+    end
+
     it "leaves a column blank rather than inventing a value" do
       create(:scenario, title: "空欄だらけ")
 
