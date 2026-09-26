@@ -1,6 +1,18 @@
 require "rails_helper"
 
 RSpec.describe User do
+  it "encrypts the Google refresh token and scopes" do
+    user = create(:user, google_refresh_token: "refresh-token", google_scopes: "email profile")
+    stored = described_class.connection.select_one(
+      "SELECT google_refresh_token, google_scopes FROM users WHERE id = #{user.id}"
+    )
+
+    expect(stored.values).not_to include("refresh-token", "email profile")
+    expect(user.reload).to have_attributes(
+      google_refresh_token: "refresh-token", google_scopes: "email profile"
+    )
+  end
+
   it "requires a provider and UID" do
     expect(build(:user, provider: "", uid: "")).not_to be_valid
   end
