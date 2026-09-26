@@ -93,6 +93,18 @@ RSpec.describe "Google accounts" do
     expect(google.reload.person).to be_nil
   end
 
+  it "returns to the profile with an alert when revoke fails during unlinking" do
+    google = create(:user, person:, google_refresh_token: "refresh-token", google_scopes: "email")
+    sign_in_as person
+    allow(GoogleTokenRevoker).to receive(:revoke).and_raise(GoogleTokenRevoker::Error)
+
+    delete person_google_account_path(person), headers: { "HTTP_REFERER" => person_url(person) }
+
+    expect(response).to redirect_to(person_path(person))
+    expect(flash[:alert]).to eq("Googleとの通信に失敗しました。時間をおいてもう一度お試しください")
+    expect(google.reload).to have_attributes(person:, google_refresh_token: "refresh-token")
+  end
+
   it "lets an admin unlink another member's Google account" do
     google = create(:user, person:, google_refresh_token: "refresh-token")
     sign_in_as create(:person, roles: %w[admin])

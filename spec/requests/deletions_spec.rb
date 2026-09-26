@@ -152,6 +152,20 @@ RSpec.describe "Deletions" do
       expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
       expect(user.reload.google_refresh_token).to be_nil
     end
+
+    it "returns to the profile with an alert when revoke fails during member deletion" do
+      sign_in_as create(:person, roles: %w[admin])
+      person = create(:person)
+      user = create(:user, person:, google_refresh_token: "refresh-token")
+      allow(GoogleTokenRevoker).to receive(:revoke).and_raise(GoogleTokenRevoker::Error)
+
+      delete person_path(person), headers: { "HTTP_REFERER" => person_url(person) }
+
+      expect(response).to redirect_to(person_path(person))
+      expect(flash[:alert]).to eq("Googleとの通信に失敗しました。時間をおいてもう一度お試しください")
+      expect(person.reload).to be_persisted
+      expect(user.reload.google_refresh_token).to eq("refresh-token")
+    end
   end
 
   describe "DELETE /manage/users/:id" do
@@ -182,6 +196,18 @@ RSpec.describe "Deletions" do
       delete manage_user_path(user)
 
       expect(User.exists?(user.id)).to be(false)
+    end
+
+    it "returns to the account with an alert when revoke fails during account deletion" do
+      sign_in_as create(:person, roles: %w[admin])
+      user = create(:user, provider: "discord", person: create(:person))
+      allow_any_instance_of(User).to receive(:revoke_google_access!).and_raise(GoogleTokenRevoker::Error)
+
+      delete manage_user_path(user), headers: { "HTTP_REFERER" => manage_user_url(user) }
+
+      expect(response).to redirect_to(manage_user_path(user))
+      expect(flash[:alert]).to eq("Googleとの通信に失敗しました。時間をおいてもう一度お試しください")
+      expect(user.reload).to be_persisted
     end
 
     it "answers 404 to a GM" do
