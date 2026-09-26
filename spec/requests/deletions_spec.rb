@@ -117,6 +117,19 @@ RSpec.describe "Deletions" do
       expect(Person.exists?(person.id)).to be(true)
     end
 
+    it "keeps Google access when participation prevents deletion" do
+      sign_in_as create(:person, roles: %w[admin])
+      person = create(:person)
+      user = create(:user, person:, google_refresh_token: "refresh-token")
+      create(:participation, person:)
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      delete person_path(person)
+
+      expect(GoogleTokenRevoker).not_to have_received(:revoke)
+      expect(user.reload.google_refresh_token).to eq("refresh-token")
+    end
+
     it "leaves the accounts of a deleted member unlinked rather than destroyed" do
       sign_in_as create(:person, roles: %w[admin])
       person = create(:person)
@@ -127,12 +140,24 @@ RSpec.describe "Deletions" do
       expect(User.exists?(user.id)).to be(true)
       expect(user.reload.person).to be_nil
     end
+
+    it "revokes a deleted member's Google access" do
+      sign_in_as create(:person, roles: %w[admin])
+      person = create(:person)
+      user = create(:user, person:, google_refresh_token: "refresh-token")
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      delete person_path(person)
+
+      expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+      expect(user.reload.google_refresh_token).to be_nil
+    end
   end
 
   describe "DELETE /manage/users/:id" do
     it "removes an unlinked account for an admin" do
       sign_in_as create(:person, roles: %w[admin])
-      user = create(:user, person: nil)
+      user = create(:user, provider: "discord", person: nil)
 
       delete manage_user_path(user)
 
@@ -152,7 +177,7 @@ RSpec.describe "Deletions" do
 
     it "removes an account linked to another member" do
       sign_in_as create(:person, roles: %w[admin])
-      user = create(:user, person: create(:person))
+      user = create(:user, provider: "discord", person: create(:person))
 
       delete manage_user_path(user)
 
@@ -161,7 +186,7 @@ RSpec.describe "Deletions" do
 
     it "answers 404 to a GM" do
       sign_in_as create(:person, roles: %w[gm])
-      user = create(:user, person: nil)
+      user = create(:user, provider: "discord", person: nil)
 
       delete manage_user_path(user)
 
@@ -223,7 +248,7 @@ RSpec.describe "Deletions" do
     it "is present for an admin on another account" do
       sign_in_as create(:person, roles: %w[admin])
 
-      get manage_user_path(create(:user, person: nil))
+      get manage_user_path(create(:user, provider: "discord", person: nil))
 
       expect(response.body).to include("このアカウントを削除")
     end
@@ -323,7 +348,7 @@ RSpec.describe "Deletions" do
 
     it "is present for an admin on the account list, except on their own row" do
       own = sign_in_as create(:person, roles: %w[admin])
-      other = create(:user, person: nil, email: "other@example.com")
+      other = create(:user, provider: "discord", person: nil, email: "other@example.com")
 
       get manage_users_path
 
