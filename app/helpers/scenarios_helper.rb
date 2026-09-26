@@ -7,6 +7,20 @@ module ScenariosHelper
     options_for_select([ [ t("scenarios.orders.gm"), "" ] ] + choices, listing.order.to_s)
   end
 
+  def player_count_filter_options = { 1 => "1人", 2 => "2人", 3 => "3人", 4 => "4人", 5 => "5人以上" }
+
+  def scenario_filter_chips(listing)
+    chips = []
+    chips << [ player_count_filter_options.fetch(listing.player_count) { |count| "#{count}人" }, listing.params(player_count: nil) ] if listing.player_count
+    listing.game_systems.each do |system|
+      chips << [ system.name, listing.params(game_system_ids: listing.game_systems.without(system).map(&:id).presence) ]
+    end
+    listing.authors.each do |author|
+      chips << [ author.name, listing.params(author_ids: listing.authors.without(author).map(&:id).presence) ]
+    end
+    chips
+  end
+
   # 値が無ければ nil。一覧は空欄に、詳細は「未設定」に落とす。
   def player_count_value(scenario)
     bounded_label(scenario.player_count_min, scenario.player_count_max) { |n| "#{n}人" }

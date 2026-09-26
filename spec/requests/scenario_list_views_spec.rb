@@ -67,12 +67,15 @@ RSpec.describe "The scenario list" do
   end
 
   describe "the heading" do
-    it "names the administrator whose scenarios are listed" do
+    it "keeps the visible title short and names the administrator in the count and the page title" do
       create(:person, display_name: "カーリア", roles: %w[admin])
 
       get root_path
 
-      expect(response.body).to include("カーリアが所持するTRPGシナリオ一覧")
+      page = Capybara.string(response.body)
+      expect(page.find("h1").text.strip).to eq("シナリオ一覧")
+      expect(page.find("title", visible: :all)).to have_text("カーリアが所持するTRPGシナリオ一覧")
+      expect(page).to have_css('[role="status"]', text: "カーリアが所持する全1件")
     end
 
     it "counts the scenarios beside the title" do

@@ -1,65 +1,49 @@
 <% list_title = @owner ? "#{@owner.display_name}が所持するTRPG#{Scenario.model_name.human}一覧" : "#{Scenario.model_name.human}一覧" %>
 <% content_for :title, list_title %>
+<% chips = scenario_filter_chips(@listing) %>
 
-<%= turbo_frame_tag "scenario_list", data: { turbo_action: "advance" } do %>
-  <div class="space-y-6">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <div class="space-y-3">
-        <%= render "shared/ui/page_header", title: list_title %>
-        <p class="text-ui-body text-ui-text-muted" role="status">全<%= @scenarios.size %>件</p>
-      </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <% if policy(Scenario).create? %><%= ui_button_link("新規登録", href: new_scenario_path, data: { turbo_frame: "_top" }) %><% end %>
-        <nav class="flex rounded-ui-control border border-ui-outline-strong bg-ui-field-solid p-1 text-ui-body" aria-label="表示の切り替え">
+<%= turbo_frame_tag "scenario_list", data: { turbo_action: "advance", controller: "frame-focus", action: "turbo:before-fetch-request->frame-focus#remember turbo:frame-render->frame-focus#restore" } do %>
+  <div class="space-y-4" data-controller="dialog" data-dialog-open-value="<%= @listing.author_name_error? %>">
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <%= render "shared/ui/page_header", title: "#{Scenario.model_name.human}一覧" %>
+      <div class="flex items-center gap-2">
+        <% if policy(Scenario).create? %><%= ui_button_link("新規登録", href: new_scenario_path, size: :small, data: { turbo_frame: "_top" }) %><% end %>
+        <nav class="flex rounded-ui-control border border-ui-outline-strong bg-ui-field-solid p-0.5" aria-label="表示の切り替え">
           <% [ [ "table", "表形式" ], [ "gallery", "ジャケット" ] ].each do |view, label| %>
-            <%= link_to label, root_path(@listing.params(view:)), aria: { current: ("page" if @listing.view == view) },
-                  class: "inline-flex min-h-11 items-center rounded-[0.65rem] px-3 font-bold no-underline #{@listing.view == view ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" %>
+            <%= link_to root_path(@listing.params(view:)), title: label, aria: { label:, current: ("page" if @listing.view == view) },
+                  class: "inline-flex size-11 items-center justify-center rounded-[0.65rem] #{@listing.view == view ? 'bg-ui-action text-ui-on-action' : 'text-ui-text hover:bg-ui-subtle'}" do %>
+              <% if view == "table" %>
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
+              <% else %>
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
+              <% end %>
+            <% end %>
           <% end %>
         </nav>
       </div>
     </div>
+    <p class="text-ui-caption text-ui-text-muted" role="status"><%= "#{@owner.display_name}が所持する" if @owner %>全<%= @scenarios.size %>件</p>
 
-    <%= render "shared/ui/filter_panel", title: "絞り込み#{'（適用中）' if @listing.filtered?}" do %>
-      <fieldset>
-        <legend class="text-ui-body font-bold text-ui-text">人数</legend>
-        <div class="mt-2 flex flex-wrap gap-2">
-          <% [ [ 1, "1人" ], [ 2, "2人" ], [ 3, "3人" ], [ 4, "4人" ], [ 5, "5人以上" ] ].each do |count, label| %>
-            <% selected = @listing.player_count == count %>
-            <%= button_to label, root_path, method: :get, params: @listing.params(player_count: (selected ? nil : count)), form: { class: "inline" }, aria: { pressed: selected }, class: "min-h-11 rounded-ui-control border px-3 py-2 text-ui-body font-bold #{selected ? 'border-ui-action bg-ui-action text-ui-on-action' : 'border-ui-outline-strong bg-ui-field-solid text-ui-text hover:bg-ui-subtle'}" %>
-          <% end %>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend class="text-ui-body font-bold text-ui-text"><%= GameSystem.model_name.human %></legend>
-        <div class="mt-2 flex flex-wrap gap-2">
-          <% @listing.game_system_options.each do |game_system| %>
-            <% selected = @listing.game_systems.include?(game_system) %><% ids = selected ? @listing.game_systems.without(game_system).map(&:id) : @listing.game_systems.map(&:id) + [ game_system.id ] %>
-            <%= button_to game_system.name, root_path, method: :get, params: @listing.params(game_system_ids: ids.presence), form: { class: "inline" }, aria: { pressed: selected }, class: "min-h-11 rounded-ui-control border px-3 py-2 text-ui-body font-bold #{selected ? 'border-ui-action bg-ui-action text-ui-on-action' : 'border-ui-outline-strong bg-ui-field-solid text-ui-text hover:bg-ui-subtle'}" %>
-          <% end %>
-        </div>
-      </fieldset>
-      <%= form_with url: root_path, method: :get, data: { controller: "author-filter" }, class: "space-y-2" do |form| %>
-        <% @listing.params(author_ids: nil).each do |key, value| %><% Array(value).each do |item| %><%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %><% end %><% end %>
-        <% @listing.authors.each do |author| %><%= hidden_field_tag "author_ids[]", author.id, id: nil %><% end %>
-        <label class="block text-ui-body font-bold text-ui-text" for="author_name"><%= Author.model_name.human %></label>
-        <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-          <div class="flex min-w-0 flex-wrap gap-2">
-            <% @listing.authors.each do |author| %><span class="inline-flex min-h-11 items-center rounded-full border border-ui-outline-strong bg-ui-subtle pl-3 text-ui-body"><%= author.name %><%= link_to "×", root_path(@listing.params(author_ids: @listing.authors.without(author).map(&:id).presence)), aria: { label: "#{author.name}を解除" }, class: "inline-flex min-h-11 min-w-11 items-center justify-center text-ui-action no-underline" %></span><% end %>
-            <%= text_field_tag :author_name, (@listing.author_name if @listing.author_name_error?), list: "author-suggestions", autocomplete: "off", placeholder: "#{Author.model_name.human}名を入力", aria: { label: "#{Author.model_name.human}を追加", describedby: "author-help#{' author-error' if @listing.author_name_error?}", invalid: ("true" if @listing.author_name_error?) }, data: { action: "change->author-filter#submit" }, class: "min-h-11 min-w-0 flex-1 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text placeholder:text-ui-text-muted aria-invalid:border-ui-error" %>
-          </div>
-          <%= ui_button("追加", variant: :secondary, type: "submit") %>
-        </div>
-        <datalist id="author-suggestions"><% @listing.author_suggestions.each do |name| %><option value="<%= name %>"></option><% end %></datalist>
-        <p id="author-help" class="text-ui-caption text-ui-text-muted">候補から選択して追加します。<%= Author.model_name.human %>は複数選択できます。</p>
-        <% if @listing.author_name_error? %><p id="author-error" role="alert" class="text-ui-caption text-ui-error">候補から<%= Author.model_name.human %>を選択してください。</p><% end %>
+    <div class="flex gap-2">
+      <%= ui_button("絞り込み#{"（#{chips.size}）" if chips.any?}", variant: :secondary, id: "filter-button", data: { action: "dialog#open" }, aria: { haspopup: "dialog" }) %>
+      <%= form_with url: root_path, method: :get, class: "flex min-w-0 flex-1 gap-2 sm:max-w-xs", data: { controller: "auto-submit" } do %>
+        <% @listing.params(order: nil).each do |key, value| %><% Array(value).each do |item| %><%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %><% end %><% end %>
+        <%= label_tag :order, "並び順", class: "sr-only" %><%= select_tag :order, scenario_order_options(@listing), data: { action: "change->auto-submit#submit" }, class: "min-h-11 w-full min-w-0 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text" %>
+        <noscript><%= ui_button("並べ替える", size: :small, type: "submit") %></noscript>
       <% end %>
+    </div>
+
+    <% if chips.any? %>
+      <ul class="flex flex-wrap gap-2" aria-label="適用中の条件" data-return-focus="filter-button">
+        <% chips.each do |label, params| %>
+          <li class="inline-flex min-h-11 items-center rounded-full border border-ui-outline-strong bg-ui-subtle pl-3"><%= label %><%= link_to "×", root_path(params), aria: { label: "#{label}を解除" }, class: "inline-flex min-h-11 min-w-11 items-center justify-center text-ui-action no-underline" %></li>
+        <% end %>
+      </ul>
     <% end %>
 
+    <%= render "scenarios/filter_dialog" %>
+
     <% if @scenarios.any? %>
-      <%= form_with url: root_path, method: :get, class: "grid gap-2 sm:grid-cols-[auto_auto_auto] sm:items-center sm:justify-end" do |form| %>
-        <% @listing.params(order: nil).each do |key, value| %><% Array(value).each do |item| %><%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %><% end %><% end %>
-        <%= label_tag :order, "並び順", class: "text-ui-body font-bold text-ui-text" %><%= select_tag :order, scenario_order_options(@listing), class: "min-h-11 min-w-0 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text" %><%= ui_button("並べ替える", size: :small, type: "submit") %>
-      <% end %>
       <%= render "scenarios/#{@listing.view}", scenarios: @scenarios %>
     <% else %>
       <%= render "shared/ui/empty_state", title: (@listing.filtered? ? "条件に合う#{Scenario.model_name.human}がありません。" : "まだ#{Scenario.model_name.human}が登録されていません。") %>
