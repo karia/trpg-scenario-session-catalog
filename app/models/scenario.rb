@@ -70,10 +70,6 @@ class Scenario < ApplicationRecord
 
   def sub_game_master_label = "サブ#{game_master_label}"
 
-  def status_for(person)
-    scenario_statuses.find { |status| status.person_id == person&.id }
-  end
-
   validates :title, presence: true
   validates :jacket,
     content_type: { in: [ :png, :jpeg, :webp ], spoofing_protection: true },

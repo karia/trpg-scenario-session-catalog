@@ -23,7 +23,7 @@ export default class extends Controller {
 
   bubble(message) {
     const element = document.createElement("div")
-    element.className = "rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-4 py-3 text-sm text-ui-text shadow-ui-surface"
+    element.className = "rounded-ui-control border border-ui-outline-strong bg-ui-surface-solid px-4 py-3 text-ui-body text-ui-text shadow-ui-surface"
     element.textContent = message
     return element
   }

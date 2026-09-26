@@ -1,5 +1,5 @@
 <fieldset class="rounded-ui-control border border-ui-outline p-4">
-  <legend class="px-2 text-sm font-bold text-ui-text">日程 <%= schedule_form.index.to_i + 1 %></legend>
+  <legend class="px-2 text-ui-body font-bold text-ui-text">日程 <%= schedule_form.index.to_i + 1 %></legend>
   <div class="grid min-w-0 gap-4 md:grid-cols-2">
     <%= ui_field(schedule_form, :scheduled_on, label: "開催日") do |field| %><%= ui_input(schedule_form, :scheduled_on, type: :date, described_by: field[:described_by]) %><% end %>
     <%= ui_field(schedule_form, :started_at, label: "開始時刻", description: "未定なら空欄にします。") do |field| %><%= ui_input(schedule_form, :started_at, type: :time, described_by: field[:described_by]) %><% end %>

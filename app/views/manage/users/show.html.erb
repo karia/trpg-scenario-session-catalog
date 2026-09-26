@@ -7,7 +7,7 @@
       <% if policy(@user).destroy? %><%= form_with url: manage_user_path(@user), method: :delete, data: { turbo_confirm: "#{@user.email.presence || @user.provider_name} を削除しますか" } do %><%= ui_button("この#{User.model_name.human}を削除", variant: :danger, size: :small, type: "submit") %><% end %>
       <% elsif policy(@user).offer_destroy? %><%= ui_button("ログイン中の#{User.model_name.human}は削除できません", variant: :secondary, size: :small, disabled: true) %><% end %></div>
   </div>
-  <dl class="grid gap-x-5 gap-y-3 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
+  <dl class="grid gap-x-5 gap-y-3 rounded-ui-card border border-ui-outline bg-ui-surface-solid p-5 text-ui-body sm:grid-cols-[8rem_minmax(0,1fr)]">
     <dt class="text-ui-text-muted">ログイン方法</dt><dd><%= @user.provider_name %></dd>
     <dt class="text-ui-text-muted">表示名</dt><dd><%= @user.name.presence || "不明" %></dd>
     <dt class="text-ui-text-muted">初回ログイン</dt><dd><%= l @user.created_at, format: :short %></dd>

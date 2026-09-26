@@ -12,7 +12,7 @@
   <%= render "shared/ui/card" do %><dl class="grid gap-3 p-5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:p-6"><dt class="font-bold text-ui-text-muted">DiscordサーバーID</dt><dd class="break-all font-mono"><%= @record.discord_guild_id.presence || "未設定" %></dd></dl><% end %>
 
   <section class="space-y-3">
-    <h2 class="font-display text-xl font-bold"><%= Person.model_name.human %></h2>
+    <h2 class="font-display text-ui-heading font-bold"><%= Person.model_name.human %></h2>
     <% if @record.people.any? %>
       <%= render "shared/ui/card" do %><ul class="divide-y divide-ui-outline"><% @record.people.order(:display_name).each do |person| %><li><%= link_to person.display_name, person_path(person), class: "flex min-h-11 items-center break-words px-4 py-3 font-bold text-ui-action sm:px-5" %></li><% end %></ul><% end %>
     <% else %>

@@ -9,7 +9,7 @@
   <header class="flex flex-wrap items-start justify-between gap-4">
     <div class="min-w-0">
       <%= render "shared/ui/page_header", title: @play_session.scenario.title %>
-      <p class="mt-2"><%= link_to "#{Scenario.model_name.human}詳細を見る", scenario_path(@play_session.scenario), class: "inline-flex min-h-11 items-center text-sm font-bold text-ui-action" %></p>
+      <p class="mt-2"><%= link_to "#{Scenario.model_name.human}詳細を見る", scenario_path(@play_session.scenario), class: "inline-flex min-h-11 items-center text-ui-body font-bold text-ui-action" %></p>
     </div>
     <div class="flex flex-wrap gap-2">
       <% if policy(@play_session).update? %><%= ui_button_link("編集", href: edit_play_session_path(@play_session), variant: :secondary, size: :small) %><% end %>
@@ -22,10 +22,10 @@
   </header>
 
   <section aria-labelledby="schedule-heading">
-    <h2 id="schedule-heading" class="font-display text-xl font-bold">日時と録画</h2>
+    <h2 id="schedule-heading" class="font-display text-ui-heading font-bold">日時と録画</h2>
     <div class="mt-4 grid gap-4 md:grid-cols-2">
       <% if @play_session.session_schedules.empty? %>
-        <%= render "shared/ui/card" do %><p class="p-5 text-sm text-ui-text-muted">日程未定（<%= play_session_status_label(@play_session) %>）</p><% end %>
+        <%= render "shared/ui/card" do %><p class="p-5 text-ui-body text-ui-text-muted">日程未定（<%= play_session_status_label(@play_session) %>）</p><% end %>
       <% end %>
       <% @play_session.session_schedules.each_with_index do |schedule, index| %>
         <%= render "shared/ui/card" do %>
@@ -43,14 +43,14 @@
     </div>
     <% if @play_session.cocofolia_url.present? && policy(@play_session).show_cocofolia_url? %>
       <div class="mt-4 rounded-ui-control border border-ui-outline bg-ui-surface-solid p-4">
-        <p class="text-sm font-bold text-ui-text-muted">ココフォリア</p>
-        <%= link_to @play_session.cocofolia_url, @play_session.cocofolia_url, target: "_blank", rel: "noopener", class: "mt-1 block text-sm text-ui-action" %>
+        <p class="text-ui-body font-bold text-ui-text-muted">ココフォリア</p>
+        <%= link_to @play_session.cocofolia_url, @play_session.cocofolia_url, target: "_blank", rel: "noopener", class: "mt-1 block text-ui-body text-ui-action" %>
       </div>
     <% end %>
   </section>
 
   <section aria-labelledby="participants-heading">
-    <h2 id="participants-heading" class="font-display text-xl font-bold">参加者</h2>
+    <h2 id="participants-heading" class="font-display text-ui-heading font-bold">参加者</h2>
     <% if @play_session.participations.any? %>
       <ul class="mt-4 grid gap-3 md:grid-cols-2">
         <% @play_session.participations.each do |participation| %>
@@ -59,7 +59,7 @@
               <span class="text-ui-caption font-bold text-ui-text-muted"><%= participation_role_label(participation) %></span>
               <div class="min-w-0">
                 <p class="font-bold"><%= participation.person.display_name %></p>
-                <% if participation.character_name.present? %><p class="mt-1 text-sm text-ui-text-muted"><%= participation.character_name %></p><% end %>
+                <% if participation.character_name.present? %><p class="mt-1 text-ui-body text-ui-text-muted"><%= participation.character_name %></p><% end %>
                 <% if participation.character_sheet_url.present? %><%= link_to participation.character_sheet_url, participation.character_sheet_url, target: "_blank", rel: "noopener", class: "mt-2 block text-ui-caption text-ui-action" %><% end %>
               </div>
             </div>
@@ -72,6 +72,6 @@
   </section>
 
   <% if @play_session.note.present? %>
-    <section aria-labelledby="note-heading"><h2 id="note-heading" class="font-display text-xl font-bold">メモ</h2><p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@play_session.note) %></p></section>
+    <section aria-labelledby="note-heading"><h2 id="note-heading" class="font-display text-ui-heading font-bold">メモ</h2><p class="mt-3 whitespace-pre-line leading-relaxed"><%= auto_link_urls(@play_session.note) %></p></section>
   <% end %>
 </article>

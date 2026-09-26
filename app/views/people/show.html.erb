@@ -22,7 +22,7 @@
 
   <% if @person.visible_aliases.any? %>
     <section class="space-y-3" aria-labelledby="aliases-heading">
-      <h2 id="aliases-heading" class="font-display text-xl font-bold">別名</h2>
+      <h2 id="aliases-heading" class="font-display text-ui-heading font-bold">別名</h2>
       <ul class="divide-y divide-ui-outline rounded-ui-card border border-ui-outline bg-ui-surface-solid">
         <% @person.visible_aliases.each do |person_alias| %><li class="grid gap-1 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]"><span class="font-bold"><%= person_alias.name %></span><span class="text-ui-caption text-ui-text-muted"><%= person_alias.context %></span></li><% end %>
       </ul>
@@ -30,7 +30,7 @@
   <% end %>
 
   <section class="space-y-3" aria-labelledby="favorites-heading">
-    <h2 id="favorites-heading" class="font-display text-xl font-bold">お気に入り<%= Scenario.model_name.human %></h2>
+    <h2 id="favorites-heading" class="font-display text-ui-heading font-bold">お気に入り<%= Scenario.model_name.human %></h2>
     <% favorites = @person.favorite_scenarios.order(:title) %>
     <% if favorites.any? %>
       <ul class="grid gap-3 sm:grid-cols-2"><% favorites.each do |scenario| %><li><%= render "shared/ui/card" do %><%= link_to scenario.title, scenario_path(scenario), class: "flex min-h-11 items-center p-4 font-bold text-ui-action" %><% end %></li><% end %></ul>

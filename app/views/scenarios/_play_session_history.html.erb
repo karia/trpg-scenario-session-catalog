@@ -2,8 +2,8 @@
 <% sessions = policy_scope(PlaySession).where(scenario: scenario).includes(participations: :person).newest_first %>
 <% if sessions.any? %>
   <section class="mt-10">
-    <h2 class="font-display text-xl font-bold"><%= PlaySession.model_name.human %>履歴</h2>
-    <ul class="mt-4 divide-y divide-ui-outline overflow-hidden rounded-ui-card border border-ui-outline bg-ui-surface-solid text-sm">
+    <h2 class="font-display text-ui-heading font-bold"><%= PlaySession.model_name.human %>履歴</h2>
+    <ul class="mt-4 divide-y divide-ui-outline overflow-hidden rounded-ui-card border border-ui-outline bg-ui-surface-solid text-ui-body">
       <% sessions.each do |session| %>
         <li>
           <%= link_to play_session_path(session), class: "flex min-h-11 flex-wrap items-baseline gap-x-4 gap-y-1 p-4 no-underline text-ui-text hover:bg-ui-subtle" do %>

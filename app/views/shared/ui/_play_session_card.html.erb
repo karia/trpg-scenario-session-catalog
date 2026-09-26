@@ -5,7 +5,7 @@
         <%= render "shared/ui/badge", label: play_session_status_label(play_session), variant: :accent %>
         <span class="text-ui-caption text-ui-text-muted"><%= play_session_schedule(play_session) %></span>
       </div>
-      <h2 class="font-display text-lg font-bold leading-snug text-ui-text"><%= play_session.scenario.title %></h2>
+      <h2 class="font-display text-ui-title font-bold text-ui-text"><%= play_session.scenario.title %></h2>
       <p class="text-ui-caption text-ui-text-muted"><%= play_session.participations.map { |participation| "#{participation_role_label(participation)}: #{participation.person.display_name}" }.join("、") %></p>
     <% end %>
     <% if policy(play_session).update? || policy(play_session).destroy? %>

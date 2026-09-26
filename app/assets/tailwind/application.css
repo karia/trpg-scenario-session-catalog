@@ -41,8 +41,18 @@
   --radius-ui-surface: 1.875rem;
   --radius-ui-card: 1.625rem;
   --radius-ui-control: 0.875rem;
+  --text-ui-page: 1.5rem;
+  --text-ui-page--line-height: 2rem;
+  --text-ui-heading: 1.25rem;
+  --text-ui-heading--line-height: 1.75rem;
+  --text-ui-title: 1.0625rem;
+  --text-ui-title--line-height: 1.5rem;
+  --text-ui-body: 0.9375rem;
+  --text-ui-body--line-height: 1.375rem;
   --text-ui-caption: 0.8125rem;
   --text-ui-caption--line-height: 1.25rem;
+  --text-ui-input: 1rem;
+  --text-ui-input--line-height: 1.5rem;
   --blur-ui-surface: 20px;
   --blur-ui-header: 18px;
   --shadow-ui-surface: 0 1.5rem 4rem rgb(0 0 0 / 35%);
@@ -67,6 +77,8 @@
     background-color: var(--color-ui-background);
     color: var(--color-ui-text);
     font-family: var(--font-sans);
+    font-size: var(--text-ui-body);
+    line-height: var(--text-ui-body--line-height);
   }
 
   a {

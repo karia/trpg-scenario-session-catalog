@@ -1,5 +1,5 @@
 <fieldset class="rounded-ui-control border border-ui-outline p-4">
-  <legend class="px-2 text-sm font-bold text-ui-text">参加者 <%= row.index.to_i + 1 %></legend>
+  <legend class="px-2 text-ui-body font-bold text-ui-text">参加者 <%= row.index.to_i + 1 %></legend>
   <div class="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(10rem,1fr)_minmax(8rem,0.7fr)_minmax(10rem,1fr)_minmax(14rem,1.3fr)_auto] xl:items-end">
     <%= ui_field(row, :person_id, label: "名前") do |field| %>
       <%= ui_select(row, :person_id, people_for_select.map { |person| [ person.display_name, person.id ] },
