@@ -78,7 +78,7 @@ RSpec.describe "Cross-screen audit" do
 
   before do
     skip "Chrome is required for the cross-screen audit" unless ENV["CHROME_BINARY"].present?
-    discord_client = instance_double(DiscordGuildMemberClient, guild_members: [
+    discord_client = instance_double(DiscordGuildMemberClient, member?: nil, guild_members: [
       { "id" => "23456789012345678#{9}", "display_name" => "監査用ニックネーム", "username" => "audit-user" }
     ])
     allow(DiscordGuildMemberClient).to receive(:new).and_return(discord_client)
