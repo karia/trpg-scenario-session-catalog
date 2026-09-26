@@ -13,5 +13,7 @@ class GoogleTokenRevoker
     http.read_timeout = 5
     response = http.request(request)
     raise Error, "Google token revoke failed: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+  rescue Timeout::Error, SocketError, SystemCallError, IOError, OpenSSL::SSL::SSLError => error
+    raise Error, "Google token revoke failed", cause: error
   end
 end

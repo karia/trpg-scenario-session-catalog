@@ -25,4 +25,11 @@ RSpec.describe GoogleTokenRevoker do
 
     expect { described_class.revoke("bad-token") }.to raise_error(described_class::Error)
   end
+
+  it "wraps connection failures" do
+    allow_any_instance_of(Net::HTTP).to receive(:request).and_raise(Errno::ECONNREFUSED)
+
+    expect { described_class.revoke("refresh-token") }
+      .to raise_error(described_class::Error, "Google token revoke failed")
+  end
 end
