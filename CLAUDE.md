@@ -11,8 +11,10 @@
 | 管理者専用エリア | `app/controllers/manage/` | グループ、ユーザー、サイト全体設定だけを置く |
 | 認可 | `app/policies/` | 判断はすべてここ。ビューやコントローラに条件を散らさない |
 
-認証は Google と Discord。`User` は各 provider のアカウント、`Person` は人物で、provider ごとに 1 対 1 で紐づく。
-紐づいていない `User` は「ログイン済みだが公開エリアしか見えない」通常の状態。
+ログイン手段は Discord だけ。Google は、ログイン済みの本人がプロフィールから連携する。
+`User` は各 provider のアカウント、`Person` は人物で、provider ごとに 1 対 1 で紐づく。
+紐づいていない Discord の `User` は「ログイン済みだが公開エリアしか見えない」通常の状態。
+Google の refresh token と scope は `users` に暗号化して保存し、Google 連携の解除、権限の喪失、`User` または `Person` の削除時に Google 側の許可も取り消す。
 
 ## よく使う手順
 
