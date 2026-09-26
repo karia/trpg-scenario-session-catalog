@@ -42,8 +42,13 @@ RSpec.describe "UI design tokens" do
     expect(base).to include("font-size: var(--text-ui-body);", "line-height: var(--text-ui-body--line-height);")
   end
 
-  it "leaves no Tailwind text size in the templates" do
+  it "leaves no Tailwind or arbitrary text size in the templates" do
     expect(template_lines_matching(/\btext-(xs|sm|base|lg|\d?xl)\b/)).to be_empty
+    expect(template_lines_matching(/\btext-\[\d/)).to be_empty
+  end
+
+  it "keeps each element on one step at every width" do
+    expect(template_lines_matching(/\b\w+:text-ui-(page|heading|title|body|caption|input)\b/)).to be_empty
   end
 
   it "leaves line heights to the scale except for long prose" do
