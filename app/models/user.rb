@@ -7,6 +7,8 @@ class User < ApplicationRecord
 
   belongs_to :person, optional: true
 
+  encrypts :google_refresh_token, :google_scopes
+
   validates :provider, inclusion: { in: PROVIDERS.keys }
   validates :uid, presence: true, uniqueness: { scope: :provider }
   validates :person_id, uniqueness: { scope: :provider }, allow_nil: true
