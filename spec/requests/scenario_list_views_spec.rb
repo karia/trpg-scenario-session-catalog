@@ -28,22 +28,19 @@ RSpec.describe "The scenario list" do
       expect(response.body).to include("見本シナリオ", "見本作者", "見本システム", "3人", "6時間〜8時間")
     end
 
-    it "links the title to the scenario and the purchase label to the shop" do
+    it "links the title to the scenario and leaves the shops to the scenario page" do
       get root_path
 
       expect(response.body).to include(scenario_path(scenario))
-      expect(response.body).to include("https://example.com/items/1")
+      expect(response.body).not_to include("https://example.com/items/1", "入手先")
     end
 
-    it "separates purchase links and presents edit and delete as paired buttons" do
-      scenario.purchase_links.create!(label: "TALTO", url: "https://example.com/items/2")
+    it "presents edit and delete as paired buttons" do
       sign_in_as create(:person, roles: %w[admin])
 
       get root_path
 
       page = Capybara.string(response.body)
-      expect(page).to have_css("td div.gap-x-2 a", text: "BOOTH")
-      expect(page).to have_css("td div.gap-x-2 a", text: "TALTO")
       expect(page).to have_css(%(a[href="#{edit_scenario_path(scenario)}"].bg-ui-surface-solid), text: "編集")
       expect(page).to have_button("削除")
     end
@@ -104,7 +101,9 @@ RSpec.describe "The scenario list" do
       get root_path
 
       page = Capybara.string(response.body)
-      expect(page).to have_css("ul.lg\\:hidden dl", visible: :all)
+      card = page.find("ul.lg\\:hidden li", text: "見本シナリオ", visible: :all)
+      expect(card).to have_text("見本作者")
+      expect(card).to have_no_css(".aspect-3\\/4", visible: :all)
       expect(page).to have_css("table", visible: :all)
 
       get root_path(view: "gallery")
@@ -208,34 +207,14 @@ RSpec.describe "The scenario list" do
   describe "scenario status" do
     let!(:admin) { create(:person, roles: %w[admin]) }
 
-    it "uses each scenario's game master label for GM experience" do
-      scenario.game_systems.first.update!(game_master_label: "DL")
+    it "stays off the list" do
       create(:scenario_status, person: admin, scenario:, gm_experienced: true)
 
       get root_path
 
-      expect(Capybara.string(response.body).find("tr", text: scenario.title)).to have_text("DL経験あり")
-    end
-
-    it "shows only the administrator's highest-priority label" do
-      create(:scenario_status, person: admin, scenario:, pl_experienced: true, read: true)
-      other = create(:person, roles: %w[gm])
-      create(:scenario_status, person: other, scenario:, gm_experienced: true)
-
-      get root_path
-
       page = Capybara.string(response.body)
-      expect(page).to have_css("th", text: "ステータス")
-      expect(page.find("tr", text: scenario.title)).to have_text("PL経験あり")
-      expect(page.find("tr", text: scenario.title)).to have_no_text(/GM経験あり|シナリオ既読/)
-    end
-
-    it "falls back to ownership when the administrator has no positive status" do
-      create(:scenario_status, person: admin, scenario:)
-
-      get root_path
-
-      expect(Capybara.string(response.body).find("tr", text: scenario.title)).to have_text("シナリオ所持")
+      expect(page).to have_no_css("th", text: "ステータス")
+      expect(page).to have_no_text(/経験あり|シナリオ所持/)
     end
 
     it "offers yes and no radio buttons for all three values on the edit screen" do
