@@ -43,6 +43,41 @@ RSpec.describe Person do
 
       expect(person.person_roles.build(name: "gm")).not_to be_valid
     end
+
+    it "revokes Google access after losing both privileged roles" do
+      create(:person, roles: %w[admin])
+      person = create(:person, roles: %w[admin gm])
+      user = create(:user, person:, google_refresh_token: "refresh-token")
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      person.update!(roles: [])
+
+      expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+      expect(user.reload.google_refresh_token).to be_nil
+    end
+
+    it "keeps Google access while either privileged role remains" do
+      create(:person, roles: %w[admin])
+      person = create(:person, roles: %w[admin gm])
+      user = create(:user, person:, google_refresh_token: "refresh-token")
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      person.update!(roles: %w[gm])
+
+      expect(GoogleTokenRevoker).not_to have_received(:revoke)
+      expect(user.reload.google_refresh_token).to eq("refresh-token")
+    end
+  end
+
+  it "revokes Google access when destroyed" do
+    person = create(:person)
+    user = create(:user, person:, google_refresh_token: "refresh-token")
+    allow(GoogleTokenRevoker).to receive(:revoke)
+
+    person.destroy!
+
+    expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+    expect(user.reload).to have_attributes(person: nil, google_refresh_token: nil)
   end
 
   describe "groups" do
