@@ -11,7 +11,7 @@ module ScenariosHelper
 
   def scenario_filter_chips(listing)
     chips = []
-    chips << [ player_count_filter_options.fetch(listing.player_count) { |count| "#{count}人" }, listing.params(player_count: nil) ] if listing.player_count
+    chips << [ player_count_filter_options.fetch(listing.player_count), listing.params(player_count: nil) ] if listing.player_count
     listing.game_systems.each do |system|
       chips << [ system.name, listing.params(game_system_ids: listing.game_systems.without(system).map(&:id).presence) ]
     end

@@ -208,11 +208,13 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect_order("最後の見本", "なかほど")
     end
 
-    it "names a party size outside the menu in its chip" do
+    it "treats a party size beyond the menu as five or more" do
       get root_path(player_count: 7)
 
-      expect(response).to have_http_status(:ok)
-      expect(Capybara.string(response.body)).to have_css('a[aria-label="7人を解除"]')
+      document = Capybara.string(response.body)
+      expect(document).to have_css('a[aria-label="5人以上を解除"]')
+      expect(document.find("dialog", visible: :all)).to have_field("5人以上", checked: true, visible: :all)
+      expect(response.body).to include("最後の見本")
     end
 
     it "ignores an author who does not exist" do
