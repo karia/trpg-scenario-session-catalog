@@ -23,7 +23,7 @@ RSpec.describe "Third party tags" do
 
   it "renders neither once a visitor signs in, even before they are linked" do
     SiteSetting.current.update!(google_analytics_measurement_id: "G-TEST123")
-    sign_in_as create(:user, person: nil)
+    sign_in_as create(:user, provider: "discord", person: nil)
 
     get root_path
 

@@ -10,13 +10,13 @@ RSpec.describe "Responsive master management screens" do
     author.aliases.create!(name: "公開される作者の別名", visible: true)
     game_system = create(:game_system, name: "狭い画面でも折り返して表示できる長いゲームシステム名")
     group = create(:group, name: "狭い画面でも折り返して表示できる長いグループ名", people: [ member ])
-    user = create(:user, person: admin)
+    user = create(:user, provider: "discord", person: admin)
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
 
-    sign_in_with_google
+    sign_in_with_discord
     expect(page).to have_link(admin.display_name, href: person_path(admin))
 
     paths = [
@@ -36,7 +36,7 @@ RSpec.describe "Responsive master management screens" do
       save_screenshot("master-management-#{width}.png") if ENV["VISUAL_REVIEW"]
     end
   ensure
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 end

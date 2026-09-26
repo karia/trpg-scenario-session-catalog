@@ -126,6 +126,21 @@ RSpec.describe "Authorization matrix" do
     end
   end
 
+  describe GoogleAccountPolicy do
+    it "lets only the member link their own Google account" do
+      expect(allows?(no_role, described_class, no_role, :link?)).to be(true)
+      expect(allows?(admin, described_class, no_role, :link?)).to be(false)
+      expect(allows?(anonymous, described_class, no_role, :link?)).to be_falsey
+    end
+
+    it "lets the member or an admin unlink a Google account" do
+      expect(allows?(no_role, described_class, no_role, :unlink?)).to be(true)
+      expect(allows?(admin, described_class, no_role, :unlink?)).to be(true)
+      expect(allows?(gm, described_class, no_role, :unlink?)).to be(false)
+      expect(allows?(anonymous, described_class, no_role, :unlink?)).to be_falsey
+    end
+  end
+
   describe "the manage entry points" do
     it "are editor-only, even though the public index? is wider" do
       expect(allows?(no_role, ScenarioPolicy, Scenario.new, :index?)).to be(true)
@@ -156,6 +171,13 @@ RSpec.describe "Authorization matrix" do
 
       expect(GroupPolicy::Scope.new(gm, Group).resolve).to be_empty
       expect(UserPolicy::Scope.new(gm, User).resolve).to be_empty
+    end
+
+    it "returns only Discord accounts to an admin" do
+      discord = create(:user, provider: "discord")
+      create(:user, provider: "google_oauth2")
+
+      expect(UserPolicy::Scope.new(admin, User).resolve).to contain_exactly(discord)
     end
 
     it "returns the member list to any signed-in member but not to a visitor" do

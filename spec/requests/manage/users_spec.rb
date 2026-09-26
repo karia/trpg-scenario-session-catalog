@@ -46,14 +46,14 @@ RSpec.describe "Manage::Users" do
   end
 
   describe "changing the link of another account" do
-    it "does not warn when the account is a different provider of your own person" do
+    it "does not expose a Google account" do
       sign_in_as create(:user, provider: "discord", uid: "1", person: admin)
       google_user = create(:user, provider: "google_oauth2", uid: "2", person: admin)
 
       patch manage_user_path(google_user), params: { user: { person_id: "" } }
 
-      expect(response).to redirect_to(manage_user_path(google_user))
-      expect(google_user.reload.person).to be_nil
+      expect(response).to have_http_status(:not_found)
+      expect(google_user.reload.person).to eq(admin)
     end
 
     it "does not warn when the account belongs to someone else" do

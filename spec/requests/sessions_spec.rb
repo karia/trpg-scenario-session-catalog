@@ -6,11 +6,6 @@ RSpec.describe "Sessions" do
   before do
     allow(DiscordGuildMemberClient).to receive(:new).and_return(discord_client)
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2",
-      uid: "10000001",
-      info: { email: "karia@example.com", name: "カーリア" }
-    )
     OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
       provider: "discord",
       uid: "23456789012345678#{9}",
@@ -20,15 +15,10 @@ RSpec.describe "Sessions" do
   end
 
   after do
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
     OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 
-  def sign_in(origin: nil)
-    post "/auth/google_oauth2", params: { origin: }.compact
-    follow_redirect!
-  end
   def sign_in_with_discord(origin: nil)
     post "/auth/discord", params: { origin: }.compact
     follow_redirect!
@@ -36,13 +26,13 @@ RSpec.describe "Sessions" do
 
   describe "signing in" do
     it "refuses to start the flow over GET, so another site cannot trigger it" do
-      get "/auth/google_oauth2"
+      get "/auth/discord"
 
       expect(response).to have_http_status(:not_found)
     end
 
     it "creates an account that is not linked to a person yet" do
-      expect { sign_in }.to change(User, :count).by(1)
+      expect { sign_in_with_discord }.to change(User, :count).by(1)
 
       expect(User.sole.person).to be_nil
       expect(response).to redirect_to(root_path)
@@ -117,28 +107,28 @@ RSpec.describe "Sessions" do
     end
 
     it "returns to the URL where sign-in started" do
-      sign_in(origin: scenario_path(create(:scenario), view: "cards"))
+      sign_in_with_discord(origin: scenario_path(create(:scenario), view: "cards"))
 
       expect(response).to redirect_to(%r{/scenarios/\d+\?view=cards\z})
     end
 
     it "does not redirect to another host" do
-      sign_in(origin: "https://example.com/phishing")
+      sign_in_with_discord(origin: "https://example.com/phishing")
 
       expect(response).to redirect_to(root_path)
     end
 
     it "signs the same account in again without creating another" do
-      sign_in
+      sign_in_with_discord
       delete session_path
 
-      expect { sign_in }.not_to change(User, :count)
+      expect { sign_in_with_discord }.not_to change(User, :count)
     end
 
     it "sends a provider failure to the failure page rather than raising" do
-      OmniAuth.config.mock_auth[:google_oauth2] = :invalid_credentials
+      OmniAuth.config.mock_auth[:discord] = :invalid_credentials
 
-      post "/auth/google_oauth2"
+      post "/auth/discord"
       follow_redirect!
 
       expect(response).to redirect_to(root_path)
@@ -156,7 +146,7 @@ RSpec.describe "Sessions" do
 
       expect(before).to be_present
 
-      sign_in
+      sign_in_with_discord
 
       expect(session[:_csrf_token]).not_to eq(before)
       expect(session[:user_id]).to eq(User.sole.id)
@@ -173,7 +163,7 @@ RSpec.describe "Sessions" do
 
   describe "signing out" do
     it "clears the session" do
-      sign_in
+      sign_in_with_discord
 
       delete session_path
 

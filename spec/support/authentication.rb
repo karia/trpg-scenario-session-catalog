@@ -1,6 +1,10 @@
 module AuthenticationHelpers
   def sign_in_as(person_or_user)
-    user = person_or_user.is_a?(Person) ? create(:user, person: person_or_user) : person_or_user
+    user = if person_or_user.is_a?(Person)
+      create(:user, provider: "discord", uid: format("9%017d", person_or_user.id), person: person_or_user)
+    else
+      person_or_user
+    end
 
     OmniAuth.config.test_mode = true
     OmniAuth.config.mock_auth[user.provider.to_sym] = OmniAuth::AuthHash.new(
@@ -13,10 +17,9 @@ module AuthenticationHelpers
 end
 
 module SystemAuthenticationHelpers
-  # ヘッダーに出すのは Discord だけになったため、Google は新規登録ページから開始する。
-  def sign_in_with_google
-    visit new_registration_path
-    click_button "Google でログイン"
+  def sign_in_with_discord
+    visit root_path
+    click_button "Discordでログイン"
     # click_button は遷移の完了を待たない。DOM で待つと認証のリダイレクト途中の
     # 差し替えに当たり、Selenium が stale node で落ちる。URL で着地を待つ。
     expect(page).to have_current_path(root_path, wait: 10)

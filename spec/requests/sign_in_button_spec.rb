@@ -10,12 +10,12 @@ RSpec.describe "The sign-in button" do
     expect(Capybara.string(response.body)).to have_button("Discordでログイン")
   end
 
-  # Turbo はフォーム送信を fetch に置き換えるため、Google への cross-origin リダイレクトを
+  # Turbo はフォーム送信を fetch に置き換えるため、Discord への cross-origin リダイレクトを
   # 追えず、押しても何も起きなくなる。ブラウザに素の送信をさせる必要がある。
   it "opts out of Turbo so the browser follows the redirect to Google" do
     get new_registration_path
 
-    form = response.body[%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m]
+    form = response.body[%r{<form[^>]*action="/auth/discord".*?</form>}m]
 
     expect(form).to be_present
     # form 側に置く。submitter 側でも Turbo 8 は見るが、バージョン差の影響を受けない。
@@ -27,7 +27,7 @@ RSpec.describe "The sign-in button" do
   it "submits over POST, so another site cannot start the flow with a link" do
     get new_registration_path
 
-    form = response.body[%r{<form[^>]*action="/auth/google_oauth2"[^>]*>}]
+    form = response.body[%r{<form[^>]*action="/auth/discord"[^>]*>}]
 
     expect(form).to include('method="post"')
   end
@@ -42,15 +42,17 @@ RSpec.describe "The sign-in button" do
 
     get new_registration_path(origin: "/?order=title_desc")
 
-    google = response.body[%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m]
+    discord = response.body.scan(%r{<form[^>]*action="/auth/discord".*?</form>}m)
+      .find { |form| form.include?("Discord でログイン") }
 
-    expect(google).to include(%(value="/?order=title_desc"))
+    expect(discord).to include(%(value="/?order=title_desc"))
   end
 
   it "ignores an origin that points off-site" do
     get new_registration_path(origin: "//evil.example.com/")
 
-    form = response.body[%r{<form[^>]*action="/auth/google_oauth2".*?</form>}m]
+    form = response.body.scan(%r{<form[^>]*action="/auth/discord".*?</form>}m)
+      .find { |candidate| candidate.include?("Discord でログイン") }
 
     expect(form).to include(%(value="#{root_path}"))
     expect(form).not_to include("evil.example.com")
@@ -67,7 +69,7 @@ RSpec.describe "The sign-in button" do
   end
 
   it "is not shown once signed in" do
-    sign_in_as create(:user, person: nil)
+    sign_in_as create(:user, provider: "discord", person: nil)
 
     get root_path
 

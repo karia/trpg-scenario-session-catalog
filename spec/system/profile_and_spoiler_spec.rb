@@ -5,13 +5,13 @@ RSpec.describe "A member's own pages" do
     person = create(:person, display_name: "本人")
     person.person_aliases.create!(name: "古い別名", context: "とあるサーバ")
     scenario = create(:scenario, title: "見本シナリオ", preparation_note: "ネタバレを含む準備情報")
-    user = create(:user, person: person)
+    user = create(:user, provider: "discord", person: person)
 
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
-    sign_in_with_google
+    sign_in_with_discord
     visit edit_person_path(person)
     fill_in "person[x_account]", with: "karia"
     # 既存の別名の行が出ていること自体も確かめる。

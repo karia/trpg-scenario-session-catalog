@@ -86,7 +86,7 @@ RSpec.describe "Cross-screen audit" do
   end
 
   after do
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 
@@ -293,17 +293,17 @@ RSpec.describe "Cross-screen audit" do
         play_session:,
         group: create(:group, name: "折り返しを確かめるための長いグループ名",
           discord_guild_id: "12345678901234567#{8}", people: [ member ]),
-        user: create(:user, person: member, email: "audited-account@example.com"),
-        admin_user: create(:user, person: admin)
+        user: create(:user, provider: "discord", person: member, email: "audited-account@example.com"),
+        admin_user: create(:user, provider: "discord", person: admin)
       }
     end
 
     def sign_in_as_admin
       OmniAuth.config.test_mode = true
-      OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-        provider: "google_oauth2", uid: audit[:admin_user].google_uid, info: { email: audit[:admin_user].email }
+      OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+        provider: "discord", uid: audit[:admin_user].uid, info: { email: audit[:admin_user].email }
       )
-      sign_in_with_google
+      sign_in_with_discord
       expect(page).to have_link(audit[:admin].display_name)
     end
 

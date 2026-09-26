@@ -3,6 +3,8 @@ class SessionsController < ApplicationController
 
   def create
     auth = request.env.fetch("omniauth.auth")
+    raise ArgumentError, "unsupported provider" unless auth.provider.to_s == "discord"
+
     user = User.from_omniauth(auth)
     user.sync_discord_groups! if user.provider == "discord"
     reset_session
