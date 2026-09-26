@@ -4,8 +4,8 @@ class ScenariosController < ApplicationController
   def index
     @owner = Person.admins.first
     @listing = ScenarioListing.new(policy_scope(Scenario), params)
-    @scenarios = @listing.scenarios.includes(:game_systems, :authors, :purchase_links,
-      :scenario_statuses, jacket_attachment: :blob, booth_image_attachment: :blob)
+    @scenarios = @listing.scenarios.includes(:game_systems, :authors,
+      jacket_attachment: :blob, booth_image_attachment: :blob)
     authorize Scenario
   end
 
