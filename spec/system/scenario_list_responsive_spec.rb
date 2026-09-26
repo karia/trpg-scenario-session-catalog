@@ -1,24 +1,52 @@
 require "rails_helper"
 
 RSpec.describe "Responsive scenario lists" do
-  it "keeps the filter panel open while authors are added and removed" do
+  it "applies the conditions chosen in the filter tray at once and keeps the focus in place" do
     skip "Chrome is required for Turbo interaction checks" unless ENV["CHROME_BINARY"].present?
 
     author = create(:author, name: "追加する作者")
-    create(:scenario, title: "作者で探せるシナリオ", authors: [ author ])
+    system = create(:game_system, name: "探すシステム")
+    create(:scenario, title: "作者で探せるシナリオ", authors: [ author ], game_systems: [ system ], player_count_min: 2)
+    create(:scenario, title: "条件に合わないシナリオ", player_count_min: 1, player_count_max: 1)
 
     visit root_path
-    find("summary", text: "絞り込み").click
-    fill_in "作者を追加", with: author.name
-    find_field("作者を追加").send_keys(:tab)
+    click_button "絞り込み"
+    within("dialog[open]") do
+      choose "2人"
+      check "探すシステム"
+      fill_in "作者を追加", with: author.name
+      click_button "適用する"
+    end
 
-    expect(page).to have_css("details[open]", text: "絞り込み")
-    expect(page).to have_css(%(a[aria-label="#{author.name}を解除"]))
+    expect(page).to have_no_css("dialog[open]")
+    expect(page).to have_no_text("条件に合わないシナリオ")
+    expect(page).to have_button("絞り込み（3）")
+    expect(page).to have_css("#filter-button:focus")
 
     find(%(a[aria-label="#{author.name}を解除"])).click
 
-    expect(page).to have_css("details[open]", text: "絞り込み")
     expect(page).to have_no_css(%(a[aria-label="#{author.name}を解除"]))
+    expect(page).to have_button("絞り込み（2）")
+    expect(page).to have_css("#filter-button:focus")
+
+    click_button "絞り込み（2）"
+    expect(page).to have_css("dialog[open]")
+    page.send_keys(:escape)
+    expect(page).to have_no_css("dialog[open]")
+
+    find_field("並び順").send_keys(:down)
+
+    expect(page).to have_current_path(/order=\w+/)
+    expect(page).to have_css("#order:focus")
+
+    click_button "絞り込み（2）"
+    within("dialog[open]") do
+      choose "指定なし"
+      click_button "適用する"
+    end
+
+    expect(page).to have_button("絞り込み（1）")
+    expect(URI(page.current_url).query).not_to match(/(\A|&)(player_count|author_name)=(&|\z)/)
   end
 
   it "reflows both list modes and ordering without horizontal controls" do
@@ -45,14 +73,16 @@ RSpec.describe "Responsive scenario lists" do
       else
         expect(page).to have_css("table", visible: :visible)
       end
-      expect(page).to have_css("summary", text: "絞り込み", visible: :visible)
-      expect(page).to have_no_button("1人", visible: :visible)
-      find("summary", text: "絞り込み").click
-      expect(page).to have_button("1人", visible: :visible)
       remove_author = find(%(a[aria-label="#{author.name}を解除"]), visible: :visible)
       expect(remove_author.rect.width).to be >= 44
       expect(remove_author.rect.height).to be >= 44
       expect(page).to be_axe_clean
+      expect(page).to have_no_field("1人", visible: :visible)
+      click_button "絞り込み（1）"
+      expect(page).to have_field("1人", visible: :visible)
+      expect(page).to be_axe_clean
+      save_screenshot("scenario-filter-#{width}.png") if ENV["VISUAL_REVIEW"]
+      page.send_keys(:escape)
       save_screenshot("scenario-table-#{width}.png") if ENV["VISUAL_REVIEW"]
 
       visit root_path(view: "gallery", author_ids: [ author.id ])
@@ -78,11 +108,7 @@ RSpec.describe "Responsive scenario lists" do
       save_screenshot("scenario-actions-#{width}.png") if ENV["VISUAL_REVIEW"]
     end
 
-    sort_button = find_button("並べ替える")
-    sort_select = find_field("並び順")
-    expect(sort_select.rect.width).to be < 200
-    expect(page.evaluate_script("getComputedStyle(arguments[0]).paddingLeft", sort_button)).to eq("12px")
-    expect(sort_button.rect.width).to be < 160
+    expect(find_field("並び順").rect.width).to be <= 320
 
     [ 320, 768, 1280 ].each do |width|
       page.current_window.resize_to(width, 900)

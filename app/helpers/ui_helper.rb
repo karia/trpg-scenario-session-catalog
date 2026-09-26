@@ -111,8 +111,8 @@ module UiHelper
     render "shared/ui/checkbox", form:, attribute:, label:, checked_value:, unchecked_value:, disabled:, id:, data:, aria:
   end
 
-  def ui_collection_checkboxes(form, attribute, collection, value_method:, text_method:)
-    form.collection_check_boxes(attribute, collection, value_method, text_method) do |builder|
+  def ui_collection_checkboxes(form, attribute, collection, value_method:, text_method:, checked: nil, include_hidden: true)
+    form.collection_check_boxes(attribute, collection, value_method, text_method, { checked:, include_hidden: }.compact) do |builder|
       render "shared/ui/collection_checkbox", builder:
     end
   end

@@ -1,0 +1,36 @@
+<dialog id="filter-dialog" data-dialog-target="dialog" data-return-focus="filter-button" data-action="click->dialog#closeOnBackdrop" aria-labelledby="filter-title"
+        class="mx-0 mt-auto mb-0 max-h-[85dvh] w-full max-w-none rounded-t-ui-surface border border-ui-outline bg-ui-surface-solid p-0 text-ui-text backdrop:bg-black/60 sm:m-auto sm:max-w-lg sm:rounded-ui-surface">
+  <%= form_with url: root_path, method: :get, class: "flex max-h-[85dvh] flex-col", data: { controller: "blank-params", action: "formdata->blank-params#strip" } do |form| %>
+    <% @listing.params.slice(:view, :order).each do |key, value| %><%= hidden_field_tag key, value, id: nil %><% end %>
+    <div class="flex items-center justify-between border-b border-ui-outline py-1 pr-1 pl-4">
+      <h2 id="filter-title" class="font-display text-ui-heading font-bold">絞り込み</h2>
+      <button type="button" data-action="dialog#close" aria-label="閉じる" class="inline-flex size-11 cursor-pointer items-center justify-center rounded-ui-control text-ui-heading text-ui-text-muted hover:bg-ui-subtle">×</button>
+    </div>
+    <div class="space-y-6 overflow-y-auto px-4 py-5">
+      <fieldset>
+        <legend class="font-display text-ui-title font-bold">人数</legend>
+        <div class="mt-2 flex flex-wrap gap-x-2">
+          <%= ui_radio "player_count", "", label: "指定なし", checked: @listing.player_count.nil?, id: "player_count_any" %>
+          <% player_count_filter_options.each do |count, label| %><%= ui_radio "player_count", count, label:, checked: @listing.player_count == count, id: "player_count_#{count}" %><% end %>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend class="font-display text-ui-title font-bold"><%= GameSystem.model_name.human %></legend>
+        <div class="mt-2 flex flex-wrap gap-x-2"><%= ui_collection_checkboxes form, :game_system_ids, @listing.game_system_options, value_method: :id, text_method: :name, checked: @listing.game_systems.map(&:id), include_hidden: false %></div>
+      </fieldset>
+      <fieldset>
+        <legend class="font-display text-ui-title font-bold"><%= Author.model_name.human %></legend>
+        <% if @listing.authors.any? %><div class="mt-2 flex flex-wrap gap-x-2"><%= ui_collection_checkboxes form, :author_ids, @listing.authors, value_method: :id, text_method: :name, checked: @listing.authors.map(&:id), include_hidden: false %></div><% end %>
+        <label class="mt-3 block font-bold" for="author_name"><%= Author.model_name.human %>を追加</label>
+        <%= text_field_tag :author_name, (@listing.author_name if @listing.author_name_error?), list: "author-suggestions", autocomplete: "off", autofocus: @listing.author_name_error?, placeholder: "#{Author.model_name.human}名を入力", aria: { describedby: "author-help#{' author-error' if @listing.author_name_error?}", invalid: ("true" if @listing.author_name_error?) }, class: "mt-2 min-h-11 w-full rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text placeholder:text-ui-text-muted aria-invalid:border-ui-error" %>
+        <datalist id="author-suggestions"><% @listing.author_suggestions.each do |name| %><option value="<%= name %>"></option><% end %></datalist>
+        <p id="author-help" class="mt-2 text-ui-caption text-ui-text-muted">候補から選択します。<%= Author.model_name.human %>は複数選択できます。</p>
+        <% if @listing.author_name_error? %><p id="author-error" role="alert" class="mt-1 text-ui-caption text-ui-error">候補から<%= Author.model_name.human %>を選択してください。</p><% end %>
+      </fieldset>
+    </div>
+    <div class="flex justify-end gap-2 border-t border-ui-outline px-4 py-3">
+      <%= ui_button_link("すべて解除", href: root_path(@listing.params(author_ids: nil, game_system_ids: nil, player_count: nil)), variant: :secondary) %>
+      <%= ui_button("適用する", type: "submit") %>
+    </div>
+  <% end %>
+</dialog>
