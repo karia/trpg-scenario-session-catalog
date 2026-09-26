@@ -5,6 +5,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     scope: "email,profile",
     access_type: "offline",
     prompt: "consent select_account",
+    overridable_authorize_options: [],
     setup: lambda { |env|
       user_id = env.fetch("rack.session", {})["user_id"]
       person = User.find_by(id: user_id)&.person

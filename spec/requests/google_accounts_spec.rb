@@ -35,6 +35,16 @@ RSpec.describe "Google accounts" do
     expect(query).to include("access_type" => "offline", "prompt" => "consent select_account")
   end
 
+  it "does not let a request override the scopes allowed for the member" do
+    sign_in_as person
+    OmniAuth.config.test_mode = false
+
+    post "/auth/google_oauth2", params: { scope: "email profile https://www.googleapis.com/auth/youtube.force-ssl" }
+
+    scopes = Rack::Utils.parse_query(URI(response.location).query).fetch("scope").split
+    expect(scopes).to contain_exactly("email", "profile")
+  end
+
   it "also requests youtube.force-ssl for a GM or administrator" do
     %w[gm admin].each do |role|
       sign_in_as create(:person, roles: [ role ])
