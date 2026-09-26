@@ -1,4 +1,4 @@
-<dialog data-dialog-target="dialog" data-return-focus="filter-button" data-action="click->dialog#closeOnBackdrop" aria-labelledby="filter-title"
+<dialog id="filter-dialog" data-dialog-target="dialog" data-return-focus="filter-button" data-action="click->dialog#closeOnBackdrop" aria-labelledby="filter-title"
         class="mx-0 mt-auto mb-0 max-h-[85dvh] w-full max-w-none rounded-t-ui-surface border border-ui-outline bg-ui-surface-solid p-0 text-ui-text backdrop:bg-black/60 sm:m-auto sm:max-w-lg sm:rounded-ui-surface">
   <%= form_with url: root_path, method: :get, class: "flex max-h-[85dvh] flex-col", data: { controller: "blank-params", action: "formdata->blank-params#strip" } do |form| %>
     <% @listing.params.slice(:view, :order).each do |key, value| %><%= hidden_field_tag key, value, id: nil %><% end %>

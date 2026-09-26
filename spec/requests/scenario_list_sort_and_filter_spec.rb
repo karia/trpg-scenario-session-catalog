@@ -136,7 +136,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
 
       expect(order_menu.ancestor("form")["data-controller"]).to eq("auto-submit")
       expect(order_menu["data-action"]).to eq("change->auto-submit#submit")
-      expect(response.body).to match(%r{<noscript>.*並べ替える.*</noscript>}m)
+      expect(response.body).to match(%r{<noscript[^>]*>[^<]*<button[^>]*>並べ替える</button>\s*</noscript>})
     end
 
     it "keeps the current filter when the order changes" do
@@ -215,6 +215,15 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(document).to have_css('a[aria-label="5人以上を解除"]')
       expect(document.find("dialog", visible: :all)).to have_field("5人以上", checked: true, visible: :all)
       expect(response.body).to include("最後の見本")
+    end
+
+    it "lays the filter tray out as a plain panel for browsers without JavaScript" do
+      get root_path
+
+      document = Capybara.string(response.body)
+      expect(document).to have_css("dialog#filter-dialog", visible: :all)
+      style = response.body[%r{<noscript><style nonce="[^"]+">(.*?)</style></noscript>}m, 1]
+      expect(style).to include("#filter-dialog", "#filter-button")
     end
 
     it "ignores an author who does not exist" do

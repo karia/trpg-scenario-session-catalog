@@ -29,7 +29,7 @@
       <%= form_with url: root_path, method: :get, class: "flex min-w-0 flex-1 gap-2 sm:max-w-xs", data: { controller: "auto-submit" } do %>
         <% @listing.params(order: nil).each do |key, value| %><% Array(value).each do |item| %><%= hidden_field_tag key.to_s.end_with?("_ids") ? "#{key}[]" : key, item, id: nil %><% end %><% end %>
         <%= label_tag :order, "並び順", class: "sr-only" %><%= select_tag :order, scenario_order_options(@listing), data: { action: "change->auto-submit#submit" }, class: "min-h-11 w-full min-w-0 rounded-ui-control border border-ui-outline-strong bg-ui-field-solid px-3 py-2 text-ui-input text-ui-text" %>
-        <noscript><%= ui_button("並べ替える", size: :small, type: "submit") %></noscript>
+        <noscript class="shrink-0"><%= ui_button("並べ替える", size: :small, type: "submit") %></noscript>
       <% end %>
     </div>
 
@@ -41,6 +41,7 @@
       </ul>
     <% end %>
 
+    <noscript><style nonce="<%= content_security_policy_nonce %>">#filter-dialog{display:block;position:static;margin:0;max-height:none;border-radius:var(--radius-ui-surface)}#filter-dialog>form{max-height:none}#filter-button,#filter-dialog [data-action="dialog#close"]{display:none}</style></noscript>
     <%= render "scenarios/filter_dialog" %>
 
     <% if @scenarios.any? %>
