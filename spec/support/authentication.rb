@@ -19,10 +19,17 @@ end
 module SystemAuthenticationHelpers
   def sign_in_with_discord
     visit root_path
+    page.execute_script("window.signInPending = true")
     click_button "Discordでログイン"
-    # click_button は遷移の完了を待たない。DOM で待つと認証のリダイレクト途中の
-    # 差し替えに当たり、Selenium が stale node で落ちる。URL で着地を待つ。
-    expect(page).to have_current_path(root_path, wait: 10)
+    # 着地先も root_path なので URL では待てない。遷移中の DOM に触れると Selenium が落ちるため、元のページの目印が消えるまで待つ。
+    page.document.synchronize(10) do
+      pending = begin
+        page.evaluate_script("window.signInPending === true")
+      rescue Selenium::WebDriver::Error::WebDriverError
+        true
+      end
+      raise Capybara::ExpectationNotMet if pending
+    end
     expect(page).to have_content("ログインしました")
   end
 end
