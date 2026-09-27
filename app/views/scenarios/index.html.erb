@@ -41,7 +41,7 @@
       </ul>
     <% end %>
 
-    <noscript><style nonce="<%= content_security_policy_nonce %>">#filter-dialog{display:block;position:static;margin:0;max-height:none;translate:none;opacity:1;border-bottom-width:1px;border-radius:var(--radius-ui-surface)}#filter-dialog [data-sheet-grabber]{display:none}#filter-dialog>form{max-height:none}#filter-button,#filter-dialog [data-action="dialog#close"]{display:none}</style></noscript>
+    <noscript><style nonce="<%= content_security_policy_nonce %>">#filter-dialog{display:block;position:static;margin:0;max-height:none;translate:none;opacity:1;border-bottom-width:1px;border-radius:var(--radius-ui-surface)}#filter-dialog [data-sheet-grabber]{display:none}#filter-dialog [data-sheet-handle]{touch-action:auto}#filter-dialog>form{max-height:none}#filter-button,#filter-dialog [data-action="dialog#close"]{display:none}</style></noscript>
     <%= render "scenarios/filter_dialog" %>
 
     <% if @scenarios.any? %>
