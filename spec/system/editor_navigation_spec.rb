@@ -10,14 +10,14 @@ RSpec.describe "Editor navigation" do
     keeper_scenario = create(:scenario, title: "探索シナリオ", game_systems: [ keeper_system ])
     create(:author, name: "見本作者")
     create(:game_system, name: "見本システム")
-    user = create(:user, person: editor)
+    user = create(:user, provider: "discord", person: editor)
 
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
 
-    sign_in_with_google
+    sign_in_with_discord
     expect(page).to be_axe_clean.excluding("#main-content") if ENV["CHROME_BINARY"].present?
     save_screenshot("editor-scenarios.png") if ENV["VISUAL_REVIEW"]
     if ENV["CHROME_BINARY"]
@@ -104,7 +104,7 @@ RSpec.describe "Editor navigation" do
       save_screenshot("editor-mobile.png")
     end
   ensure
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 end

@@ -14,7 +14,7 @@ RSpec.describe "Edit links on detail screens" do
     end
 
     it "is absent for an account that is not linked to a person" do
-      sign_in_as create(:user, person: nil)
+      sign_in_as create(:user, provider: "discord", person: nil)
 
       get scenario_path(scenario)
 

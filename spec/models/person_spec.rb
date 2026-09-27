@@ -1,6 +1,19 @@
 require "rails_helper"
 
 RSpec.describe Person do
+  describe "#google_oauth_scopes" do
+    it "allows only identity scopes without a privileged role" do
+      expect(build(:person).google_oauth_scopes).to contain_exactly("email", "profile")
+    end
+
+    it "allows YouTube access for a GM or administrator" do
+      %w[gm admin].each do |role|
+        expect(create(:person, roles: [ role ]).google_oauth_scopes)
+          .to include("https://www.googleapis.com/auth/youtube.force-ssl")
+      end
+    end
+  end
+
   it "requires a display name" do
     expect(build(:person, display_name: "")).not_to be_valid
   end
@@ -43,6 +56,41 @@ RSpec.describe Person do
 
       expect(person.person_roles.build(name: "gm")).not_to be_valid
     end
+
+    it "revokes Google access after losing both privileged roles" do
+      create(:person, roles: %w[admin])
+      person = create(:person, roles: %w[admin gm])
+      user = create(:user, person:, google_refresh_token: "refresh-token")
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      person.update!(roles: [])
+
+      expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+      expect(user.reload.google_refresh_token).to be_nil
+    end
+
+    it "keeps Google access while either privileged role remains" do
+      create(:person, roles: %w[admin])
+      person = create(:person, roles: %w[admin gm])
+      user = create(:user, person:, google_refresh_token: "refresh-token")
+      allow(GoogleTokenRevoker).to receive(:revoke)
+
+      person.update!(roles: %w[gm])
+
+      expect(GoogleTokenRevoker).not_to have_received(:revoke)
+      expect(user.reload.google_refresh_token).to eq("refresh-token")
+    end
+  end
+
+  it "revokes Google access when destroyed" do
+    person = create(:person)
+    user = create(:user, person:, google_refresh_token: "refresh-token")
+    allow(GoogleTokenRevoker).to receive(:revoke)
+
+    person.destroy!
+
+    expect(GoogleTokenRevoker).to have_received(:revoke).with("refresh-token")
+    expect(user.reload).to have_attributes(person: nil, google_refresh_token: nil)
   end
 
   describe "groups" do

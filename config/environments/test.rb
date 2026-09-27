@@ -15,6 +15,10 @@ Rails.application.configure do
   # loading is working properly before deploying your code.
   config.eager_load = ENV["CI"].present?
 
+  config.active_record.encryption.primary_key = "test-primary-key"
+  config.active_record.encryption.deterministic_key = "test-deterministic-key"
+  config.active_record.encryption.key_derivation_salt = "test-key-derivation-salt"
+
   # Configure public file server for tests with cache-control for performance.
   config.public_file_server.headers = { "cache-control" => "public, max-age=3600" }
 

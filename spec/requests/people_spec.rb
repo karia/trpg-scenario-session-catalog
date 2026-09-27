@@ -12,7 +12,7 @@ RSpec.describe "People" do
     end
 
     it "is closed to an account that is not linked to a person" do
-      sign_in_as create(:user, person: nil)
+      sign_in_as create(:user, provider: "discord", person: nil)
 
       get person_path(person)
 
@@ -300,6 +300,21 @@ RSpec.describe "People" do
 
       expect(response).to redirect_to(person_path(admin))
       expect(admin.reload.roles).to contain_exactly("gm")
+    end
+
+    it "returns to editing with an alert when revoke fails during role loss" do
+      google = create(:user, person: admin, google_refresh_token: "refresh-token")
+      sign_in_as admin
+      allow(GoogleTokenRevoker).to receive(:revoke).and_raise(GoogleTokenRevoker::Error)
+
+      patch person_path(admin),
+        params: { person: { display_name: "管理者", roles: [ "" ] }, confirm_self_demotion: "admin,gm" },
+        headers: { "HTTP_REFERER" => edit_person_url(admin) }
+
+      expect(response).to redirect_to(edit_person_path(admin))
+      expect(flash[:alert]).to eq("Googleとの通信に失敗しました。時間をおいてもう一度お試しください")
+      expect(admin.reload.roles).to contain_exactly("admin", "gm")
+      expect(google.reload.google_refresh_token).to eq("refresh-token")
     end
 
     it "warns again when the form drops a role the warning did not cover" do

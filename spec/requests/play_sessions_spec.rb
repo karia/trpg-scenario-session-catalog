@@ -25,7 +25,7 @@ RSpec.describe "PlaySessions" do
     end
 
     it "is closed to an account that is not linked to a person" do
-      sign_in_as create(:user, person: nil)
+      sign_in_as create(:user, provider: "discord", person: nil)
 
       get play_sessions_path
 

@@ -1,5 +1,7 @@
 class Person < ApplicationRecord
   DISPLAY_NAME_ATTRIBUTE = :display_name
+  GOOGLE_OAUTH_SCOPES = %w[email profile].freeze
+  YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
   has_one_attached :icon do |attachable|
     attachable.variant :thumb, resize_to_fill: [ 160, 160, { sharpen: true } ], format: :webp, saver: { quality: 80 }
   end
@@ -30,6 +32,8 @@ class Person < ApplicationRecord
   validate :keeps_at_least_one_admin
   validate :roles_are_known
   validate :discord_uid_is_available
+  around_destroy :revoke_google_access, prepend: true
+  after_save :revoke_google_access_after_role_loss
 
   default_scope { order(:display_name) }
 
@@ -39,6 +43,10 @@ class Person < ApplicationRecord
 
   # Person であることがそのままプレイヤーであることを表す。付け外しはできない。
   def player? = true
+
+  def google_oauth_scopes
+    GOOGLE_OAUTH_SCOPES + ((gm? || admin?) ? [ YOUTUBE_SCOPE ] : [])
+  end
 
   # 既存行の名前を空にしたときは無視せず検証に落とす。新規の空行だけ捨てる。
   alias_method :person_aliases_attributes=, :aliases_attributes=
@@ -77,10 +85,22 @@ class Person < ApplicationRecord
     @roles_before_assignment = roles if persisted? && !defined?(@roles_before_assignment)
     submitted = Array(names).compact_blank.uniq - %w[player]
     @unknown_roles = submitted - PersonRole::ROLES.keys.map(&:to_s)
+    @revoke_google_access = persisted? && (roles & %w[admin gm]).any? && (submitted & %w[admin gm]).empty?
     self.person_roles = (submitted - @unknown_roles).map { |name| PersonRole.new(name:) }
   end
 
   private
+    def revoke_google_access
+      google_users = users.where(provider: "google_oauth2").to_a
+      yield
+      google_users.each(&:revoke_google_access!) if destroyed?
+    end
+
+    def revoke_google_access_after_role_loss
+      users.where(provider: "google_oauth2").find_each(&:revoke_google_access!) if @revoke_google_access
+      @revoke_google_access = false
+    end
+
     def discord_uid_is_available
       return if discord_uid.blank?
 

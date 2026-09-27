@@ -5,13 +5,13 @@ RSpec.describe "Application shell" do
     skip "Chrome is required for viewport and axe checks" unless ENV["CHROME_BINARY"].present?
 
     admin = create(:person, roles: %w[admin])
-    user = create(:user, person: admin)
+    user = create(:user, provider: "discord", person: admin)
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
 
-    sign_in_with_google
+    sign_in_with_discord
 
     [ 320, 768, 1280 ].each do |width|
       page.current_window.resize_to(width, 900)
@@ -29,7 +29,7 @@ RSpec.describe "Application shell" do
       end
     end
   ensure
-    OmniAuth.config.mock_auth[:google_oauth2] = nil
+    OmniAuth.config.mock_auth[:discord] = nil
     OmniAuth.config.test_mode = false
   end
 
@@ -38,10 +38,10 @@ RSpec.describe "Application shell" do
     skip "Chrome is required for viewport checks" unless ENV["CHROME_BINARY"].present?
 
     person = create(:person, display_name: "カーリア")
-    user = create(:user, person: person)
+    user = create(:user, provider: "discord", person: person)
     OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
-      provider: "google_oauth2", uid: user.google_uid, info: { email: user.email }
+    OmniAuth.config.mock_auth[:discord] = OmniAuth::AuthHash.new(
+      provider: "discord", uid: user.uid, info: { email: user.email }
     )
 
     begin
@@ -51,7 +51,7 @@ RSpec.describe "Application shell" do
         visit root_path
         expect_single_right_aligned_row(width, "未ログイン")
 
-        sign_in_with_google
+        sign_in_with_discord
         page.current_window.resize_to(width, 900)
         visit root_path
         expect_single_right_aligned_row(width, "ログイン済み")

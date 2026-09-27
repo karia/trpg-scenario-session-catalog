@@ -9,7 +9,7 @@ class UserPolicy < ApplicationPolicy
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      person&.admin? ? scope.all : scope.none
+      person&.admin? ? scope.where(provider: "discord") : scope.none
     end
   end
 end
