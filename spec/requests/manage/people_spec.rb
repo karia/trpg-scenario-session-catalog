@@ -42,7 +42,7 @@ RSpec.describe "Manage::People" do
   describe "as an admin" do
     before do
       sign_in_as create(:person, roles: %w[admin], display_name: "カーリア")
-      allow_any_instance_of(DiscordGuildMemberClient).to receive(:member?).and_return(nil)
+      allow(DiscordGuildMemberClient).to receive(:new).and_return(instance_double(DiscordGuildMemberClient, member?: nil))
     end
 
     it "offers unlinked members from the person's Discord guilds" do
