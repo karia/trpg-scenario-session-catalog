@@ -35,7 +35,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
 
     frame = Capybara.string(response.body).find("turbo-frame#scenario_list")
     expect(frame["data-turbo-action"]).to eq("advance")
-    expect(frame).to have_css("button", text: "1人", visible: :all)
+    expect(frame).to have_field("1人", type: "radio", visible: :all)
     expect(frame).to have_select("並び順")
     expect(frame).to have_css("table")
     expect(frame).to have_css('a[data-turbo-frame="_top"]', text: "いちばん")
@@ -131,11 +131,12 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(Capybara.string(response.body)).to have_no_css("th a")
     end
 
-    it "uses an explicit submit button so changing the menu does not navigate unexpectedly" do
+    it "applies a new order as soon as the menu changes and keeps a button for browsers without JavaScript" do
       get root_path
 
-      expect(Capybara.string(response.body))
-        .to have_css('form button[type="submit"]', text: "並べ替える")
+      expect(order_menu.ancestor("form")["data-controller"]).to eq("auto-submit")
+      expect(order_menu["data-action"]).to eq("change->auto-submit#submit")
+      expect(response.body).to match(%r{<noscript[^>]*>[^<]*<button[^>]*>並べ替える</button>\s*</noscript>})
     end
 
     it "keeps the current filter when the order changes" do
@@ -207,47 +208,71 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect_order("最後の見本", "なかほど")
     end
 
+    it "treats a party size beyond the menu as five or more" do
+      get root_path(player_count: 7)
+
+      document = Capybara.string(response.body)
+      expect(document).to have_css('a[aria-label="5人以上を解除"]')
+      expect(document.find("dialog", visible: :all)).to have_field("5人以上", checked: true, visible: :all)
+      expect(response.body).to include("最後の見本")
+    end
+
+    it "lays the filter tray out as a plain panel for browsers without JavaScript" do
+      get root_path
+
+      document = Capybara.string(response.body)
+      expect(document).to have_css("dialog#filter-dialog", visible: :all)
+      style = response.body[%r{<noscript><style nonce="[^"]+">(.*?)</style></noscript>}m, 1]
+      expect(style).to include("#filter-dialog", "#filter-button")
+    end
+
     it "ignores an author who does not exist" do
       get root_path(author_ids: [ 0 ])
 
       expect(response.body).to include("いちばん", "なかほど", "最後の見本")
     end
 
-    it "offers toggle buttons for party size and systems" do
+    it "offers party size as a single choice and systems as several in the filter tray" do
       get root_path
 
-      document = Capybara.string(response.body)
-      party_size = document.all("fieldset", visible: :all)[0]
-      systems = document.all("fieldset", visible: :all)[1]
+      tray = Capybara.string(response.body).find("dialog", visible: :all)
+      party_size = tray.find("fieldset", text: "人数", visible: :all)
+      systems = tray.find("fieldset", text: "システム", visible: :all)
 
-      expect(party_size).to have_css("legend", text: "人数", visible: :all)
-      expect(party_size).to have_css("button", text: "1人", visible: :all)
-      expect(party_size).to have_css("button", text: "5人以上", visible: :all)
-      expect(party_size).to have_css("button", count: 5, visible: :all)
-      expect(systems).to have_css("legend", text: "システム", visible: :all)
-      expect(systems).to have_css("button", count: 2, visible: :all)
-      expect(document).to have_no_css('select[name="game_system_id"]')
-      expect(document).to have_no_css('input[type="number"][name="player_count"]')
+      expect(party_size).to have_css('input[type="radio"][name="player_count"]', count: 6, visible: :all)
+      expect(party_size).to have_field("指定なし", checked: true, visible: :all)
+      expect(party_size).to have_field("5人以上", visible: :all)
+      expect(systems).to have_css('input[type="checkbox"][name="game_system_ids[]"]', count: 2, visible: :all)
+      expect(tray).to have_no_css('input[type="hidden"][name="game_system_ids[]"]', visible: :all)
+      expect(tray).to have_button("適用する", visible: :all)
     end
 
-    it "marks selected buttons and links them to deselect themselves" do
-      get root_path(player_count: 5, game_system_ids: [ emoklore.id ])
+    it "checks the applied conditions in the tray and lists each as a removable chip" do
+      get root_path(player_count: 5, game_system_ids: [ emoklore.id ], author_ids: [ ma_author.id ], order: "title_desc")
 
       document = Capybara.string(response.body)
-      expect(document).to have_css('button[aria-pressed="true"]', text: "5人以上", visible: :all)
-      expect(document).to have_css('button[aria-pressed="true"]', text: "エモクロア", visible: :all)
-      selected_form = document.find("button", text: "5人以上", visible: :all).ancestor("form", visible: :all)
-      expect(selected_form).to have_no_css('input[name="player_count"]', visible: :all)
+      tray = document.find("dialog", visible: :all)
+      expect(tray).to have_field("5人以上", checked: true, visible: :all)
+      expect(tray).to have_field("エモクロア", checked: true, visible: :all)
+      expect(tray).to have_field("ま作者", checked: true, visible: :all)
+      expect(document).to have_button("絞り込み（3）")
+
+      query = Rack::Utils.parse_nested_query(URI(document.find('a[aria-label="エモクロアを解除"]')[:href]).query)
+      expect(query).to include("player_count" => "5", "author_ids" => [ ma_author.id.to_s ], "order" => "title_desc")
+      expect(query).not_to have_key("game_system_ids")
+      expect(document).to have_css('a[aria-label="5人以上を解除"]')
+      expect(document).to have_css('a[aria-label="ま作者を解除"]')
     end
 
-    it "offers author suggestions and removable selected author tags" do
+    it "offers author suggestions in the tray and keeps the selected authors checked" do
       get root_path(author_ids: [ ma_author.id ])
 
-      document = Capybara.string(response.body)
-      expect(document).to have_css('input[aria-label="作者を追加"][list="author-suggestions"]', visible: :all)
-      expect(document).to have_css('datalist#author-suggestions option[value="あ作者"]', visible: :all)
-      expect(document).to have_css('input[type="hidden"][name="author_ids[]"]', visible: :all)
-      expect(document).to have_css('a[aria-label="ま作者を解除"]', visible: :all)
+      tray = Capybara.string(response.body).find("dialog", visible: :all)
+      expect(tray).to have_field("作者を追加", visible: :all)
+      expect(tray).to have_css('input[name="author_name"][list="author-suggestions"]', visible: :all)
+      expect(tray).to have_css('datalist#author-suggestions option[value="あ作者"]', visible: :all)
+      expect(tray).to have_css(%(input[type="checkbox"][name="author_ids[]"][value="#{ma_author.id}"][checked]), visible: :all)
+      expect(tray).to have_no_css("[autofocus]", visible: :all)
     end
 
     it "accepts an author alias from the suggestions" do
@@ -286,6 +311,8 @@ RSpec.describe "Sorting and filtering the scenario list" do
       document = Capybara.string(response.body)
       expect(document).to have_css('[role="alert"]', text: "候補から作者を選択してください", visible: :all)
       expect(document).to have_css('input[name="author_name"][aria-invalid="true"]', visible: :all)
+      expect(document.find('[data-controller~="dialog"]', visible: :all)["data-dialog-open-value"]).to eq("true")
+      expect(document).to have_css('input[name="author_name"][autofocus]', visible: :all)
     end
 
     it "filters the jacket view as well" do

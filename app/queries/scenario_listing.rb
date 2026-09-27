@@ -36,7 +36,7 @@ class ScenarioListing
     @authors = Author.where(id: author_ids).order(:name).to_a
     game_system_ids = Array(params[:game_system_ids].presence || params[:game_system_id]).map(&:to_s)
     @game_systems = GameSystem.where(id: game_system_ids).order(:name).to_a
-    @player_count = params[:player_count].to_s.to_i.then { |count| count if count.positive? }
+    @player_count = params[:player_count].to_s.to_i.then { |count| count.clamp(..5) if count.positive? }
   end
 
   def scenarios = ordered(filtered)
