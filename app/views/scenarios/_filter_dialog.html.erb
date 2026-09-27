@@ -5,7 +5,7 @@
     <div class="touch-none border-b border-ui-outline sm:touch-auto" data-action="touchstart->dialog#dragStart touchmove->dialog#drag touchend->dialog#dragEnd touchcancel->dialog#dragEnd">
       <div aria-hidden="true" data-sheet-grabber class="mx-auto mt-2 h-1 w-10 rounded-full bg-ui-outline-strong sm:hidden"></div>
       <div class="flex items-center justify-between py-1 pr-2 pl-4">
-        <%= tag.h2 "絞り込み", id: "filter-title", tabindex: -1, autofocus: !@listing.author_name_error?, class: "font-display text-ui-heading font-bold focus:outline-none" %>
+        <%= tag.h2 "絞り込み", id: "filter-title", tabindex: -1, data: { dialog_target: "initialFocus" }, class: "font-display text-ui-heading font-bold focus:outline-none" %>
         <button type="button" data-action="dialog#close" aria-label="閉じる" class="inline-flex size-11 cursor-pointer items-center justify-center rounded-ui-control text-ui-heading text-ui-text-muted hover:bg-ui-subtle">×</button>
       </div>
     </div>

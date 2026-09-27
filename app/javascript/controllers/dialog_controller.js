@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["dialog"]
+  static targets = ["dialog", "initialFocus"]
   static values = { open: Boolean }
 
   connect() {
@@ -10,6 +10,7 @@ export default class extends Controller {
 
   open() {
     this.dialogTarget.showModal()
+    if (this.hasInitialFocusTarget) this.initialFocusTarget.focus()
   }
 
   close() {
