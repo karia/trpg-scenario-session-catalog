@@ -272,7 +272,8 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(tray).to have_css('input[name="author_name"][list="author-suggestions"]', visible: :all)
       expect(tray).to have_css('datalist#author-suggestions option[value="あ作者"]', visible: :all)
       expect(tray).to have_css(%(input[type="checkbox"][name="author_ids[]"][value="#{ma_author.id}"][checked]), visible: :all)
-      expect(tray).to have_no_css("[autofocus]", visible: :all)
+      expect(tray).to have_css('h2#filter-title[tabindex="-1"][autofocus]', visible: :all)
+      expect(tray).to have_css("[autofocus]", count: 1, visible: :all)
     end
 
     it "accepts an author alias from the suggestions" do
@@ -313,6 +314,7 @@ RSpec.describe "Sorting and filtering the scenario list" do
       expect(document).to have_css('input[name="author_name"][aria-invalid="true"]', visible: :all)
       expect(document.find('[data-controller~="dialog"]', visible: :all)["data-dialog-open-value"]).to eq("true")
       expect(document).to have_css('input[name="author_name"][autofocus]', visible: :all)
+      expect(document).to have_no_css("h2#filter-title[autofocus]", visible: :all)
     end
 
     it "filters the jacket view as well" do
