@@ -11,6 +11,7 @@ RSpec.describe "Responsive scenario lists" do
 
     visit root_path
     click_button "絞り込み"
+    expect(page).to have_css("#filter-title:focus")
     within("dialog[open]") do
       choose "2人"
       check "探すシステム"
@@ -80,6 +81,9 @@ RSpec.describe "Responsive scenario lists" do
       expect(page).to have_no_field("1人", visible: :visible)
       click_button "絞り込み（1）"
       expect(page).to have_field("1人", visible: :visible)
+      page.document.synchronize do
+        raise Capybara::ExpectationNotMet if page.evaluate_script("document.getElementById('filter-dialog').getAnimations().length").positive?
+      end
       expect(page).to be_axe_clean
       save_screenshot("scenario-filter-#{width}.png") if ENV["VISUAL_REVIEW"]
       page.send_keys(:escape)
