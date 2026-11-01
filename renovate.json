@@ -22,6 +22,14 @@
         "patch"
       ],
       "groupName": "GitHub Actions non-major updates"
+    },
+    {
+      "description": "Keep every Ruby version reference on the same version",
+      "matchDepNames": [
+        "ruby",
+        "docker.io/library/ruby"
+      ],
+      "groupName": "Ruby"
     }
   ]
 }
