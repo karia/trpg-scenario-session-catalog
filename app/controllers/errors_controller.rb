@@ -3,6 +3,6 @@ class ErrorsController < ActionController::Base
     status = params[:code].to_i
     message = status < 500 ? "ページが見つかりませんでした" : "サーバーでエラーが発生しました"
 
-    render status:, locals: { message: }, layout: "error", formats: :html
+    render status:, locals: { message: }, layout: "error", formats: [ :html ]
   end
 end
