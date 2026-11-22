@@ -66,4 +66,17 @@ RSpec.describe "Error pages" do
     expect(Capybara.string(response_body)).to have_link("トップページに戻る", href: root_path)
     expect(env["action_dispatch.original_path"]).to eq("/original-path")
   end
+
+  it "renders the site 500 page as HTML when the Accept header asks for plain text" do
+    env = Rack::MockRequest.env_for("/original-path", "HTTP_ACCEPT" => "text/plain")
+    env["PATH_INFO"] = "/500"
+    env["action_dispatch.original_path"] = "/original-path"
+    env["action_dispatch.exception"] = RuntimeError.new("unexpected failure")
+
+    status, headers, body = Rails.application.config.exceptions_app.call(env)
+
+    expect(status).to eq(500)
+    expect(headers["content-type"]).to start_with("text/html")
+    expect(body.each.to_a.join).to include("サーバーでエラーが発生しました")
+  end
 end
