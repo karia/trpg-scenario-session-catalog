@@ -35,6 +35,14 @@ RSpec.describe "Error pages" do
     expect(response.body).to include("ページが見つかりませんでした")
   end
 
+  it "renders the site 404 page as HTML for an unknown URL requested as plain text" do
+    get "/.well-known/security.txt", headers: { "Accept" => "text/plain" }
+
+    expect(response).to have_http_status(:not_found)
+    expect(response.media_type).to eq("text/html")
+    expect(response.body).to include("ページが見つかりませんでした")
+  end
+
   it "renders the site 500 page through the exception application" do
     env = Rack::MockRequest.env_for("/original-path")
     env["PATH_INFO"] = "/500"
