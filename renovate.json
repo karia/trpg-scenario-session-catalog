@@ -9,17 +9,6 @@
   "automerge": false,
   "packageRules": [
     {
-      "description": "Group non-major GitHub Actions updates",
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "groupName": "GitHub Actions non-major updates"
-    },
-    {
       "description": "Keep every Ruby version reference on the same version",
       "matchDepNames": [
         "ruby",
